@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>八股闪背 · Markdown 背诵卡片</title>
+<meta name="theme-color" content="#2da44e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="八股闪背">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<!--
+  独立实现的轻量 Markdown 背诵卡片应用。
+  解析器与调度器的设计/片段借鉴（均为 MIT 许可项目，详见 THIRD_PARTY_NOTICES.md）：
+  - st3v3nmw/obsidian-spaced-repetition：代码围栏跳过、行内 `::` 卡片语法
+  - L-M-Sherlock/markdown2anki：标题层级归一化切分
+  - open-spaced-repetition/ts-fsrs：FSRS 调度公式与默认参数
+  设计思想参考（未复用代码）：ObsidianToAnki/Obsidian_to_Anki、e-chehil/anki-quizify
+-->
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1f2328; --sub:#656d76;
+    --brand:#2da44e; --brand-weak:#dafbe1; --blue:#0969da; --blue-weak:#ddf4ff;
+    --warn:#bf8700; --warn-weak:#fff8c5; --danger:#cf222e; --danger-weak:#ffebe9;
+    --line:#d8dee4; --radius:12px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--ink);
+    font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+    min-height:100vh;}
+  #app{max-width:640px; margin:0 auto; padding:20px 16px 60px;}
+  h1{font-size:22px;}
+  .muted{color:var(--sub); font-size:13px;}
+  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+  .topbar .navbtns{display:flex; gap:8px;}
+  .navtab{border:1px solid var(--line); background:var(--card); border-radius:999px;
+    padding:6px 14px; font-size:13px; cursor:pointer; color:var(--ink);}
+  .navtab.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .panel{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px; margin-bottom:14px;}
+  .backLink{display:inline-block; margin-bottom:12px; color:var(--blue); cursor:pointer; font-size:14px; border:none; background:none;}
+
+  /* 今日概览 */
+  .overview{display:flex; gap:10px;}
+  .ov{flex:1; text-align:center; padding:10px 4px; border-radius:10px; background:var(--bg);}
+  .ov b{display:block; font-size:22px;}
+  .ov span{font-size:12px; color:var(--sub);}
+  .ov.due b{color:var(--blue);} .ov.new b{color:var(--brand);} .ov.streak b{color:var(--warn);}
+
+  /* 导入区 */
+  #dropZone{border:2px dashed var(--line); border-radius:var(--radius); padding:22px;
+    text-align:center; cursor:pointer; transition:all .15s; margin-bottom:14px; background:var(--card);}
+  #dropZone.drag{border-color:var(--brand); background:var(--brand-weak);}
+  #dropZone .big{font-size:15px; margin-bottom:4px;}
+  .toast{position:fixed; left:50%; bottom:30px; transform:translateX(-50%);
+    background:var(--ink); color:#fff; padding:10px 18px; border-radius:8px; font-size:14px;
+    opacity:0; pointer-events:none; transition:opacity .25s; z-index:99; max-width:90%;}
+  .toast.show{opacity:.95;}
+  #undoBanner{display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--blue-weak); border:1px solid #b6e3ff; border-radius:var(--radius);
+    padding:10px 14px; margin-bottom:14px; font-size:13px;}
+
+  /* 卡组行 */
+  .deck{display:flex; align-items:center; gap:10px; padding:13px 14px;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:10px;}
+  .deck .info{flex:1; min-width:0; cursor:pointer;}
+  .deck .name{font-weight:600; font-size:15px; margin-bottom:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .deck .info:hover .name{color:var(--blue);}
+  .badge{display:inline-block; font-size:12px; padding:2px 8px; border-radius:999px; margin-right:6px;}
+  .badge.due{background:var(--blue-weak); color:var(--blue);}
+  .badge.new{background:var(--brand-weak); color:var(--brand);}
+  .badge.all{background:#f0f1f2; color:var(--sub);}
+  .btn{border:none; border-radius:8px; padding:8px 16px; font-size:14px; cursor:pointer; font-weight:600;}
+  .btn.primary{background:var(--brand); color:#fff;}
+  .btn.primary:disabled{background:#c6e9d0; cursor:not-allowed;}
+  .btn.blue{background:var(--blue); color:#fff;}
+  .btn.gray{background:#f0f1f2; color:var(--ink);}
+  .btn.small{padding:6px 12px; font-size:13px;}
+  .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--sub); font-weight:400; padding:6px 10px;}
+  .btn.ghost:hover{color:var(--danger); border-color:var(--danger);}
+  .btn.danger{background:var(--danger-weak); color:var(--danger);}
+  .empty{text-align:center; padding:30px 0; color:var(--sub);}
+  .studyAllBtn{width:100%; margin-bottom:14px;}
+
+  /* 浏览/编辑页 */
+  .browseHead{display:flex; align-items:center; gap:10px; margin-bottom:12px;}
+  .browseHead h2{flex:1; font-size:17px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  #browseSearch{flex:2; padding:8px 10px; border:1px solid var(--line); border-radius:8px; font-size:14px;}
+  .brow{background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:12px 14px; margin-bottom:8px; cursor:pointer;}
+  .brow .bq{font-size:14px; font-weight:600; margin-bottom:4px;}
+  .brow .bmeta{font-size:12px; color:var(--sub);}
+  .brow .ba{font-size:13px; color:var(--sub); margin-top:6px; white-space:pre-wrap;
+    max-height:120px; overflow-y:auto; display:none;}
+  .brow.open .ba{display:block;}
+  .editBox textarea{width:100%; min-height:60px; padding:8px; border:1px solid var(--line);
+    border-radius:8px; font-size:14px; font-family:inherit; margin-bottom:8px; resize:vertical;}
+  .editBox .row{display:flex; gap:8px;}
+  .editBox .btn{flex:1;}
+
+  /* 学习页 */
+  #progressWrap{height:6px; background:#e7eaee; border-radius:99px; margin-bottom:14px; overflow:hidden;}
+  #progressBar{height:100%; background:var(--brand); width:0; transition:width .3s;}
+  .studyMeta{display:flex; justify-content:space-between; align-items:center; font-size:13px; color:var(--sub); margin-bottom:10px;}
+  #undoBtn{border:1px solid var(--line); background:var(--card); color:var(--sub); border-radius:6px;
+    padding:3px 10px; font-size:12px; cursor:pointer;}
+  #undoBtn:disabled{opacity:.4; cursor:not-allowed;}
+  #cardBox{background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px 18px; min-height:260px; display:flex; flex-direction:column;}
+  #cardBox .tag{font-size:12px; color:var(--sub); margin-bottom:10px;}
+  #cardBody{flex:1; font-size:16px; line-height:1.75; overflow-wrap:break-word;}
+  #cardBody pre{background:#f6f8fa; border:1px solid var(--line); border-radius:8px;
+    padding:10px; overflow-x:auto; font-size:13px; margin:8px 0; font-family:Consolas,Menlo,monospace;}
+  #cardBody code{font-family:Consolas,Menlo,monospace; background:#f0f1f2; padding:1px 5px; border-radius:4px; font-size:90%;}
+  #cardBody pre code{background:none; padding:0;}
+  #cardBody .cloze{background:var(--blue-weak); color:var(--blue); border-radius:4px;
+    padding:0 5px; cursor:pointer; font-weight:600; user-select:none;}
+  #answerHint{text-align:center; color:var(--sub); font-size:13px; margin-top:16px;}
+  #rateRow{display:none; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:18px;}
+  #rateRow.show{display:grid;}
+  .rateBtn{border:none; border-radius:10px; padding:10px 4px; cursor:pointer; text-align:center;}
+  .rateBtn b{display:block; font-size:15px; margin-bottom:3px;}
+  .rateBtn small{font-size:11px; opacity:.75;}
+  .rateBtn.r1{background:var(--danger-weak); color:var(--danger);}
+  .rateBtn.r2{background:var(--warn-weak); color:var(--warn);}
+  .rateBtn.r3{background:var(--brand-weak); color:var(--brand);}
+  .rateBtn.r4{background:var(--blue-weak); color:var(--blue);}
+  .doneBox{text-align:center; padding:40px 10px;}
+  .doneBox .emoji{font-size:44px; margin-bottom:12px;}
+
+  /* 导入向导 */
+  .wizTabs{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
+  .wizTab{border:1px solid var(--line); background:var(--card); border-radius:8px;
+    padding:6px 10px; font-size:12px; cursor:pointer; max-width:180px;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .wizTab.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .setRow{display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee; gap:10px;}
+  .setRow:last-child{border-bottom:none;}
+  select,input[type=number]{padding:6px 8px; border:1px solid var(--line); border-radius:6px; font-size:14px; background:#fff; color:var(--ink);}
+  .diagRow{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:8px;}
+  .badge.dup{background:#fbefff; color:#8250df;}
+  .badge.warnB{background:var(--warn-weak); color:var(--warn);}
+  .badge.emptyB{background:var(--danger-weak); color:var(--danger);}
+  .badge.leechB{background:var(--danger-weak); color:var(--danger);}
+  #wizPreview{max-height:340px; overflow-y:auto;}
+  .pitem{border-bottom:1px solid #eee; padding:10px 2px;}
+  .pitem:last-child{border-bottom:none;}
+  .pq{font-weight:600; font-size:14px; margin-bottom:4px;}
+  .pa{font-size:13px; color:var(--sub); line-height:1.6;}
+  .pitem.warnEmpty{background:var(--danger-weak); border-radius:8px;}
+  .pitem.warnLong{background:var(--warn-weak); border-radius:8px;}
+  .wizActions{display:flex; gap:10px; margin-top:4px;}
+  .wizActions .btn{flex:1;}
+  .chkRow{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink);}
+  .chkRow input{width:16px; height:16px;}
+
+  /* 统计 */
+  .statGrid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px;}
+  .statGrid .ov{text-align:center;}
+  .bars{display:flex; align-items:flex-end; gap:10px; height:120px; padding-top:10px;}
+  .barCol{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;}
+  .barCol .bar{width:70%; background:var(--blue); border-radius:4px 4px 0 0; min-height:2px;}
+  .barCol .lbl{font-size:11px; color:var(--sub); margin-top:6px; white-space:nowrap;}
+  .hidden{display:none!important;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <h1 id="pageTitle">八股闪背</h1>
+    <div class="navbtns">
+      <button class="navtab active" data-view="home">卡组</button>
+      <button class="navtab" data-view="stats">统计</button>
+      <button class="navtab" data-view="settings">设置</button>
+    </div>
+  </div>
+
+  <!-- ===== 首页 ===== -->
+  <div id="view-home">
+    <div class="panel overview">
+      <div class="ov due"><b id="ovDue">0</b><span>今日待复习</span></div>
+      <div class="ov new"><b id="ovNew">0</b><span>今日新卡余量</span></div>
+      <div class="ov streak"><b id="ovStreak">0</b><span>连续打卡(天)</span></div>
+    </div>
+    <div class="panel" id="goalPanel">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+        <span>今日目标</span><span class="muted" id="goalText"></span>
+      </div>
+      <div style="height:10px;background:#e7eaee;border-radius:99px;overflow:hidden">
+        <div id="goalBar" style="height:100%;width:0;background:var(--brand);transition:width .3s"></div>
+      </div>
+    </div>
+    <button class="btn blue studyAllBtn" id="studyAllBtn">▶ 全部一起学（到期 + 新卡）</button>
+
+    <div id="undoBanner" class="hidden">
+      <span id="undoText"></span>
+      <div style="display:flex;gap:8px">
+        <button class="btn small blue" onclick="undoLastImport()">撤销</button>
+        <button class="btn small ghost" onclick="dismissUndo()">×</button>
+      </div>
+    </div>
+
+    <div id="dropZone">
+      <div class="big">📄 点击选择 或 拖拽 .md 文件到这里</div>
+      <div class="muted">支持任意排版：导入向导自动识别切分规则，可预览、可手动调整后再入库</div>
+      <input type="file" id="fileInput" accept=".md,.markdown,.txt" multiple hidden>
+    </div>
+
+    <div id="deckList"></div>
+  </div>
+
+  <!-- ===== 卡组详情（浏览/编辑） ===== -->
+  <div id="view-browse" class="hidden">
+    <button class="backLink" onclick="goHome()">← 返回卡组</button>
+    <div class="browseHead">
+      <h2 id="browseTitle"></h2>
+      <input id="browseSearch" placeholder="搜索问题或答案…">
+      <button class="btn small gray" id="browseAddBtn">＋ 加卡</button>
+    </div>
+    <div id="browseList"></div>
+  </div>
+
+  <!-- ===== 导入向导 ===== -->
+  <div id="view-import" class="hidden">
+    <div class="wizTabs" id="wizTabs"></div>
+    <div class="panel">
+      <div class="setRow">
+        <span>切分策略</span>
+        <select id="wizStrategy">
+          <option value="auto">✨ 自动识别</option>
+          <option value="h2">标题切卡 · ## 二级标题</option>
+          <option value="h3">标题切卡 · ### 三级标题</option>
+          <option value="h4">标题切卡 · #### 四级标题</option>
+          <option value="qa">问答对 · 问：/答：或 Q:/A:</option>
+          <option value="list">列表项 · - 问题：答案</option>
+          <option value="inline">行内卡 · 问题 :: 答案</option>
+        </select>
+      </div>
+      <div class="setRow">
+        <label class="chkRow"><input type="checkbox" id="wizSkipDup" checked> 跳过与已有卡片重复的内容</label>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="diagRow" id="wizSummary"></div>
+      <div class="muted" id="wizDeckName"></div>
+    </div>
+    <div class="panel" id="wizPreview"></div>
+    <div class="wizActions">
+      <button class="btn gray" id="wizCancelBtn">取消</button>
+      <button class="btn blue hidden" id="wizAutoAllBtn">其余文件全部自动导入</button>
+      <button class="btn primary" id="wizConfirmBtn">确认导入</button>
+    </div>
+  </div>
+
+  <!-- ===== 学习页 ===== -->
+  <div id="view-study" class="hidden">
+    <div id="progressWrap"><div id="progressBar"></div></div>
+    <div class="studyMeta">
+      <span id="studyDeckName"></span>
+      <button id="undoBtn" disabled onclick="undoAnswer()">↩ 撤销评分</button>
+      <span id="studyRemain"></span>
+    </div>
+    <div id="cardBox">
+      <div class="tag" id="cardTag"></div>
+      <div id="cardBody"></div>
+      <div id="answerHint">👆 点击卡片或按空格查看答案 · 答案里的 ▇▇▇ 是挖空，点击逐个显示</div>
+      <div id="rateRow">
+        <button class="rateBtn r1" data-r="1"><b>重来</b><small id="iv1"></small></button>
+        <button class="rateBtn r2" data-r="2"><b>困难</b><small id="iv2"></small></button>
+        <button class="rateBtn r3" data-r="3"><b>良好</b><small id="iv3"></small></button>
+        <button class="rateBtn r4" data-r="4"><b>简单</b><small id="iv4"></small></button>
+      </div>
+    </div>
+    <div id="doneBox" class="panel doneBox hidden">
+      <div class="emoji">🎉</div>
+      <h2 style="margin-bottom:8px">本轮学习完成！</h2>
+      <p class="muted" id="doneSummary" style="margin-bottom:16px"></p>
+      <button class="btn primary" onclick="goHome()">返回卡组</button>
+    </div>
+    <p class="muted" style="text-align:center; margin-top:12px">快捷键：空格 翻面 · 1/2/3/4 评分 · Ctrl+Z 撤销</p>
+  </div>
+
+  <!-- ===== 统计页 ===== -->
+  <div id="view-stats" class="hidden">
+    <div class="statGrid">
+      <div class="ov"><b id="stTotal">0</b><span>总卡片</span></div>
+      <div class="ov"><b id="stMature" style="color:var(--brand)">0</b><span>复习中</span></div>
+      <div class="ov"><b id="stFresh" style="color:var(--warn)">0</b><span>未开始</span></div>
+    </div>
+    <div class="panel">
+      <div class="muted" style="margin-bottom:4px">近 7 天每日复习量</div>
+      <div class="bars" id="weekBars"></div>
+    </div>
+    <div class="panel" id="deckStats"></div>
+  </div>
+
+  <!-- ===== 设置页 ===== -->
+  <div id="view-settings" class="hidden">
+    <div class="panel">
+      <div class="setRow">
+        <span>每天新卡上限</span>
+        <input type="number" id="setDailyNew" min="0" max="200">
+      </div>
+      <div class="setRow">
+        <span>目标记忆保持率（FSRS）</span>
+        <input type="number" id="setRetention" min="0.7" max="0.98" step="0.01">
+      </div>
+      <div class="setRow">
+        <span>每日复习目标（张，0 为不设目标）</span>
+        <input type="number" id="setDailyGoal" min="0" max="1000">
+      </div>
+    </div>
+    <div class="panel">
+      <div class="setRow"><span>导出数据备份（JSON）</span><button class="btn small gray" onclick="exportData()">导出</button></div>
+      <div class="setRow"><span>从备份恢复</span><button class="btn small gray" onclick="document.getElementById('restoreInput').click()">导入</button></div>
+      <div class="setRow"><span>清空全部数据</span><button class="btn small ghost" onclick="wipeAll()">清空</button></div>
+      <input type="file" id="restoreInput" accept=".json" hidden>
+    </div>
+    <p class="muted">数据全部保存在本浏览器 localStorage 中，换浏览器/换电脑请先导出备份再恢复。保持率越高，复习间隔越短、复习量越大。</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+const LS_KEY = 'shanbei_md_v3';
+const LS_KEY_OLD = 'shanbei_md_v2';
+const LONG_ANSWER = 1500;   // 超长答案阈值（字符）
+const PREVIEW_MAX = 200;    // 向导预览最多展示条数
+
+/* ---------- 数据层 ---------- */
+function defaultDB(){
+  return { decks:[], cards:[],
+    settings:{ dailyNew:20, retention:0.9, dailyGoal:30 },
+    stats:{ streak:0, lastStudyDay:null, dailyLog:{} },
+    lastImport:null };
+}
+let db = load();
+function load(){
+  try{
+    let raw = localStorage.getItem(LS_KEY) || localStorage.getItem(LS_KEY_OLD) || localStorage.getItem('shanbei_md_v1');
+    if(!raw) return defaultDB();
+    const d = JSON.parse(raw);
+    if(!d || !Array.isArray(d.cards)) return defaultDB();
+    const merged = Object.assign(defaultDB(), d);
+    return migrateDB(merged);
+  }catch(e){ return defaultDB(); }
+}
+/* 旧版(SM-2)卡片迁移到 FSRS 字段 */
+function migrateDB(d){
+  let changed = false;
+  if(!d.settings.retention){ d.settings.retention = 0.9; changed = true; }
+  if(d.settings.dailyGoal === undefined){ d.settings.dailyGoal = 30; changed = true; }
+  d.cards.forEach(c=>{
+    if(c.v3) return;
+    if(c.state === 'review'){
+      c.s = Math.max(0.5, c.interval || 1);            // SM-2 间隔(天) → 初始稳定性
+      c.d = 5;                                          // 中等难度起步
+      c.last = c.due - c.s * F_DAY;                     // 反推上次复习时间
+    }else if(c.state === 'learning'){
+      c.s = 0.1; c.d = 5; c.last = null;
+    }else{
+      c.s = 0; c.d = 0; c.last = null;                  // 新卡：首次评分时初始化
+    }
+    c.v3 = true; changed = true;
+  });
+  if(changed) localStorage.setItem(LS_KEY, JSON.stringify(d));
+  return d;
+}
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(db)); }
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function hashStr(s){
+  let h = 5381;
+  for(let i=0;i<s.length;i++) h = ((h<<5)+h+s.charCodeAt(i))>>>0;
+  return h.toString(36)+':'+s.length;
+}
+function existingHashes(){ return new Set(db.cards.map(c=>hashStr(c.q+'|'+c.a))); }
+
+/* ---------- 小工具 ---------- */
+const $ = id => document.getElementById(id);
+let toastTimer;
+function toast(msg){
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+function todayStr(ts){ const d=new Date(ts); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function sameDay(a,b){ return todayStr(a)===todayStr(b); }
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fileName2Deck(name){ return name.replace(/\.(md|markdown|txt)$/i,'').slice(0,40); }
+function fmtIv(days){
+  if(days===1) return '1天';
+  if(days<30) return days+'天';
+  if(days<365) return (days/30).toFixed(days%30?1:0)+'个月';
+  return (days/365).toFixed(1)+'年';
+}
+
+/* 极简 markdown 渲染：代码块/行内代码/加粗/挖空/换行
+   ==文字== → 点击显示的挖空（填空卡，语法参考 obsidian-spaced-repetition）
+   处理顺序：行内代码先于挖空隔离，避免代码里的 == 被误挖空 */
+function mdLite(s){
+  let html = esc(s);
+  const blocks = [];
+  html = html.replace(/```([\s\S]*?)```/g, (_,code)=>{
+    blocks.push('<pre><code>'+code.replace(/^\n|\n$/g,'')+'</code></pre>');
+    return '\u0000'+(blocks.length-1)+'\u0000';
+  });
+  html = html.replace(/`([^`\n]+)`/g, (_,code)=>{
+    blocks.push('<code>'+code+'</code>');
+    return '\u0000'+(blocks.length-1)+'\u0000';
+  });
+  html = html
+    .replace(/\*\*([^*\n]+)\*\*/g,'<b>$1</b>')
+    .replace(/==((?:(?!==)[^\n])+?)==/g, (_,a)=>'<span class="cloze" data-v="'+a.replace(/"/g,'&quot;')+'" onclick="toggleCloze(this)">▇▇▇</span>')
+    .replace(/\n/g,'<br>');
+  html = html.replace(/\u0000(\d+)\u0000/g, (_,i)=>blocks[+i]);
+  return html;
+}
+function toggleCloze(el){
+  el.classList.toggle('on');
+  el.textContent = el.classList.contains('on') ? el.dataset.v : '▇▇▇';
+}
+
+/* =========================================================
+   FSRS 调度引擎（纯函数区，无 DOM 依赖）
+   公式与默认参数移植自 open-spaced-repetition/ts-fsrs (MIT)
+   简化说明：未实现 short-term stability（w17~w19）与 fuzz，
+   学习/重学阶段统一用 10 分钟步长。
+   ========================================================= */
+/* ===FSRS-BEGIN=== */
+const F_DAY = 86400000, F_MIN = 60000;
+const FSRS_W = [0.212, 1.2931, 2.3065, 8.2956, 6.4133, 0.8334, 3.0194, 0.001,
+  1.8722, 0.1666, 0.796, 1.4835, 0.0614, 0.2629, 1.6483, 0.6014, 1.8729,
+  0.5425, 0.0912, 0.0658, 0.1542];
+const FSRS_DECAY = -FSRS_W[20];                                   // -0.1542
+const FSRS_FACTOR = Math.exp(Math.log(0.9) / FSRS_DECAY) - 1;     // ≈0.9804
+const FSRS_S_MIN = 0.01, FSRS_S_MAX = 36500;
+const LEARN_STEP_MIN = 10;                                        // 学习步长（分钟）
+
+function fsrsClamp(x, lo, hi){ return Math.min(hi, Math.max(lo, x)); }
+/* 遗忘曲线：间隔 t(天) 后的可提取性 */
+function fsrsRecallProb(t, s){ return Math.pow(1 + FSRS_FACTOR * t / s, FSRS_DECAY); }
+/* 目标保持率 → 间隔(天)；interval(s, 0.9) ≈ s */
+function fsrsInterval(s, retention){
+  return fsrsClamp(Math.round(s / FSRS_FACTOR * (Math.pow(retention, 1 / FSRS_DECAY) - 1)), 1, 36500);
+}
+function fsrsInitS(g){ return fsrsClamp(FSRS_W[g-1], FSRS_S_MIN, 100); }
+function fsrsInitD(g){ return fsrsClamp(FSRS_W[4] - Math.exp((g-1) * FSRS_W[5]) + 1, 1, 10); }
+function fsrsNextD(d, g){
+  const delta = -FSRS_W[6] * (g - 3);
+  const damped = delta * (10 - d) / 9;                 // 线性阻尼
+  const reverted = FSRS_W[7] * fsrsInitD(4) + (1 - FSRS_W[7]) * (d + damped); // 均值回归
+  return fsrsClamp(reverted, 1, 10);
+}
+function fsrsRecallS(s, d, r, g){
+  const hardPenalty = (g === 2) ? FSRS_W[15] : 1;
+  const easyBonus   = (g === 4) ? FSRS_W[16] : 1;
+  const next = s * (1 + Math.exp(FSRS_W[8]) * (11 - d) * Math.pow(s, -FSRS_W[9])
+    * (Math.exp((1 - r) * FSRS_W[10]) - 1) * hardPenalty * easyBonus);
+  return fsrsClamp(next, FSRS_S_MIN, FSRS_S_MAX);
+}
+function fsrsForgetS(s, d, r){
+  const next = FSRS_W[11] * Math.pow(d, -FSRS_W[12])
+    * (Math.pow(s + 1, FSRS_W[13]) - 1) * Math.exp((1 - r) * FSRS_W[14]);
+  return fsrsClamp(next, FSRS_S_MIN, FSRS_S_MAX);
+}
+/* 纯函数：给定卡片状态与评分，返回下一个调度状态（不修改入参） */
+function fsrsNext(card, g, now, retention){
+  const state = card.state || 'new';
+  const elapsed = card.last ? Math.max(0, (now - card.last) / F_DAY) : 0;
+  let s = card.s || 0, d = card.d || 0, nextState = state, due, interval;
+  if(state === 'new'){
+    s = fsrsInitS(g); d = fsrsInitD(g);
+    if(g <= 2){ nextState = 'learning'; due = now + LEARN_STEP_MIN * F_MIN; interval = 0; }
+    else { nextState = 'review'; interval = fsrsInterval(s, retention); due = now + interval * F_DAY; }
+  }else if(state === 'learning' || state === 'relearning'){
+    if(g <= 2){ due = now + LEARN_STEP_MIN * F_MIN; interval = 0; }
+    else {
+      const r = elapsed > 0 ? fsrsRecallProb(elapsed, s) : 1;
+      s = fsrsRecallS(s, d, r, g); d = fsrsNextD(d, g);
+      nextState = 'review'; interval = fsrsInterval(s, retention); due = now + interval * F_DAY;
+    }
+  }else{ // review
+    const r = elapsed > 0 ? fsrsRecallProb(elapsed, s) : 1;
+    d = fsrsNextD(d, g);
+    if(g === 1){ s = fsrsForgetS(s, d, r); nextState = 'relearning'; due = now + LEARN_STEP_MIN * F_MIN; interval = 0; }
+    else { s = fsrsRecallS(s, d, r, g); interval = fsrsInterval(s, retention); due = now + interval * F_DAY; }
+  }
+  return { s, d, state: nextState, due, interval };
+}
+/* ===FSRS-END=== */
+
+/* ---------- 评分落库 ---------- */
+let lastAnswer = null; // 撤销用快照
+function applyRate(card, r){
+  const now = Date.now();
+  const wasLeech = !!card.leech;
+  const res = fsrsNext(card, r, now, db.settings.retention);
+  card.s = res.s; card.d = res.d; card.state = res.state;
+  card.due = res.due; card.interval = res.interval; card.last = now;
+  if(r === 1 && card.state === 'relearning') card.lapses = (card.lapses||0) + 1;
+  if(card.lapses >= 5 && !card.leech) card.leech = true;
+  card.history.push({ t: now, r });
+  if(card.leech && !wasLeech) toast('🔥 这张卡已连续答错 5 次，标记为顽固卡——建议换个角度理解，别死背');
+  return res;
+}
+
+/* =========================================================
+   markdown 解析器（纯函数区，无 DOM 依赖）
+   管线：normalizeText（围栏保护/去注释/统一换行）
+        → 策略切分（heading / qa / list / inline）
+        → restore 还原代码块
+   ========================================================= */
+/* ===PARSER-BEGIN=== */
+function normalizeText(raw){
+  let text = raw.replace(/\r\n?/g,'\n');
+  const blocks = [];
+  // 完整围栏 → 占位符
+  text = text.replace(/^```[^\n]*\n[\s\S]*?^```[^\n]*$/gm, m=>{ blocks.push(m); return '\u0001'+(blocks.length-1)+'\u0001'; });
+  // 未闭合围栏（到文件尾）→ 占位符
+  text = text.replace(/^```[^\n]*\n[\s\S]+$/m, m=>{ blocks.push(m); return '\u0001'+(blocks.length-1)+'\u0001'; });
+  // 去除 HTML 注释（围栏外）
+  text = text.replace(/<!--[\s\S]*?-->/g,'');
+  return {
+    text,
+    restore: t => t.replace(/\u0001(\d+)\u0001/g, (_,i)=>blocks[+i] !== undefined ? blocks[+i] : '')
+  };
+}
+
+const HD_RE = /^ {0,3}(#{1,6})\s+(.+?)\s*#*\s*$/;
+
+/* 标题层级切分：level 层标题为问题，正文为答案；更高层标题记为章节标签 */
+function parseByHeading(text, level){
+  const cards = []; let cur = null, deckName = null, chapter = null;
+  for(const line of text.split('\n')){
+    const m = line.match(HD_RE);
+    if(m){
+      const lv = m[1].length;
+      if(lv === 1 && deckName === null){ deckName = m[2].trim(); continue; }
+      if(lv === level){ if(cur && cur.q) cards.push(cur); cur = {q:m[2].trim(), a:[], tag:chapter}; continue; }
+      if(lv < level){ chapter = m[2].trim(); if(cur && cur.q){ cards.push(cur); cur = null; } continue; }
+      // 更深层标题：保留在答案正文里
+    }
+    if(cur) cur.a.push(line);
+  }
+  if(cur && cur.q) cards.push(cur);
+  return {
+    deckName,
+    cards: cards.map(c=>({q:c.q, a:c.a.join('\n').trim(), tag:c.tag}))
+  };
+}
+
+/* 问答对：问：/问题N：/Q: 开头的行是问题，答：/A: 行是答案起点 */
+function parseQa(text){
+  const qRe = /^ {0,3}>?\s*(?:\*\*\s*|#{1,6}\s+|[-*]\s+|【)?\s*(?:Q\d*\s*[.::：)、]|问\s*\d*\s*[::：.、)]|问题\s*\d*\s*[::：.、)]|【问题\s*\d*])/i;
+  const aRe = /^\s*(?:\*\*\s*|[-*]\s+)?\s*(?:A\d*\s*[.::：)、]|答\s*[::：.、)]|答案\s*\d*\s*[::：.、)]|【答案\s*\d*])/i;
+  const cards = []; let cur = null, seenA = false;
+  for(const line of text.split('\n')){
+    if(qRe.test(line)){
+      if(cur) cards.push(cur);
+      cur = { q: line.replace(qRe,'').replace(/\*\*\s*$/,'').replace(/[：:]\s*$/,'').trim(), a: [] };
+      seenA = false;
+      continue;
+    }
+    if(!cur) continue;
+    if(!seenA && aRe.test(line)){ cur.a.push(line.replace(aRe,'').trim()); seenA = true; continue; }
+    cur.a.push(line);
+  }
+  if(cur) cards.push(cur);
+  return {
+    deckName: null,
+    cards: cards.map(c=>({q:c.q, a:c.a.join('\n').trim(), tag:null}))
+  };
+}
+
+/* 列表项：- 问题：答案（一行一卡） */
+function parseList(text){
+  const cards = [];
+  for(const line of text.split('\n')){
+    const m = line.match(/^\s*[-*]\s+(.+)$/);
+    if(!m) continue;
+    const i = m[1].search(/[::：]/);
+    if(i < 1) continue;
+    const q = m[1].slice(0,i).trim(), a = m[1].slice(i+1).trim();
+    if(q && a) cards.push({q, a, tag:null});
+  }
+  return { deckName:null, cards };
+}
+
+/* 行内卡：问题 :: 答案（语法参考 obsidian-spaced-repetition，MIT） */
+function parseInline(text){
+  const cards = [];
+  for(const line of text.split('\n')){
+    const m = line.match(/^(.+?)\s*:::?\s+(.+)$/);
+    if(!m) continue;
+    const q = m[1].trim().replace(/^\*+|\*+$/g,''), a = m[2].trim();
+    if(q && a) cards.push({q, a, tag:null});
+  }
+  return { deckName:null, cards };
+}
+
+function runStrategy(text, name, level){
+  if(name === 'heading') return parseByHeading(text, level||2);
+  if(name === 'qa') return parseQa(text);
+  if(name === 'list') return parseList(text);
+  if(name === 'inline') return parseInline(text);
+  return { deckName:null, cards:[] };
+}
+
+/* 自动识别：多策略打分，产出卡多、空答案少、答案长度合理者胜 */
+function autoDetect(text){
+  const cands = [['heading',2],['heading',3],['heading',4],['qa',0],['list',0],['inline',0]];
+  let best = null;
+  for(const [name, level] of cands){
+    const r = runStrategy(text, name, level);
+    const n = r.cards.filter(c=>c.q).length;
+    if(!n) continue;
+    const empty = r.cards.filter(c=>!c.a).length;
+    const avg = r.cards.reduce((s,c)=>s+c.a.length,0)/n;
+    let score = n*2 - empty*4;
+    if(avg > 4000) score -= n;          // 答案普遍过长：切太粗
+    if(avg < 5)    score -= n*1.5;      // 答案普遍过短：切太碎
+    if(!best || score > best.score) best = {name, level, score, n};
+  }
+  return best || {name:'heading', level:2, score:0, n:0};
+}
+/* ===PARSER-END=== */
+
+/* ---------- 向导状态 ---------- */
+let wizard = null; // {files:[{name,norm,strategy,level,result}], idx, skipDup}
+
+function openWizard(files){
+  const arr = [...files].filter(f=>/\.(md|markdown|txt)$/i.test(f.name));
+  if(!arr.length){ toast('请选择 .md / .txt 文件'); return; }
+  let loaded = [], pending = arr.length;
+  arr.forEach(f=>{
+    const r = new FileReader();
+    r.onload = ()=>{
+      const norm = normalizeText(String(r.result));
+      const auto = autoDetect(norm.text);
+      loaded.push({ name:f.name, norm, strategy:auto.name, level:auto.level, result:null });
+      if(--pending === 0){
+        loaded.forEach(refreshResult);
+        wizard = { files:loaded, idx:0, skipDup:true };
+        switchView('import');
+      }
+    };
+    r.readAsText(f,'utf-8');
+  });
+}
+function strategyVal(f){ return f.strategy==='heading' ? 'h'+f.level : f.strategy; }
+function setStrategyVal(f, val){
+  if(val === 'auto'){
+    const a = autoDetect(f.norm.text);
+    f.strategy = a.name; f.level = a.level;
+  }else if(val[0] === 'h'){
+    f.strategy = 'heading'; f.level = +val.slice(1);
+  }else{
+    f.strategy = val; f.level = 0;
+  }
+}
+function refreshResult(f){
+  const r = runStrategy(f.norm.text, f.strategy, f.level);
+  const dupSet = existingHashes();
+  const cards = r.cards
+    .map(c=>({q:c.q.trim(), a:f.norm.restore(c.a).trim(), tag:c.tag}))
+    .filter(c=>c.q);
+  f.result = {
+    cards,
+    deckName: r.deckName,
+    dups: cards.filter(c=>dupSet.has(hashStr(c.q+'|'+c.a))).length,
+    empties: cards.filter(c=>!c.a).length,
+    longs: cards.filter(c=>c.a.length > LONG_ANSWER).length
+  };
+}
+const STRAT_LABEL = {heading:'标题切卡', qa:'问答对', list:'列表项', inline:'行内卡'};
+
+function renderWizard(){
+  const f = wizard.files[wizard.idx];
+  // 文件 Tab
+  const tabs = $('wizTabs'); tabs.innerHTML = '';
+  if(wizard.files.length > 1){
+    wizard.files.forEach((fi,i)=>{
+      const b = document.createElement('button');
+      b.className = 'wizTab'+(i===wizard.idx?' active':'');
+      b.textContent = fi.name;
+      b.onclick = ()=>{ wizard.idx = i; renderWizard(); };
+      tabs.appendChild(b);
+    });
+  }
+  $('wizStrategy').value = strategyVal(f);
+  $('wizSkipDup').checked = wizard.skipDup;
+  $('wizAutoAllBtn').classList.toggle('hidden', wizard.files.length <= 1 || wizard.idx === wizard.files.length-1);
+
+  // 摘要与诊断
+  const r = f.result;
+  $('wizSummary').innerHTML =
+    `<span class="badge all">识别为：${STRAT_LABEL[f.strategy]||'-'}${f.strategy==='heading'?'（'+f.level+'级标题）':''}</span>`+
+    `<span class="badge new">共 ${r.cards.length} 张</span>`+
+    (r.empties?`<span class="badge emptyB">空答案 ${r.empties}</span>`:'')+
+    (r.longs?`<span class="badge warnB">超长答案 ${r.longs}</span>`:'')+
+    (r.dups?`<span class="badge dup">与现有重复 ${r.dups}</span>`:'');
+  $('wizDeckName').textContent = '卡组名：'+(r.deckName || fileName2Deck(f.name))+(r.cards.length?'':'（未解析出任何卡片，请换一个切分策略）');
+
+  // 预览
+  const pv = $('wizPreview'); pv.innerHTML = '';
+  const dupSet = existingHashes();
+  r.cards.slice(0, PREVIEW_MAX).forEach((c,i)=>{
+    const isDup = dupSet.has(hashStr(c.q+'|'+c.a));
+    const div = document.createElement('div');
+    div.className = 'pitem'+(c.a?'':(isDup?' warnEmpty':' warnEmpty'))+(c.a.length>LONG_ANSWER?' warnLong':'');
+    const aprev = c.a ? esc(c.a.length>120? c.a.slice(0,120)+'…' : c.a).replace(/\n/g,' ⏎ ') : '（空答案，导入后建议手动补充）';
+    const marks =
+      (c.a?'':'<span class="badge emptyB">空</span>')+
+      (c.a.length>LONG_ANSWER?'<span class="badge warnB">长</span>':'')+
+      (isDup?'<span class="badge dup">重复</span>':'');
+    div.innerHTML = `<div class="pq">${i+1}. ${esc(c.q)} ${marks}</div><div class="pa">${aprev}</div>`;
+    pv.appendChild(div);
+  });
+  if(r.cards.length > PREVIEW_MAX){
+    pv.insertAdjacentHTML('beforeend', `<div class="muted" style="padding:8px 2px">…仅预览前 ${PREVIEW_MAX} 张，共 ${r.cards.length} 张</div>`);
+  }
+  if(!r.cards.length){
+    pv.innerHTML = '<div class="empty">没有解析出卡片，试试上方换个切分策略</div>';
+  }
+}
+
+function importOne(f, dupSet, skipDup){
+  const deck = { id:uid(), name:f.result.deckName || fileName2Deck(f.name), createdAt:Date.now() };
+  let kept = 0, skipped = 0;
+  for(const c of f.result.cards){
+    const h = hashStr(c.q+'|'+c.a);
+    if(skipDup && dupSet.has(h)){ skipped++; continue; }
+    dupSet.add(h);
+    db.cards.push({ id:uid(), deckId:deck.id, q:c.q, a:c.a, tag:c.tag||null,
+      s:0, d:0, state:'new', due:Date.now(), last:null, interval:0,
+      lapses:0, leech:false, history:[] });
+    kept++;
+  }
+  if(kept){ db.decks.push(deck); return {deck, kept, skipped}; }
+  return {deck:null, kept:0, skipped};
+}
+
+function confirmImport(){
+  const f = wizard.files[wizard.idx];
+  const res = importOne(f, existingHashes(), wizard.skipDup);
+  if(res.deck){
+    db.lastImport = { deckIds:[res.deck.id], count:res.kept, ts:Date.now() };
+    save();
+    toast(`「${res.deck.name}」导入 ${res.kept} 张卡${res.skipped?`，跳过重复 ${res.skipped}`:''}`);
+  }else{
+    save(); toast('没有可导入的新卡片（全部为空或重复）');
+  }
+  if(wizard.idx < wizard.files.length-1){ wizard.idx++; renderWizard(); }
+  else { wizard = null; switchView('home'); }
+}
+
+function importAllAuto(){
+  const dupSet = existingHashes();
+  let decks = 0, cards = 0, skipped = 0;
+  const deckIds = [];
+  for(let i = wizard.idx; i < wizard.files.length; i++){
+    const f = wizard.files[i];
+    const a = autoDetect(f.norm.text);
+    f.strategy = a.name; f.level = a.level; refreshResult(f);
+    const res = importOne(f, dupSet, wizard.skipDup);
+    if(res.deck){ deckIds.push(res.deck.id); decks++; cards += res.kept; skipped += res.skipped; }
+  }
+  db.lastImport = { deckIds, count:cards, ts:Date.now() };
+  save(); wizard = null; switchView('home');
+  toast(`自动导入 ${decks} 个卡组 / ${cards} 张卡${skipped?`，跳过重复 ${skipped}`:''}`);
+}
+
+function undoLastImport(){
+  if(!db.lastImport) return;
+  if(!confirm(`撤销最近一次导入（${db.lastImport.count} 张卡）？`)) return;
+  const ids = new Set(db.lastImport.deckIds);
+  db.decks = db.decks.filter(d=>!ids.has(d.id));
+  db.cards = db.cards.filter(c=>!ids.has(c.deckId));
+  db.lastImport = null; save(); renderHome(); toast('已撤销');
+}
+function dismissUndo(){ db.lastImport = null; save(); renderHome(); }
+
+/* ---------- 今日配额 / 打卡 ---------- */
+function introducedToday(){
+  const now = Date.now();
+  return db.cards.filter(c=>c.history.length && sameDay(c.history[0].t, now)).length;
+}
+function touchStreak(){
+  const now = Date.now(), t = todayStr(now);
+  const y = todayStr(now - F_DAY);
+  if(db.stats.lastStudyDay === t) return;
+  db.stats.streak = (db.stats.lastStudyDay === y) ? db.stats.streak + 1 : 1;
+  db.stats.lastStudyDay = t;
+}
+
+/* ---------- 队列 ---------- */
+let session = null; // {deckId, deckName, queue:[cardId], idx, total, flip, startedAt}
+function buildQueue(deckId){
+  const now = Date.now();
+  const inScope = c => deckId ? c.deckId === deckId : true;
+  const due = db.cards.filter(c=>inScope(c) && c.state!=='new' && c.due<=now)
+                      .sort((a,b)=>a.due-b.due);
+  const quota = Math.max(0, db.settings.dailyNew - introducedToday());
+  const fresh = db.cards.filter(c=>inScope(c) && c.state==='new').slice(0, quota);
+  return [...due, ...fresh].map(c=>c.id);
+}
+function startStudy(deckId){
+  const deckName = deckId ? (db.decks.find(d=>d.id===deckId)||{}).name : '全部卡组';
+  if(!deckName) return;
+  const queue = buildQueue(deckId);
+  if(!queue.length){
+    const hasNew = db.cards.some(c=>(!deckId || c.deckId===deckId) && c.state==='new');
+    toast(hasNew ? '今日新卡额度已用完，明天再来 🌱' : '当前没有到期的卡片 ✅');
+    return;
+  }
+  session = { deckId, deckName, queue, idx:0, total:queue.length,
+              flip:false, startedAt:Date.now() };
+  lastAnswer = null;
+  switchView('study');
+  renderStudy();
+}
+function currentCard(){
+  if(!session || session.idx >= session.queue.length) return null;
+  return db.cards.find(c=>c.id===session.queue[session.idx]);
+}
+function answer(r){
+  const card = currentCard();
+  if(!card || !session.flip) return;
+  const t = todayStr(Date.now());
+  lastAnswer = {
+    card: JSON.parse(JSON.stringify(card)),
+    queueLen: session.queue.length, total: session.total, idx: session.idx,
+    dailyKey: t, dailyVal: db.stats.dailyLog[t]||0,
+    streak: db.stats.streak, lastStudyDay: db.stats.lastStudyDay
+  };
+  applyRate(card, r);
+  db.stats.dailyLog[t] = (db.stats.dailyLog[t]||0)+1;
+  if(db.settings.dailyGoal > 0 && db.stats.dailyLog[t] >= db.settings.dailyGoal && db.stats.lastGoalHitDay !== t){
+    db.stats.lastGoalHitDay = t;
+    setTimeout(()=>toast(`🎉 今日目标达成（${db.settings.dailyGoal} 张）！已连续打卡 ${db.stats.streak} 天`), 400);
+  }
+  if(r===1){ session.queue.push(card.id); session.total++; } // 重来：本轮尾部再现
+  session.idx++; session.flip=false;
+  touchStreak(); save(); renderStudy();
+}
+function undoAnswer(){
+  if(!lastAnswer || !session || !session.flip) return;
+  const card = db.cards.find(c=>c.id===lastAnswer.card.id);
+  if(!card) return;
+  Object.assign(card, lastAnswer.card);
+  session.queue.length = lastAnswer.queueLen;
+  session.total = lastAnswer.total;
+  session.idx = lastAnswer.idx;
+  session.flip = false;
+  db.stats.dailyLog[lastAnswer.dailyKey] = lastAnswer.dailyVal;
+  db.stats.streak = lastAnswer.streak;
+  db.stats.lastStudyDay = lastAnswer.lastStudyDay;
+  lastAnswer = null;
+  save(); renderStudy(); toast('已撤销上次评分');
+}
+
+/* ---------- 渲染 ---------- */
+function switchView(v){
+  ['home','browse','import','study','stats','settings'].forEach(id=>{
+    $('view-'+id).classList.toggle('hidden', id!==v);
+  });
+  document.querySelectorAll('.navtab').forEach(b=>b.classList.toggle('active',
+    (b.dataset.view==='home' && (v==='home'||v==='browse')) || b.dataset.view===v));
+  $('pageTitle').textContent =
+    v==='home' ? '八股闪背' : v==='browse' ? '卡组详情' : v==='import' ? '导入向导'
+    : v==='study' ? '学习中' : v==='stats' ? '统计' : '设置';
+  if(v==='home') renderHome();
+  if(v==='import') renderWizard();
+  if(v==='stats') renderStats();
+  if(v==='settings'){ $('setDailyNew').value = db.settings.dailyNew; $('setRetention').value = db.settings.retention; $('setDailyGoal').value = db.settings.dailyGoal; }
+}
+function goHome(){ session=null; lastAnswer=null; browse=null; switchView('home'); }
+
+function deckCounts(deckId){
+  const now = Date.now();
+  const cs = db.cards.filter(c=>c.deckId===deckId);
+  return {
+    due: cs.filter(c=>c.state!=='new' && c.due<=now).length,
+    fresh: cs.filter(c=>c.state==='new').length,
+    all: cs.length
+  };
+}
+function renderHome(){
+  const now = Date.now();
+  const dueAll = db.cards.filter(c=>c.state!=='new' && c.due<=now).length;
+  const freshLeft = Math.max(0, db.settings.dailyNew - introducedToday());
+  $('ovDue').textContent = dueAll;
+  $('ovNew').textContent = freshLeft;
+  $('ovStreak').textContent = db.stats.streak;
+  $('studyAllBtn').style.display = (dueAll + freshLeft) ? '' : 'none';
+
+  // 每日目标进度
+  const todayRev = db.stats.dailyLog[todayStr(Date.now())] || 0;
+  const goal = db.settings.dailyGoal || 0;
+  const gp = $('goalPanel');
+  if(goal > 0){
+    gp.classList.remove('hidden');
+    const done = todayRev >= goal;
+    $('goalText').textContent = done ? `已达成 🎉 ${todayRev}/${goal}` : `${todayRev}/${goal} 张`;
+    $('goalBar').style.width = Math.min(100, Math.round(todayRev/goal*100)) + '%';
+    $('goalBar').style.background = done ? 'var(--warn)' : 'var(--brand)';
+  }else{
+    gp.classList.add('hidden');
+  }
+
+  if(db.lastImport && db.lastImport.count > 0){
+    $('undoBanner').classList.remove('hidden');
+    $('undoText').textContent = `最近导入了 ${db.lastImport.count} 张卡`;
+  }else{
+    $('undoBanner').classList.add('hidden');
+  }
+
+  const list = $('deckList'); list.innerHTML='';
+  if(!db.decks.length){
+    list.innerHTML = '<div class="empty">还没有卡组，先导入一个 markdown 文件吧<br><br>支持任意排版：章节嵌套、问答对、列表、行内卡均可</div>';
+    return;
+  }
+  db.decks.forEach(d=>{
+    const c = deckCounts(d.id);
+    const row = document.createElement('div'); row.className='deck';
+    row.innerHTML = `
+      <div class="info" title="点击查看/编辑卡片">
+        <div class="name">${esc(d.name)}</div>
+        <div>
+          ${c.due?`<span class="badge due">待复习 ${c.due}</span>`:''}
+          ${c.fresh?`<span class="badge new">新卡 ${c.fresh}</span>`:''}
+          <span class="badge all">共 ${c.all}</span>
+        </div>
+      </div>
+      <button class="btn primary" ${(!c.due && !c.fresh)?'disabled':''}>学习</button>
+      <button class="btn ghost">删</button>`;
+    row.querySelector('.info').onclick = ()=>openBrowse(d.id);
+    row.querySelector('.primary').onclick = (e)=>{ e.stopPropagation(); startStudy(d.id); };
+    row.querySelector('.ghost').onclick = (e)=>{
+      e.stopPropagation();
+      if(confirm(`删除卡组「${d.name}」及其 ${c.all} 张卡片？`)){
+        db.decks = db.decks.filter(x=>x.id!==d.id);
+        db.cards = db.cards.filter(x=>x.deckId!==d.id);
+        save(); renderHome();
+      }
+    };
+    list.appendChild(row);
+  });
+}
+
+/* ---------- 卡组详情（浏览/编辑） ---------- */
+let browse = null; // {deckId, query:'', editing:null(cardId|'new')}
+function openBrowse(deckId){
+  browse = { deckId, query:'', editing:null };
+  switchView('browse');
+  renderBrowse();
+}
+function dueText(c){
+  const now = Date.now();
+  if(c.state==='new') return '新卡';
+  if(c.due<=now) return '已到期';
+  return Math.ceil((c.due-now)/F_DAY)+'天后';
+}
+function renderBrowse(){
+  const deck = db.decks.find(d=>d.id===browse.deckId);
+  if(!deck){ goHome(); return; }
+  $('browseTitle').textContent = `${deck.name}（${db.cards.filter(c=>c.deckId===deck.id).length} 张）`;
+  const q = browse.query.trim().toLowerCase();
+  const cards = db.cards.filter(c=>c.deckId===deck.id)
+    .filter(c=>!q || c.q.toLowerCase().includes(q) || c.a.toLowerCase().includes(q))
+    .sort((a,b)=> (a.state==='new') - (b.state==='new') || a.due-b.due);
+  const list = $('browseList'); list.innerHTML='';
+  if(!cards.length){
+    list.innerHTML = `<div class="empty">${q?'没有匹配的卡片':'卡组为空'}</div>`;
+  }
+  cards.forEach(c=>{
+    const div = document.createElement('div'); div.className='brow';
+    if(browse.editing === c.id){
+      div.className='brow open';
+      div.innerHTML = `
+        <div class="editBox">
+          <label class="muted">问题</label>
+          <textarea id="editQ">${esc(c.q)}</textarea>
+          <label class="muted">答案</label>
+          <textarea id="editA" style="min-height:120px">${esc(c.a)}</textarea>
+          <div class="row">
+            <button class="btn primary saveBtn">保存</button>
+            <button class="btn danger delBtn">删除此卡</button>
+            <button class="btn gray cancelBtn">取消</button>
+          </div>
+        </div>`;
+      div.querySelector('.saveBtn').onclick = ()=>{
+        c.q = div.querySelector('#editQ').value.trim() || c.q;
+        c.a = div.querySelector('#editA').value.trim();
+        save(); browse.editing = null; renderBrowse(); toast('已保存');
+      };
+      div.querySelector('.delBtn').onclick = ()=>{
+        if(confirm('删除这张卡片？')){
+          db.cards = db.cards.filter(x=>x.id!==c.id);
+          save(); browse.editing = null; renderBrowse(); toast('已删除');
+        }
+      };
+      div.querySelector('.cancelBtn').onclick = ()=>{ browse.editing=null; renderBrowse(); };
+    }else{
+      const badges =
+        (c.state==='new'?'<span class="badge new">新</span>':
+         c.state==='review'?'<span class="badge due">复习</span>':'<span class="badge warnB">学习中</span>')+
+        (c.leech?'<span class="badge leechB">🔥顽固</span>':'');
+      div.innerHTML = `
+        <div class="bq">${esc(c.q)}</div>
+        <div class="bmeta">${badges}<span>${dueText(c)}</span>${c.s?` · 记忆强度≈${c.s>=1?Math.round(c.s)+'天':Math.round(c.s*24*60)+'分钟'}`:''}</div>
+        <div class="ba">${esc(c.a)||'<span class="muted">（空答案）</span>'}</div>`;
+      div.onclick = ()=>{ browse.editing = (browse.editing===c.id)?null:c.id; renderBrowse(); };
+    }
+    list.appendChild(div);
+  });
+  if(browse.editing === 'new'){
+    const div = document.createElement('div'); div.className='brow open';
+    div.innerHTML = `
+      <div class="editBox">
+        <label class="muted">问题</label>
+        <textarea id="editQ"></textarea>
+        <label class="muted">答案</label>
+        <textarea id="editA" style="min-height:120px"></textarea>
+        <div class="row">
+          <button class="btn primary saveBtn">添加</button>
+          <button class="btn gray cancelBtn">取消</button>
+        </div>
+      </div>`;
+    div.querySelector('.saveBtn').onclick = ()=>{
+      const q = div.querySelector('#editQ').value.trim();
+      if(!q){ toast('问题不能为空'); return; }
+      db.cards.push({ id:uid(), deckId:deck.id, q, a:div.querySelector('#editA').value.trim(),
+        tag:null, s:0, d:0, state:'new', due:Date.now(), last:null, interval:0,
+        lapses:0, leech:false, history:[] });
+      save(); browse.editing = null; renderBrowse(); toast('已添加');
+    };
+    div.querySelector('.cancelBtn').onclick = ()=>{ browse.editing=null; renderBrowse(); };
+    list.prepend(div);
+  }
+}
+
+function renderStudy(){
+  const card = currentCard();
+  $('doneBox').classList.toggle('hidden', !!card);
+  $('cardBox').classList.toggle('hidden', !card);
+  $('undoBtn').disabled = !lastAnswer;
+  if(!card){
+    const mins = Math.max(1, Math.round((Date.now()-session.startedAt)/F_MIN));
+    $('doneSummary').textContent =
+      `${session.deckName} · 本轮完成 ${new Set(session.queue).size} 张，用时 ${mins} 分钟`;
+    $('progressBar').style.width = '100%';
+    return;
+  }
+  $('progressBar').style.width = Math.round(session.idx/session.total*100)+'%';
+  $('studyDeckName').textContent = session.deckName;
+  $('studyRemain').textContent = `剩余 ${session.total - session.idx} / ${session.total}`;
+  $('cardTag').textContent =
+    (card.tag ? card.tag+' · ' : '')+
+    (card.leech ? '🔥顽固 · ' : '')+
+    (card.state==='new' ? '🆕 新卡'
+      : `🔁 第 ${card.history.length+1} 次 · 记忆强度≈${card.s>=1?Math.round(card.s)+'天':Math.round(card.s*24*60)+'分钟'}`);
+  $('cardBody').innerHTML = session.flip
+    ? mdLite(card.a)
+    : '<div style="font-size:17px;font-weight:600">'+mdLite(card.q)+'</div>';
+  $('answerHint').style.display = session.flip ? 'none' : 'block';
+  $('rateRow').classList.toggle('show', session.flip);
+  if(session.flip){
+    $('iv1').textContent = '10分钟';
+    for(const r of [2,3,4]){
+      const res = fsrsNext(card, r, Date.now(), db.settings.retention);
+      $('iv'+r).textContent = res.interval ? fmtIv(res.interval) : '10分钟';
+    }
+  }
+}
+function flipCard(){
+  if(!currentCard()) return;
+  session.flip = true; renderStudy();
+}
+
+function renderStats(){
+  const total = db.cards.length;
+  $('stTotal').textContent = total;
+  $('stMature').textContent = db.cards.filter(c=>c.state==='review').length;
+  $('stFresh').textContent = db.cards.filter(c=>c.state==='new').length;
+
+  const bars = $('weekBars'); bars.innerHTML='';
+  const recent = Object.entries(db.stats.dailyLog).filter(([k])=>k>=todayStr(Date.now()-6*F_DAY));
+  const max = Math.max(1, ...recent.map(([,v])=>v));
+  for(let i=6;i>=0;i--){
+    const ts = Date.now()-i*F_DAY, key = todayStr(ts);
+    const n = db.stats.dailyLog[key]||0;
+    const col = document.createElement('div'); col.className='barCol';
+    col.innerHTML = `<div class="bar" style="height:${Math.round(n/max*80)}%"></div>
+      <div class="lbl">${key.slice(5)}<br>${n}</div>`;
+    bars.appendChild(col);
+  }
+
+  const ds = $('deckStats');
+  if(!db.decks.length){ ds.innerHTML='<div class="empty">暂无数据</div>'; return; }
+  const days = Object.keys(db.stats.dailyLog).length;
+  const totalRev = Object.values(db.stats.dailyLog).reduce((a,b)=>a+b, 0);
+  const leechN = db.cards.filter(c=>c.leech).length;
+  ds.innerHTML = `<div class="muted" style="margin-bottom:10px">累计学习 <b>${days}</b> 天 · 累计复习 <b>${totalRev}</b> 张 · 顽固卡 <b>${leechN}</b> 张</div>`
+    + '<div class="muted" style="margin-bottom:8px">各卡组进度</div>';
+  db.decks.forEach(d=>{
+    const c = deckCounts(d.id);
+    const learned = c.all - c.fresh;
+    const pct = c.all ? Math.round(learned/c.all*100) : 0;
+    ds.innerHTML += `
+      <div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+          <span>${esc(d.name)}</span><span class="muted">${learned}/${c.all} · ${pct}%</span>
+        </div>
+        <div style="height:8px;background:#e7eaee;border-radius:99px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:var(--brand)"></div>
+        </div>
+      </div>`;
+  });
+}
+
+/* ---------- 备份 ---------- */
+function exportData(){
+  const blob = new Blob([JSON.stringify(db,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '八股闪背备份_'+todayStr(Date.now())+'.json';
+  a.click(); URL.revokeObjectURL(a.href);
+}
+function wipeAll(){
+  if(db.cards.length && !confirm('确定清空全部卡组、卡片和进度？此操作不可恢复！')) return;
+  db = defaultDB(); save(); switchView('home'); toast('已清空');
+}
+
+/* ---------- 事件绑定 ---------- */
+document.querySelectorAll('.navtab').forEach(b=>b.onclick=()=>{
+  if(b.dataset.view !== 'import') wizard = null;
+  session = null; lastAnswer = null; browse = null;
+  switchView(b.dataset.view);
+});
+$('studyAllBtn').onclick = ()=>startStudy(null);
+$('dropZone').onclick = ()=>$('fileInput').click();
+$('fileInput').onchange = e=>{ openWizard(e.target.files); e.target.value=''; };
+['dragover','dragenter'].forEach(ev=>$('dropZone').addEventListener(ev, e=>{
+  e.preventDefault(); $('dropZone').classList.add('drag');
+}));
+['dragleave','drop'].forEach(ev=>$('dropZone').addEventListener(ev, e=>{
+  e.preventDefault(); $('dropZone').classList.remove('drag');
+}));
+$('dropZone').addEventListener('drop', e=>openWizard(e.dataTransfer.files));
+$('browseSearch').oninput = e=>{ browse.query = e.target.value; browse.editing=null; renderBrowse(); };
+$('browseAddBtn').onclick = ()=>{ browse.editing='new'; renderBrowse(); };
+$('wizStrategy').onchange = e=>{
+  const f = wizard.files[wizard.idx];
+  setStrategyVal(f, e.target.value); refreshResult(f); renderWizard();
+};
+$('wizSkipDup').onchange = e=>{ wizard.skipDup = e.target.checked; renderWizard(); };
+$('wizConfirmBtn').onclick = confirmImport;
+$('wizAutoAllBtn').onclick = importAllAuto;
+$('wizCancelBtn').onclick = ()=>{ wizard=null; goHome(); };
+$('cardBox').addEventListener('click', e=>{
+  if(e.target.closest('.rateBtn')) return;
+  flipCard();
+});
+document.querySelectorAll('.rateBtn').forEach(b=>b.onclick=()=>answer(+b.dataset.r));
+$('setDailyNew').onchange = e=>{
+  db.settings.dailyNew = Math.max(0, +e.target.value||0);
+  save(); toast('已保存');
+};
+$('setRetention').onchange = e=>{
+  let v = +e.target.value;
+  if(!(v>0.5 && v<1)) v = 0.9;
+  db.settings.retention = v;
+  save(); toast('已保存，下次评分生效');
+};
+$('setDailyGoal').onchange = e=>{
+  db.settings.dailyGoal = Math.max(0, Math.round(+e.target.value||0));
+  save(); toast('已保存');
+};
+$('restoreInput').onchange = e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{
+    try{
+      const d = JSON.parse(r.result);
+      if(!d || !Array.isArray(d.cards) || !Array.isArray(d.decks)) throw 0;
+      if(!confirm(`恢复备份（${d.decks.length} 个卡组 / ${d.cards.length} 张卡）？将覆盖当前数据。`)) return;
+      db = migrateDB(Object.assign(defaultDB(), d)); save(); switchView('home'); toast('恢复成功');
+    }catch(_){ toast('备份文件格式不对'); }
+  };
+  r.readAsText(f,'utf-8'); e.target.value='';
+};
+document.addEventListener('keydown', e=>{
+  if(!$('view-study').classList.contains('hidden') && session){
+    if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='z'){ e.preventDefault(); undoAnswer(); return; }
+    if(e.code==='Space' || e.code==='Enter'){ e.preventDefault(); if(!session.flip) flipCard(); }
+    else if(session.flip && ['1','2','3','4'].includes(e.key)){ answer(+e.key); }
+  }
+  if(!$('view-browse').classList.contains('hidden') && browse){
+    if((e.ctrlKey||e.metaKey) && e.key==='f'){ e.preventDefault(); $('browseSearch').focus(); }
+  }
+});
+
+switchView('home');
+
+/* PWA：通过 HTTPS 部署（如 GitHub Pages）且同目录存在 sw.js 时自动注册，实现离线与"安装到主屏幕"；
+   本地双击 file:// 打开时静默跳过，不影响任何功能 */
+if('serviceWorker' in navigator && (location.protocol==='https:' || ['localhost','127.0.0.1'].includes(location.hostname))){
+  fetch('sw.js', {method:'HEAD'}).then(r=>{
+    if(r.ok) navigator.serviceWorker.register('sw.js');
+  }).catch(()=>{});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect x="8" y="8" width="176" height="176" rx="36" fill="#2da44e"/>
+  <rect x="34" y="30" width="104" height="132" rx="10" fill="#ffffff" opacity="0.92"/>
+  <rect x="58" y="22" width="104" height="132" rx="10" fill="#dafbe1" stroke="#2da44e" stroke-width="4"/>
+  <text x="110" y="104" font-family="'Microsoft YaHei',sans-serif" font-size="58" font-weight="700"
+        fill="#1a7f37" text-anchor="middle">背</text>
+  <rect x="78" y="126" width="64" height="8" rx="4" fill="#2da44e" opacity="0.6"/>
+</svg>

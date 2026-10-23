@@ -1,0 +1,26 @@
+{
+  "name": "八股闪背 · Markdown 背诵卡片",
+  "short_name": "八股闪背",
+  "description": "导入 Markdown 面经八股，用间隔重复（FSRS）像背单词一样刷卡背诵",
+  "lang": "zh-CN",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f7f9",
+  "theme_color": "#2da44e",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+# 本地部署暂存目录（根目录已有正式部署文件）
+site/
+
+# 系统与临时文件
+*.log
+Thumbs.db
+desktop.ini
+.DS_Store
