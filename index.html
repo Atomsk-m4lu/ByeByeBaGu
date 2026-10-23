@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>八股闪背 · Markdown 背诵卡片</title>
-<meta name="theme-color" content="#2da44e">
+<title>不背八股 · Markdown 背诵卡片</title>
+<meta name="theme-color" content="#1a7f37">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="八股闪背">
+<meta name="apple-mobile-web-app-title" content="不背八股">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <!--
@@ -162,12 +162,93 @@
   .barCol .bar{width:70%; background:var(--blue); border-radius:4px 4px 0 0; min-height:2px;}
   .barCol .lbl{font-size:11px; color:var(--sub); margin-top:6px; white-space:nowrap;}
   .hidden{display:none!important;}
+
+  /* ===================== UI 2.0 主题层 ===================== */
+  :root{
+    --bg:#eef1f5; --ink:#1c2128; --sub:#62707e;
+    --brand:#1a7f37; --brand-weak:#d3f2dc; --blue:#0a6ad1; --blue-weak:#d8e9ff;
+    --warn:#9a6700; --warn-weak:#fff1c9; --danger:#c53030; --danger-weak:#ffe3e1;
+    --line:#dfe4ea; --radius:16px;
+    --shadow-sm:0 1px 2px rgba(16,24,32,.06), 0 1px 6px rgba(16,24,32,.05);
+    --shadow-md:0 6px 20px rgba(16,24,32,.10);
+  }
+  body{background:
+    radial-gradient(1100px 480px at 88% -12%, #d9f1e1 0%, transparent 58%),
+    radial-gradient(900px 420px at -12% -6%, #dcebff 0%, transparent 55%),
+    var(--bg);
+    background-attachment:fixed;}
+  #app > div{animation:fadeIn .25s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .topbar{margin-bottom:22px;}
+  .brand{display:flex;align-items:center;gap:12px;min-width:0;}
+  .logo{width:40px;height:40px;flex:none;border-radius:12px;
+    background:linear-gradient(135deg,#2da44e,#116329);
+    color:#fff;font-size:20px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 3px 10px rgba(26,127,55,.35);}
+  h1{font-size:21px;letter-spacing:.5px;}
+  .navtab{padding:7px 16px;transition:all .15s;box-shadow:var(--shadow-sm);border-color:transparent;}
+  .navtab:hover{transform:translateY(-1px);}
+  .navtab.active{background:linear-gradient(135deg,#2da44e,#1a7f37);border-color:transparent;
+    box-shadow:0 3px 10px rgba(26,127,55,.3);}
+
+  .panel{border-color:transparent;box-shadow:var(--shadow-sm);}
+  .overview .ov{background:linear-gradient(180deg,#ffffff,#f6f8fa);box-shadow:inset 0 0 0 1px var(--line);}
+  #goalBar{background:linear-gradient(90deg,#2da44e,#40c463)!important;}
+  .studyAllBtn{border-radius:12px;box-shadow:0 4px 14px rgba(10,106,209,.26);}
+  .studyAllBtn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(10,106,209,.34);}
+  #dropZone{background:linear-gradient(180deg,#ffffff,#fafbfd);box-shadow:var(--shadow-sm);transition:all .2s;}
+  #dropZone:hover{border-color:var(--brand);}
+  .deck{box-shadow:var(--shadow-sm);transition:all .18s;border-color:transparent;}
+  .deck:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+  .btn{transition:all .15s;}
+  .btn.primary{background:linear-gradient(135deg,#2da44e,#1a7f37);box-shadow:0 3px 10px rgba(26,127,55,.28);}
+  .btn.primary:disabled{background:#b9dec4;box-shadow:none;}
+  .btn.primary:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(26,127,55,.34);}
+  .btn.blue{background:linear-gradient(135deg,#218bff,#0a6ad1);}
+  .btn:not(:disabled):active{transform:scale(.97);}
+  #progressWrap{background:#e3e8ee;}
+  #progressBar{background:linear-gradient(90deg,#2da44e,#40c463);}
+  #cardBox{box-shadow:var(--shadow-md);border-color:transparent;border-radius:18px;}
+  #cardBody{font-size:17px;}
+  .rateBtn{transition:all .12s;}
+  .rateBtn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(16,24,32,.12);}
+  .brow{box-shadow:var(--shadow-sm);border-color:transparent;transition:all .15s;}
+  .brow:hover{box-shadow:var(--shadow-md);}
+  .wizTab{transition:all .15s;}
+  .wizTab:hover{border-color:var(--brand);}
+
+  /* 深色模式：跟随系统自动切换 */
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1319; --card:#151c24; --ink:#e6edf3; --sub:#93a1ae;
+      --brand:#3fb950; --brand-weak:#122b1b; --blue:#5aa9ff; --blue-weak:#122a44;
+      --warn:#d9a53a; --warn-weak:#2d2412; --danger:#f4726d; --danger-weak:#33191b;
+      --line:#263140;
+      --shadow-sm:0 1px 3px rgba(0,0,0,.4);
+      --shadow-md:0 8px 24px rgba(0,0,0,.5);
+    }
+    body{background:
+      radial-gradient(1100px 480px at 88% -12%, #0f2a1c 0%, transparent 58%),
+      radial-gradient(900px 420px at -12% -6%, #0f1e33 0%, transparent 55%),
+      var(--bg);}
+    .logo{box-shadow:0 3px 12px rgba(63,185,80,.25);}
+    #cardBody pre{background:#0b1117;border-color:var(--line);}
+    #cardBody code{background:#0b1117;color:#c9d8e6;}
+    .overview .ov{background:linear-gradient(180deg,#182130,#141b23);box-shadow:inset 0 0 0 1px var(--line);}
+    #dropZone{background:linear-gradient(180deg,#18202a,#151c24);}
+    .studyAllBtn{box-shadow:0 4px 14px rgba(10,106,209,.18);}
+  }
 </style>
 </head>
 <body>
 <div id="app">
   <div class="topbar">
-    <h1 id="pageTitle">八股闪背</h1>
+    <div class="brand">
+      <span class="logo">背</span>
+      <h1 id="pageTitle">不背八股</h1>
+    </div>
     <div class="navbtns">
       <button class="navtab active" data-view="home">卡组</button>
       <button class="navtab" data-view="stats">统计</button>
@@ -868,7 +949,7 @@ function switchView(v){
   document.querySelectorAll('.navtab').forEach(b=>b.classList.toggle('active',
     (b.dataset.view==='home' && (v==='home'||v==='browse')) || b.dataset.view===v));
   $('pageTitle').textContent =
-    v==='home' ? '八股闪背' : v==='browse' ? '卡组详情' : v==='import' ? '导入向导'
+    v==='home' ? '不背八股' : v==='browse' ? '卡组详情' : v==='import' ? '导入向导'
     : v==='study' ? '学习中' : v==='stats' ? '统计' : '设置';
   if(v==='home') renderHome();
   if(v==='import') renderWizard();
@@ -1125,7 +1206,7 @@ function exportData(){
   const blob = new Blob([JSON.stringify(db,null,2)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = '八股闪背备份_'+todayStr(Date.now())+'.json';
+  a.download = '不背八股备份_'+todayStr(Date.now())+'.json';
   a.click(); URL.revokeObjectURL(a.href);
 }
 function wipeAll(){

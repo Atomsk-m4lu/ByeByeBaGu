@@ -1,6 +1,6 @@
-{
-  "name": "八股闪背 · Markdown 背诵卡片",
-  "short_name": "八股闪背",
+﻿{
+  "name": "不背八股 · Markdown 背诵卡片",
+  "short_name": "不背八股",
   "description": "导入 Markdown 面经八股，用间隔重复（FSRS）像背单词一样刷卡背诵",
   "lang": "zh-CN",
   "start_url": "./index.html",
