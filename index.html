@@ -240,6 +240,56 @@
     #dropZone{background:linear-gradient(180deg,#18202a,#151c24);}
     .studyAllBtn{box-shadow:0 4px 14px rgba(10,106,209,.18);}
   }
+
+  /* ===== UI 3.0：参考 memcode / 不背单词 / Duolingo 的设计语言 ===== */
+  /* 顶部栏：吸顶 + 毛玻璃 */
+  .topbar{position:sticky;top:0;z-index:20;margin:0 -16px 20px;padding:12px 16px 10px;
+    background:var(--bg);
+    background:color-mix(in srgb, var(--bg) 78%, transparent);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
+
+  /* 答题正误闪光 */
+  #flash{position:fixed;inset:0;pointer-events:none;z-index:60;opacity:0;}
+  #flash.good{background:radial-gradient(circle at 50% 62%, rgba(63,185,80,.17), transparent 62%);animation:flashA .55s ease;}
+  #flash.bad{background:radial-gradient(circle at 50% 62%, rgba(244,114,109,.17), transparent 62%);animation:flashA .55s ease;}
+  @keyframes flashA{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+
+  /* Duolingo 式厚按钮：底部"立体边"，按下时下沉 */
+  .rateBtn{border-radius:14px;padding:12px 4px;box-shadow:0 3px 0 rgba(16,24,32,.15);}
+  .rateBtn:hover{transform:translateY(-1px);box-shadow:0 4px 0 rgba(16,24,32,.15);}
+  .rateBtn:active{transform:translateY(2px);box-shadow:0 0 0 rgba(16,24,32,.15);}
+  #rateRow{gap:10px;margin-top:20px;}
+
+  /* 卡组彩色标识（五种强调色轮换，memcode 式克制的彩色）+ 学习进度条 */
+  .deck .name{display:flex;align-items:center;gap:7px;}
+  .deck .dot{width:9px;height:9px;flex:none;border-radius:50%;background:var(--acc,#1a7f37);}
+  .deck .dprog{height:6px;border-radius:99px;overflow:hidden;margin-top:9px;background:var(--accw,#e3e8ee);}
+  .deck .dprog>div{height:100%;border-radius:99px;background:var(--acc,#1a7f37);transition:width .3s;}
+  .d0{--acc:#1a7f37;--accw:#d3f2dc}.d1{--acc:#0a6ad1;--accw:#d8e9ff}
+  .d2{--acc:#9a6700;--accw:#fff1c9}.d3{--acc:#c53030;--accw:#ffe3e1}
+  .d4{--acc:#8250df;--accw:#efe7ff}
+  #cardBox{padding:26px 22px;}
+  #answerHint{margin-top:20px;}
+
+  /* 移动端：底部 Tab 导航（App 形态） */
+  @media (max-width:640px){
+    .navbtns{position:fixed;left:0;right:0;bottom:0;z-index:30;gap:4px;
+      background:var(--card);border-top:1px solid var(--line);
+      box-shadow:0 -2px 14px rgba(0,0,0,.07);
+      padding:6px 10px calc(6px + env(safe-area-inset-bottom));}
+    .navtab{flex:1;display:flex;align-items:center;justify-content:center;
+      border:none;box-shadow:none;background:none;border-radius:12px;
+      padding:8px 4px;font-size:12.5px;}
+    .navtab.active{background:var(--brand-weak);color:var(--brand);box-shadow:none;transform:none;}
+    .navtab.active:hover{transform:none;}
+    #app{padding-bottom:96px;}
+  }
+  /* 深色模式的卡组强调色 */
+  @media (prefers-color-scheme: dark){
+    .d0{--acc:#3fb950;--accw:#122b1b}.d1{--acc:#5aa9ff;--accw:#122a44}
+    .d2{--acc:#d9a53a;--accw:#2d2412}.d3{--acc:#f4726d;--accw:#33191b}
+    .d4{--acc:#b392f0;--accw:#241b36}
+  }
 </style>
 </head>
 <body>
@@ -250,18 +300,18 @@
       <h1 id="pageTitle">不背八股</h1>
     </div>
     <div class="navbtns">
-      <button class="navtab active" data-view="home">卡组</button>
-      <button class="navtab" data-view="stats">统计</button>
-      <button class="navtab" data-view="settings">设置</button>
+      <button class="navtab active" data-view="home">🗂 卡组</button>
+      <button class="navtab" data-view="stats">📊 统计</button>
+      <button class="navtab" data-view="settings">⚙️ 设置</button>
     </div>
   </div>
 
   <!-- ===== 首页 ===== -->
   <div id="view-home">
     <div class="panel overview">
-      <div class="ov due"><b id="ovDue">0</b><span>今日待复习</span></div>
-      <div class="ov new"><b id="ovNew">0</b><span>今日新卡余量</span></div>
-      <div class="ov streak"><b id="ovStreak">0</b><span>连续打卡(天)</span></div>
+      <div class="ov due"><b id="ovDue">0</b><span>📥 今日待复习</span></div>
+      <div class="ov new"><b id="ovNew">0</b><span>🌱 今日新卡余量</span></div>
+      <div class="ov streak"><b id="ovStreak">0</b><span>🔥 连续打卡(天)</span></div>
     </div>
     <div class="panel" id="goalPanel">
       <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
@@ -402,6 +452,7 @@
 </div>
 
 <div class="toast" id="toast"></div>
+<div id="flash"></div>
 
 <script>
 'use strict';
@@ -916,6 +967,8 @@ function answer(r){
     streak: db.stats.streak, lastStudyDay: db.stats.lastStudyDay
   };
   applyRate(card, r);
+  const fl = $('flash'); fl.className=''; void fl.offsetWidth;  // 重新触发动画
+  fl.className = (r===1) ? 'bad' : 'good';
   db.stats.dailyLog[t] = (db.stats.dailyLog[t]||0)+1;
   if(db.settings.dailyGoal > 0 && db.stats.dailyLog[t] >= db.settings.dailyGoal && db.stats.lastGoalHitDay !== t){
     db.stats.lastGoalHitDay = t;
@@ -1002,17 +1055,20 @@ function renderHome(){
     list.innerHTML = '<div class="empty">还没有卡组，先导入一个 markdown 文件吧<br><br>支持任意排版：章节嵌套、问答对、列表、行内卡均可</div>';
     return;
   }
-  db.decks.forEach(d=>{
+  db.decks.forEach((d,di)=>{
     const c = deckCounts(d.id);
-    const row = document.createElement('div'); row.className='deck';
+    const learned = c.all - c.fresh;
+    const pct = c.all ? Math.round(learned/c.all*100) : 0;
+    const row = document.createElement('div'); row.className='deck d'+(di%5);
     row.innerHTML = `
       <div class="info" title="点击查看/编辑卡片">
-        <div class="name">${esc(d.name)}</div>
+        <div class="name"><span class="dot"></span>${esc(d.name)}</div>
         <div>
           ${c.due?`<span class="badge due">待复习 ${c.due}</span>`:''}
           ${c.fresh?`<span class="badge new">新卡 ${c.fresh}</span>`:''}
           <span class="badge all">共 ${c.all}</span>
         </div>
+        <div class="dprog"><div style="width:${pct}%"></div></div>
       </div>
       <button class="btn primary" ${(!c.due && !c.fresh)?'disabled':''}>学习</button>
       <button class="btn ghost">删</button>`;
@@ -1144,7 +1200,7 @@ function renderStudy(){
       : `🔁 第 ${card.history.length+1} 次 · 记忆强度≈${card.s>=1?Math.round(card.s)+'天':Math.round(card.s*24*60)+'分钟'}`);
   $('cardBody').innerHTML = session.flip
     ? mdLite(card.a)
-    : '<div style="font-size:17px;font-weight:600">'+mdLite(card.q)+'</div>';
+    : '<div style="font-size:19px;font-weight:650;line-height:1.65">'+mdLite(card.q)+'</div>';
   $('answerHint').style.display = session.flip ? 'none' : 'block';
   $('rateRow').classList.toggle('show', session.flip);
   if(session.flip){
