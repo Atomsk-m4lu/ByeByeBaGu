@@ -2,9 +2,10 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>不背八股 · Markdown 背诵卡片</title>
 <meta name="theme-color" content="#1a7f37">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0e1319">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="不背八股">
@@ -303,6 +304,30 @@
     .badge.all{background:#222b35;}
     #progressWrap{background:#1d2733;}
   }
+
+  /* ===== UI 3.2：移动端 App 化 ===== */
+  html, body{overscroll-behavior-y:contain;}          /* 关闭下拉刷新，应用手感 */
+  body{-webkit-tap-highlight-color:transparent;}
+  .navtab, .rateBtn, .btn{touch-action:manipulation; user-select:none;}
+  #cardBox{touch-action:pan-y; transition:transform .18s ease;}
+  #cardBox.drag{transition:none;}
+  .flipAnim{animation:flipIn .26s ease;}
+  @keyframes flipIn{0%{transform:scale(.965);opacity:.35}100%{transform:none;opacity:1}}
+  #view-study{display:flex;flex-direction:column;}
+  @media (max-width:640px){
+    /* 沉浸式学习页：隐藏顶栏和底部导航，卡片撑满一屏 */
+    .studying .topbar{display:none;}
+    .studying .navbtns{display:none;}
+    .studying #app{padding-bottom:14px; padding-bottom:calc(14px + env(safe-area-inset-bottom));}
+    #view-study{min-height:calc(100dvh - 44px);}
+    #cardBox{flex:1;}
+    #cardBody{font-size:16.5px;}
+    .rateBtn{padding:14px 4px;}
+    .rateBtn b{font-size:16px;}
+    .studyMeta{font-size:13.5px; padding-top:2px;}
+    .deck{padding:15px 16px;}
+    .topbar{padding-top:calc(12px + env(safe-area-inset-top));}
+  }
 </style>
 </head>
 <body>
@@ -421,7 +446,7 @@
       <p class="muted" id="doneSummary" style="margin-bottom:16px"></p>
       <button class="btn primary" onclick="goHome()">返回卡组</button>
     </div>
-    <p class="muted" style="text-align:center; margin-top:12px">快捷键：空格 翻面 · 1/2/3/4 评分 · Ctrl+Z 撤销</p>
+    <p class="muted" style="text-align:center; margin-top:12px">空格 翻面 · 1/2/3/4 评分 · Ctrl+Z 撤销 · 手机：左滑重来 / 右滑良好</p>
   </div>
 
   <!-- ===== 统计页 ===== -->
@@ -1038,6 +1063,7 @@ function undoAnswer(){
 
 /* ---------- 渲染 ---------- */
 function switchView(v){
+  document.body.classList.toggle('studying', v==='study');   // 学习页进入沉浸模式（移动端隐藏顶栏/底栏）
   ['home','browse','import','study','stats','settings'].forEach(id=>{
     $('view-'+id).classList.toggle('hidden', id!==v);
   });
@@ -1244,6 +1270,10 @@ function renderStudy(){
   $('cardBody').innerHTML = session.flip
     ? mdLite(card.a)
     : '<div style="font-size:19px;font-weight:650;line-height:1.65">'+mdLite(card.q)+'</div>';
+  if(session.flip !== session._lastFlip){                     // 翻面/切卡时的小动画
+    const cb = $('cardBox'); cb.classList.remove('flipAnim'); void cb.offsetWidth; cb.classList.add('flipAnim');
+    session._lastFlip = session.flip;
+  }
   $('answerHint').style.display = session.flip ? 'none' : 'block';
   $('rateRow').classList.toggle('show', session.flip);
   if(session.flip){
@@ -1403,6 +1433,33 @@ $('restoreInput').onchange = e=>{
   };
   r.readAsText(f,'utf-8'); e.target.value='';
 };
+/* 手机滑动评分：右滑=良好，左滑=重来（学习页、已翻面时生效） */
+let touchX = null, touchY = null;
+$('cardBox').addEventListener('touchstart', e=>{
+  if(!session || !session.flip) return;
+  touchX = e.touches[0].clientX; touchY = e.touches[0].clientY;
+  $('cardBox').classList.add('drag');
+}, {passive:true});
+$('cardBox').addEventListener('touchmove', e=>{
+  if(touchX===null || !session || !session.flip) return;
+  const dx = e.touches[0].clientX - touchX;
+  const dy = e.touches[0].clientY - touchY;
+  if(Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy)){
+    $('cardBox').style.transform = 'translateX('+Math.max(-90,Math.min(90,dx/2.2))+'px) rotate('+(dx/70)+'deg)';
+  }
+}, {passive:true});
+$('cardBox').addEventListener('touchend', e=>{
+  if(touchX===null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  const dy = e.changedTouches[0].clientY - touchY;
+  touchX = null;
+  const box = $('cardBox');
+  box.classList.remove('drag'); box.style.transform = '';
+  if(session && session.flip && Math.abs(dx)>70 && Math.abs(dx)>Math.abs(dy)*1.4){
+    answer(dx>0 ? 3 : 1);
+  }
+});
+
 document.addEventListener('keydown', e=>{
   if(!$('view-study').classList.contains('hidden') && session){
     if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='z'){ e.preventDefault(); undoAnswer(); return; }
