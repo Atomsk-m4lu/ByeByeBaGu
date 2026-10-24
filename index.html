@@ -431,6 +431,16 @@
   [data-theme="light"] .d3{--acc:#c53030;--accw:#ffe3e1}
   [data-theme="light"] .d4{--acc:#8250df;--accw:#efe7ff}
 
+  /* ===== 开屏 ===== */
+  #splash{position:fixed;inset:0;z-index:300;background:var(--bg,#12161f);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+    cursor:pointer;transition:opacity .35s ease;}
+  #splash.hide{opacity:0;pointer-events:none;}
+  .bb-splash-mascot{animation:bbBounce 1s ease infinite;}
+  @keyframes bbBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+  .bb-splash-name{font-size:24px;font-weight:800;color:var(--ink,#eef2f7);letter-spacing:3px;}
+  .bb-splash-sub{font-size:12px;color:var(--sub,#8b97a8);letter-spacing:5px;}
+
   /* ===== UI 5.2：AI 面试对话气泡 ===== */
   #aiChat{display:flex;flex-direction:column;}
   .msg{max-width:86%;padding:10px 13px;border-radius:12px;margin:8px 0;font-size:14px;line-height:1.7;
@@ -750,9 +760,91 @@
 <div class="toast" id="toast"></div>
 <div id="flash"></div>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="bbSplashSym">
+      <path d="M70,176 Q40,182 34,204 Q60,216 78,196 Z" fill="#22272F"/>
+      <g stroke="#D9D0BD" stroke-width="7" stroke-linecap="round" fill="none">
+        <path d="M104,192 v11 m0,1 c-7,1 -11,2 -13,4 m13,-4 c7,1 11,2 13,4"/>
+        <path d="M136,192 v11 m0,1 c-7,1 -11,2 -13,4 m13,-4 c7,1 11,2 13,4"/>
+      </g>
+      <ellipse cx="120" cy="150" rx="62" ry="56" fill="#2B313B"/>
+      <ellipse cx="120" cy="164" rx="42" ry="34" fill="#3A414D"/>
+      <path d="M76,110 Q40,124 46,162 Q54,186 84,176 Q96,158 88,126 Z" fill="#22272F"/>
+      <path d="M164,110 Q200,124 194,162 Q186,186 156,176 Q144,158 152,126 Z" fill="#22272F"/>
+      <g transform="rotate(-5 120 96)">
+        <circle cx="120" cy="86" r="64" fill="#2B313B"/>
+        <path d="M110,26 Q106,0 124,-8 Q128,18 128,26 Z" fill="#22272F"/>
+        <ellipse cx="96" cy="82" rx="15" ry="17" fill="#FFFFFF"/>
+        <ellipse cx="146" cy="82" rx="15" ry="17" fill="#FFFFFF"/>
+        <circle cx="99" cy="85" r="8.5" fill="#0E1116"/>
+        <circle cx="143" cy="85" r="8.5" fill="#0E1116"/>
+        <circle cx="95" cy="80" r="3.2" fill="#FFFFFF"/>
+        <circle cx="139" cy="80" r="3.2" fill="#FFFFFF"/>
+        <path d="M95,98 Q120,88 145,98 Q139,124 120,127 Q101,124 95,98 Z" fill="#EFE7D2"/>
+        <path d="M108,108 Q120,117 132,108" stroke="#B9AE97" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M48,62 Q120,-10 192,62" stroke="#171B21" stroke-width="18" fill="none" stroke-linecap="round"/>
+        <rect x="26" y="64" width="52" height="66" rx="22" fill="#171B21"/>
+        <rect x="37" y="75" width="30" height="44" rx="14" fill="none" stroke="#3A414D" stroke-width="4"/>
+        <rect x="162" y="64" width="52" height="66" rx="22" fill="#171B21"/>
+        <rect x="173" y="75" width="30" height="44" rx="14" fill="none" stroke="#3A414D" stroke-width="4"/>
+        <rect x="46" y="88" width="12" height="12" rx="2" fill="#00E676"/>
+        <rect x="182" y="88" width="12" height="12" rx="2" fill="#00E676"/>
+        <g>
+          <rect x="196" y="118" width="7" height="26" rx="3" fill="#E8E4DA" transform="rotate(14 199 131)"/>
+          <path d="M186,142 L222,142 L217,196 L191,196 Z" fill="#F2F2F2"/>
+          <rect x="183" y="136" width="42" height="10" rx="4" fill="#FFFFFF"/>
+          <circle cx="204" cy="170" r="9" fill="#0A8F4D"/>
+          <rect x="201" y="167" width="6" height="6" fill="#00E676"/>
+        </g>
+      </g>
+    </g>
+    <g id="bbThinkSym">
+      <path d="M70,176 Q40,182 34,204 Q60,216 78,196 Z" fill="#22272F"/>
+      <g stroke="#D9D0BD" stroke-width="7" stroke-linecap="round" fill="none">
+        <path d="M104,192 v11 m0,1 c-7,1 -11,2 -13,4 m13,-4 c7,1 11,2 13,4"/>
+        <path d="M136,192 v11 m0,1 c-7,1 -11,2 -13,4 m13,-4 c7,1 11,2 13,4"/>
+      </g>
+      <ellipse cx="120" cy="150" rx="62" ry="56" fill="#2B313B"/>
+      <ellipse cx="120" cy="164" rx="42" ry="34" fill="#3A414D"/>
+      <path d="M76,110 Q40,124 46,162 Q54,186 84,176 Q96,158 88,126 Z" fill="#22272F"/>
+      <path d="M164,110 Q200,124 194,162 Q186,186 156,176 Q144,158 152,126 Z" fill="#22272F"/>
+      <g transform="rotate(-5 120 96)">
+        <circle cx="120" cy="86" r="64" fill="#2B313B"/>
+        <ellipse cx="96" cy="82" rx="15" ry="17" fill="#FFFFFF"/>
+        <ellipse cx="146" cy="82" rx="15" ry="17" fill="#FFFFFF"/>
+        <circle cx="93" cy="76" r="8.5" fill="#0E1116"/>
+        <circle cx="135" cy="74" r="8.5" fill="#0E1116"/>
+        <path d="M82,70 q14,-9 28,-1" stroke="#0E1116" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M130,68 q14,-9 28,-1" stroke="#0E1116" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M95,98 Q120,88 145,98 Q139,124 120,127 Q101,124 95,98 Z" fill="#EFE7D2"/>
+        <path d="M109,110 L131,110" stroke="#B9AE97" stroke-width="3.5" stroke-linecap="round"/>
+        <path d="M48,62 Q120,-10 192,62" stroke="#171B21" stroke-width="18" fill="none" stroke-linecap="round"/>
+        <rect x="26" y="64" width="52" height="66" rx="22" fill="#171B21"/>
+        <rect x="37" y="75" width="30" height="44" rx="14" fill="none" stroke="#3A414D" stroke-width="4"/>
+        <rect x="162" y="64" width="52" height="66" rx="22" fill="#171B21"/>
+        <rect x="173" y="75" width="30" height="44" rx="14" fill="none" stroke="#3A414D" stroke-width="4"/>
+        <rect x="46" y="88" width="12" height="12" rx="2" fill="#00E676"/>
+        <rect x="182" y="88" width="12" height="12" rx="2" fill="#00E676"/>
+      </g>
+      <g fill="#00E676">
+        <rect x="196" y="28" width="10" height="10" rx="2"/>
+        <rect x="212" y="46" width="7" height="7" rx="1.5"/>
+        <rect x="186" y="14" width="5" height="5" rx="1"/>
+      </g>
+    </g>
+  </defs>
+</svg>
+
+<div id="splash" title="点击进入">
+  <svg width="150" height="150" viewBox="0 0 240 240" class="bb-splash-mascot" aria-hidden="true"><use href="#bbSplashSym"></use></svg>
+  <div class="bb-splash-name">不背八股</div>
+  <div class="bb-splash-sub">BYE BYE BA GU</div>
+</div>
+
 <script>
 'use strict';
-const APP_VER = '1.11.0';
+const APP_VER = '1.12.0';
 document.getElementById('appVer').textContent = 'v' + APP_VER;
 /* 外观应用：设置里选深色/浅色时在 <html> 上打标记，"跟随系统"则交给媒体查询 */
 function applyTheme(){
@@ -1745,7 +1837,10 @@ async function aiSendAnswer(){
   aiSess.busy = true; $('aiSend').disabled = true; $('aiSkip').disabled = true;
   aiBubble('me', text);
   aiSess.msgs.push({role:'user', content:aiUserMsg(text)});
-  const th = aiBubble('sys', '面试官思考中…');
+  const th = document.createElement('div');
+  th.className = 'msg sys';
+  th.innerHTML = '<svg width="54" height="54" viewBox="0 0 240 240" style="display:block;margin:0 auto 2px" aria-hidden="true"><use href="#bbThinkSym"></use></svg>面试官思考中…';
+  const c0 = $('aiChat'); c0.appendChild(th); c0.scrollTop = c0.scrollHeight;
   try{
     const out = await aiChat([{role:'system',content:AI_SYS}, ...aiSess.msgs]);
     th.remove();
@@ -1943,6 +2038,12 @@ document.addEventListener('keydown', e=>{
 
 switchView('home');
 applyTheme();
+
+/* 开屏：最长 0.9 秒，点击可跳过 */
+const splashEl = $('splash');
+function hideSplash(){ if(splashEl) splashEl.classList.add('hide'); }
+splashEl.addEventListener('click', hideSplash);
+setTimeout(hideSplash, 900);
 
 /* PWA：通过 HTTPS 部署（如 GitHub Pages）且同目录存在 sw.js 时自动注册，实现离线与"安装到主屏幕"；
    本地双击 file:// 打开时静默跳过，不影响任何功能 */

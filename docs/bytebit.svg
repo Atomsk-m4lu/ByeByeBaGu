@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <!-- ByteBit · 不背八股吉祥物（透明背景，1:1） -->
+  <path d="M70,176 Q40,182 34,204 Q60,216 78,196 Z" fill="#22272F"/>
+  <g stroke="#D9D0BD" stroke-width="7" stroke-linecap="round" fill="none">
+    <path d="M104,192 v11 m0,1 c-7,1 -11,2 -13,4 m13,-4 c7,1 11,2 13,4"/>
+    <path d="M136,192 v11 m0,1 c-7,1 -11,2 -13,4 m13,-4 c7,1 11,2 13,4"/>
+  </g>
+  <ellipse cx="120" cy="150" rx="62" ry="56" fill="#2B313B"/>
+  <ellipse cx="120" cy="164" rx="42" ry="34" fill="#3A414D"/>
+  <path d="M76,110 Q40,124 46,162 Q54,186 84,176 Q96,158 88,126 Z" fill="#22272F"/>
+  <path d="M164,110 Q200,124 194,162 Q186,186 156,176 Q144,158 152,126 Z" fill="#22272F"/>
+  <g transform="rotate(-5 120 96)">
+    <circle cx="120" cy="86" r="64" fill="#2B313B"/>
+    <path d="M110,26 Q106,0 124,-8 Q128,18 128,26 Z" fill="#22272F"/>
+    <path d="M84,52 Q98,40 118,38" stroke="#4a525e" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7"/>
+    <ellipse cx="96" cy="82" rx="15" ry="17" fill="#FFFFFF"/>
+    <ellipse cx="146" cy="82" rx="15" ry="17" fill="#FFFFFF"/>
+    <circle cx="99" cy="85" r="8.5" fill="#0E1116"/>
+    <circle cx="143" cy="85" r="8.5" fill="#0E1116"/>
+    <circle cx="95" cy="80" r="3.2" fill="#FFFFFF"/>
+    <circle cx="139" cy="80" r="3.2" fill="#FFFFFF"/>
+    <circle cx="102" cy="89" r="1.6" fill="#FFFFFF" opacity=".9"/>
+    <circle cx="146" cy="89" r="1.6" fill="#FFFFFF" opacity=".9"/>
+    <path d="M95,98 Q120,88 145,98 Q139,124 120,127 Q101,124 95,98 Z" fill="#EFE7D2"/>
+    <path d="M108,108 Q120,117 132,108" stroke="#B9AE97" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path d="M48,62 Q120,-10 192,62" stroke="#171B21" stroke-width="18" fill="none" stroke-linecap="round"/>
+    <path d="M48,62 Q120,-10 192,62" stroke="#3A414D" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <rect x="26" y="64" width="52" height="66" rx="22" fill="#171B21"/>
+    <rect x="37" y="75" width="30" height="44" rx="14" fill="none" stroke="#3A414D" stroke-width="4"/>
+    <rect x="162" y="64" width="52" height="66" rx="22" fill="#171B21"/>
+    <rect x="173" y="75" width="30" height="44" rx="14" fill="none" stroke="#3A414D" stroke-width="4"/>
+    <rect x="46" y="88" width="12" height="12" rx="2" fill="#00E676"/>
+    <rect x="182" y="88" width="12" height="12" rx="2" fill="#00E676"/>
+  </g>
+</svg>
