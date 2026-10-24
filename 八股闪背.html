@@ -293,7 +293,7 @@
 
   /* ===== UI 3.1：修复深色模式下输入框/按钮的可读性 ===== */
   :root{color-scheme:light;}
-  select,input[type=number],input[type=text],#browseSearch,.editBox textarea{
+  select,input[type=number],input[type=text],input[type=month],#browseSearch,.editBox textarea{
     background:var(--card); color:var(--ink); border:1px solid var(--line);}
   .btn.gray{background:var(--card); color:var(--ink); box-shadow:inset 0 0 0 1px var(--line);}
   .setRow{border-bottom-color:var(--line);}
@@ -435,6 +435,22 @@
       <div class="muted" style="margin-bottom:4px">近 7 天每日复习量</div>
       <div class="bars" id="weekBars"></div>
     </div>
+    <div class="panel">
+      <div class="muted" style="margin-bottom:8px">学习时长 <span style="font-size:11px">（单卡计时上限 60 秒，防挂机虚增）</span></div>
+      <div class="statGrid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="ov"><b id="tDay">0</b><span>今日</span></div>
+        <div class="ov"><b id="tWeek">0</b><span>本周</span></div>
+        <div class="ov"><b id="tMonth">0</b><span>本月</span></div>
+        <div class="ov"><b id="tYear">0</b><span>今年</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="setRow" style="border-bottom:none;padding-bottom:8px">
+        <span>历史查询（按月）</span>
+        <input type="month" id="histMonth">
+      </div>
+      <div id="histBody" class="muted"></div>
+    </div>
     <div class="panel" id="deckStats"></div>
   </div>
 
@@ -478,7 +494,7 @@ const PREVIEW_MAX = 200;    // 向导预览最多展示条数
 function defaultDB(){
   return { decks:[], cards:[],
     settings:{ dailyNew:20, retention:0.9, dailyGoal:30 },
-    stats:{ streak:0, lastStudyDay:null, dailyLog:{} },
+    stats:{ streak:0, lastStudyDay:null, dailyLog:{}, timeLog:{} },
     lastImport:null };
 }
 let db = load();
@@ -497,6 +513,7 @@ function migrateDB(d){
   let changed = false;
   if(!d.settings.retention){ d.settings.retention = 0.9; changed = true; }
   if(d.settings.dailyGoal === undefined){ d.settings.dailyGoal = 30; changed = true; }
+  if(!d.stats.timeLog){ d.stats.timeLog = {}; changed = true; }   // 每日学习时长(秒)
   d.cards.forEach(c=>{
     if(c.v3) return;
     if(c.state === 'review'){
@@ -538,6 +555,14 @@ function fmtIv(days){
   if(days<30) return days+'天';
   if(days<365) return (days/30).toFixed(days%30?1:0)+'个月';
   return (days/365).toFixed(1)+'年';
+}
+
+function fmtDur(sec){
+  sec = Math.round(sec);
+  if(sec < 60) return sec + '秒';
+  const m = Math.round(sec / 60);
+  if(m < 60) return m + '分钟';
+  return Math.floor(m/60) + '小时' + (m%60 ? (m%60)+'分钟' : '');
 }
 
 /* 极简 markdown 渲染：代码块/行内代码/加粗/挖空/换行
@@ -976,12 +1001,15 @@ function answer(r){
   lastAnswer = {
     card: JSON.parse(JSON.stringify(card)),
     queueLen: session.queue.length, total: session.total, idx: session.idx,
-    dailyKey: t, dailyVal: db.stats.dailyLog[t]||0,
+    dailyKey: t, dailyVal: db.stats.dailyLog[t]||0, timeVal: db.stats.timeLog[t]||0,
     streak: db.stats.streak, lastStudyDay: db.stats.lastStudyDay
   };
   applyRate(card, r);
   const fl = $('flash'); fl.className=''; void fl.offsetWidth;  // 重新触发动画
   fl.className = (r===1) ? 'bad' : 'good';
+  // 学习时长：本题耗时计入今天，单卡上限 60 秒（Anki "Maximum answer seconds" 惯例，防挂机虚增）
+  const studySec = Math.min(Math.max(0, Date.now() - (session.cardShownAt || Date.now())), 60000) / 1000;
+  db.stats.timeLog[t] = (db.stats.timeLog[t]||0) + Math.round(studySec);
   db.stats.dailyLog[t] = (db.stats.dailyLog[t]||0)+1;
   if(db.settings.dailyGoal > 0 && db.stats.dailyLog[t] >= db.settings.dailyGoal && db.stats.lastGoalHitDay !== t){
     db.stats.lastGoalHitDay = t;
@@ -1001,6 +1029,7 @@ function undoAnswer(){
   session.idx = lastAnswer.idx;
   session.flip = false;
   db.stats.dailyLog[lastAnswer.dailyKey] = lastAnswer.dailyVal;
+  db.stats.timeLog[lastAnswer.dailyKey] = lastAnswer.timeVal;
   db.stats.streak = lastAnswer.streak;
   db.stats.lastStudyDay = lastAnswer.lastStudyDay;
   lastAnswer = null;
@@ -1203,6 +1232,7 @@ function renderStudy(){
     $('progressBar').style.width = '100%';
     return;
   }
+  if(!session.flip) session.cardShownAt = Date.now();   // 卡片亮出即开始计时
   $('progressBar').style.width = Math.round(session.idx/session.total*100)+'%';
   $('studyDeckName').textContent = session.deckName;
   $('studyRemain').textContent = `剩余 ${session.total - session.idx} / ${session.total}`;
@@ -1246,6 +1276,37 @@ function renderStats(){
       <div class="lbl">${key.slice(5)}<br>${n}</div>`;
     bars.appendChild(col);
   }
+
+  /* 学习时长：日 / 周（周一起）/ 月 / 年 汇总 */
+  const tl = db.stats.timeLog || {};
+  const tk = todayStr(Date.now());
+  const sumRange = (fromKey, toKey) => Object.keys(tl).filter(k=>k>=fromKey && k<=toKey).reduce((a,k)=>a+tl[k], 0);
+  const nowD = new Date();
+  const monday = new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate() - (nowD.getDay()+6)%7);
+  $('tDay').textContent = fmtDur(tl[tk]||0);
+  $('tWeek').textContent = fmtDur(sumRange(todayStr(monday), tk));
+  $('tMonth').textContent = fmtDur(sumRange(tk.slice(0,7)+'-01', tk));
+  $('tYear').textContent = fmtDur(sumRange(tk.slice(0,4)+'-01-01', tk.slice(0,4)+'-12-31'));
+
+  /* 历史查询：按月列出有记录的每一天 */
+  const hm = $('histMonth');
+  if(!hm.value) hm.value = tk.slice(0,7);
+  const mk = hm.value;
+  const active = [...new Set([...Object.keys(tl), ...Object.keys(db.stats.dailyLog)])]
+    .filter(k=>k.slice(0,7)===mk).sort();
+  const wd = ['日','一','二','三','四','五','六'];
+  let sumRev = 0, sumSec = 0, rows = '';
+  active.forEach(k=>{
+    const rv = db.stats.dailyLog[k]||0, sc = tl[k]||0;
+    sumRev += rv; sumSec += sc;
+    rows += `<div style="display:flex;justify-content:space-between;padding:7px 2px;border-bottom:1px solid var(--line)">
+      <span>${mk.slice(5).replace('-','月')}${k.slice(8)}日 周${wd[new Date(k).getDay()]}</span>
+      <span>${rv} 张 · ${fmtDur(sc)}</span></div>`;
+  });
+  $('histBody').innerHTML = rows
+    ? rows + `<div style="display:flex;justify-content:space-between;padding:9px 2px;font-weight:600;color:var(--ink)">
+        <span>本月合计</span><span>${sumRev} 张 · ${fmtDur(sumSec)}</span></div>`
+    : '<div class="empty">该月暂无学习记录</div>';
 
   const ds = $('deckStats');
   if(!db.decks.length){ ds.innerHTML='<div class="empty">暂无数据</div>'; return; }
@@ -1314,6 +1375,7 @@ $('cardBox').addEventListener('click', e=>{
   flipCard();
 });
 document.querySelectorAll('.rateBtn').forEach(b=>b.onclick=()=>answer(+b.dataset.r));
+$('histMonth').onchange = ()=>renderStats();
 $('setDailyNew').onchange = e=>{
   db.settings.dailyNew = Math.max(0, +e.target.value||0);
   save(); toast('已保存');
