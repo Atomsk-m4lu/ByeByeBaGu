@@ -103,9 +103,10 @@
   #progressWrap{height:6px; background:#e7eaee; border-radius:99px; margin-bottom:14px; overflow:hidden;}
   #progressBar{height:100%; background:var(--brand); width:0; transition:width .3s;}
   .studyMeta{display:flex; justify-content:space-between; align-items:center; font-size:13px; color:var(--sub); margin-bottom:10px;}
-  #undoBtn{border:1px solid var(--line); background:var(--card); color:var(--sub); border-radius:6px;
-    padding:3px 10px; font-size:12px; cursor:pointer;}
+  #undoBtn,#exitBtn{border:1px solid var(--line); background:var(--card); color:var(--sub); border-radius:6px;
+    padding:3px 10px; font-size:12px; cursor:pointer; min-height:26px;}
   #undoBtn:disabled{opacity:.4; cursor:not-allowed;}
+  #exitBtn:hover{color:var(--danger); border-color:var(--danger);}
   #cardBox{background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
     padding:22px 18px; min-height:260px; display:flex; flex-direction:column;}
   #cardBox .tag{font-size:12px; color:var(--sub); margin-bottom:10px;}
@@ -567,6 +568,7 @@
   <div id="view-study" class="hidden">
     <div id="progressWrap"><div id="progressBar"></div></div>
     <div class="studyMeta">
+      <button id="exitBtn" title="退出本轮学习（已答的进度已保存）" onclick="goHome()">← 退出</button>
       <span id="studyDeckName"></span>
       <button id="undoBtn" disabled onclick="undoAnswer()">↩ 撤销评分</button>
       <span id="studyRemain"></span>
@@ -1640,6 +1642,7 @@ $('cardBox').addEventListener('touchend', e=>{
 
 document.addEventListener('keydown', e=>{
   if(!$('view-study').classList.contains('hidden') && session){
+    if(e.key==='Escape'){ e.preventDefault(); goHome(); return; }
     if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='z'){ e.preventDefault(); undoAnswer(); return; }
     if(e.code==='Space' || e.code==='Enter'){ e.preventDefault(); if(!session.flip) flipCard(); }
     else if(session.flip && ['1','2','3','4'].includes(e.key)){ answer(+e.key); }
