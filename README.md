@@ -24,6 +24,21 @@
 不背八股把你的面经笔记切成卡片，用间隔重复算法安排你"什么快忘了就什么时候再见面"，
 再让大模型扮演面试官**当场拷打你**——背过，更要用嘴说过。
 
+<div align="center">
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/home.png" width="200"><br><sub>首页 · 目标与数据</sub></td>
+    <td align="center"><img src="docs/screenshots/study.png" width="200"><br><sub>沉浸式刷卡</sub></td>
+    <td align="center"><img src="docs/screenshots/decks.png" width="200"><br><sub>卡组与 AI 面试</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/calendar.png" width="200"><br><sub>打卡日历</sub></td>
+    <td align="center"><img src="docs/screenshots/stats.png" width="200"><br><sub>时长统计与历史</sub></td>
+    <td align="center"><img src="docs/screenshots/settings.png" width="200"><br><sub>设置 · 外观与 AI</sub></td>
+  </tr>
+</table>
+</div>
+
 ## ✨ 特性
 
 **📥 任意排版导入**
