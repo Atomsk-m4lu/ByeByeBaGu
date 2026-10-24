@@ -1,4 +1,4 @@
-<div align="center">
+﻿<div align="center">
 
 <img src="icon.svg" width="88" alt="不背八股">
 
@@ -12,7 +12,7 @@
 [![No Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](#特性)
 [![Single File](https://img.shields.io/badge/app-single%20file%20HTML-blue)](八股闪背.html)
 [![PWA](https://img.shields.io/badge/PWA-installable-5A0FC8)](deploy/一键安装指南.md)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-ff69b4)](https://github.com/Atomsk-m4lu/ByeByeBaGu/pulls)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-ff69b4)](https://github.com/nina-noschool/ByeByeBaGu/pulls)
 
 </div>
 
@@ -72,7 +72,7 @@ PWA 安装到手机主屏幕/电脑开始菜单，完全离线可用；
 
 | 方式 | 做法 |
 |---|---|
-| **在线使用**（推荐） | 打开 [https://atomsk-m4lu.github.io/ByeByeBaGu/](https://atomsk-m4lu.github.io/ByeByeBaGu/) → 添加到主屏幕，详见 [安装指南](deploy/一键安装指南.md) |
+| **在线使用**（推荐） | 打开 [https://nina-noschool.github.io/ByeByeBaGu/](https://nina-noschool.github.io/ByeByeBaGu/) → 添加到主屏幕，详见 [安装指南](deploy/一键安装指南.md) |
 | **部署自己的站点** | Fork 本仓库 → 开启 GitHub Pages → 详见 [安装指南](deploy/一键安装指南.md) |
 | **本地运行** | 下载 [`八股闪背.html`](八股闪背.html) 双击打开 |
 
@@ -137,4 +137,4 @@ node tests/test-cloze.js    # 填空卡渲染
 
 ## 📄 许可证
 
-[MIT](LICENSE) © 2026 Atomsk-m4lu
+[MIT](LICENSE) © 2026 nina-noschool
