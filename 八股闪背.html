@@ -305,6 +305,81 @@
     #progressWrap{background:#1d2733;}
   }
 
+  /* ===== UI 4.0：不背单词风格（藏青 + 琥珀黄，分区式首页） ===== */
+  :root{
+    --bg:#f5f3ee; --ink:#23272e; --sub:#7a828e; --line:#e6e2d8;
+    --brand:#b97500; --brand-weak:#ffedc2;
+  }
+  body{background:
+    radial-gradient(900px 420px at -10% -6%, #f0ead8 0%, transparent 55%),
+    radial-gradient(900px 420px at 110% 0%, #dfeaf5 0%, transparent 55%),
+    var(--bg);}
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#12161f; --card:#1d2433; --ink:#eef2f7; --sub:#8b97a8; --line:#2a3345;
+      --brand:#ffc242; --brand-weak:#33270d;
+      --blue-weak:#16273f; --warn-weak:#33270d; --danger-weak:#33191b;
+    }
+    body{background:
+      radial-gradient(900px 420px at -10% -6%, #1a2030 0%, transparent 55%),
+      radial-gradient(900px 420px at 110% 0%, #14202e 0%, transparent 55%),
+      var(--bg);}
+  }
+
+  /* Hero 学习卡：常暗藏青底 + 琥珀强调，双主题下都醒目 */
+  #heroCard{background:linear-gradient(135deg,#26325a,#141b2c);border-radius:18px;
+    padding:18px;margin-bottom:16px;color:#fff;box-shadow:0 8px 24px rgba(10,16,30,.35);}
+  .hero-top{display:flex;align-items:center;gap:14px;}
+  .hero-ico{width:52px;height:52px;flex:none;border-radius:14px;
+    background:linear-gradient(135deg,#ffc242,#e08c00);display:flex;align-items:center;justify-content:center;
+    font-size:26px;box-shadow:0 4px 12px rgba(247,181,0,.35);}
+  .hero-title{font-size:18px;font-weight:700;}
+  .hero-sub{font-size:13px;opacity:.72;margin-top:3px;}
+  .hero-go{margin-left:auto;width:56px;height:56px;flex:none;border-radius:50%;border:none;
+    font-size:19px;cursor:pointer;background:linear-gradient(135deg,#ffc242,#f09a00);color:#231a02;
+    font-weight:800;box-shadow:0 4px 14px rgba(247,164,0,.4);transition:transform .15s;}
+  .hero-go:hover{transform:scale(1.06);}
+  .hero-go:active{transform:scale(.94);}
+  .hero-goal{margin-top:14px;}
+  .hero-bar{height:8px;background:rgba(255,255,255,.14);border-radius:99px;overflow:hidden;}
+  .hero-bar>div{height:100%;width:0;background:linear-gradient(90deg,#ffc242,#f7a400);border-radius:99px;transition:width .3s;}
+  .hero-goal-txt{font-size:12px;opacity:.72;margin-top:7px;}
+
+  /* 分区标题 + 我的数据 2×2 格 */
+  .sec{font-size:17px;font-weight:700;margin:20px 4px 10px;}
+  .mydata{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .md{display:flex;align-items:center;gap:11px;min-width:0;}
+  .mdi{width:38px;height:38px;flex:none;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .md small{display:block;color:var(--sub);font-size:12px;margin-bottom:2px;}
+  .md b{font-size:21px;line-height:1.1;}
+  .md b i{font-style:normal;font-size:12px;color:var(--sub);margin-left:3px;font-weight:400;}
+
+  /* 打卡日历 */
+  .cal-row{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;}
+  .cal-lbl{font-size:11px;color:var(--sub);margin-bottom:6px;}
+  .cal-lbl.today{color:var(--brand);font-weight:700;}
+  .cal-d{width:34px;height:34px;margin:0 auto;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:13px;color:var(--sub);}
+  .cal-d.on{background:linear-gradient(135deg,#ffc242,#f7a400);color:#231a02;font-weight:700;}
+  .cal-d.today{box-shadow:0 0 0 2px var(--brand);}
+  .cal-d.dim{opacity:.3;}
+
+  /* 卡组行：彩色图标块（替代圆点） */
+  .dicon{width:40px;height:40px;flex:none;border-radius:11px;display:flex;align-items:center;justify-content:center;
+    font-size:19px;background:var(--accw,#d3f2dc);color:var(--acc,#1a7f37);}
+  .deck .name{align-items:center;}
+
+  /* 主题强调色统一为琥珀：主按钮 / 激活态 / 进度条 */
+  .btn.primary{background:linear-gradient(135deg,#ffc242,#f09a00);color:#231a02;
+    box-shadow:0 3px 10px rgba(240,154,0,.32);}
+  .btn.primary:disabled{background:#e8dfc8;color:var(--sub);box-shadow:none;}
+  .btn.primary:not(:disabled):hover{box-shadow:0 5px 14px rgba(240,154,0,.4);}
+  .navtab.active{background:var(--brand-weak);color:var(--brand);box-shadow:none;}
+  @media (max-width:640px){
+    .navtab.active{background:var(--brand-weak);color:var(--brand);box-shadow:none;}
+  }
+  #progressBar{background:linear-gradient(90deg,#ffc242,#f7a400);}
+
   /* ===== UI 3.2：移动端 App 化 ===== */
   html, body{overscroll-behavior-y:contain;}          /* 关闭下拉刷新，应用手感 */
   body{-webkit-tap-highlight-color:transparent;}
@@ -346,20 +421,20 @@
 
   <!-- ===== 首页 ===== -->
   <div id="view-home">
-    <div class="panel overview">
-      <div class="ov due"><b id="ovDue">0</b><span>📥 今日待复习</span></div>
-      <div class="ov new"><b id="ovNew">0</b><span>🌱 今日新卡余量</span></div>
-      <div class="ov streak"><b id="ovStreak">0</b><span>🔥 连续打卡(天)</span></div>
-    </div>
-    <div class="panel" id="goalPanel">
-      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
-        <span>今日目标</span><span class="muted" id="goalText"></span>
+    <div id="heroCard">
+      <div class="hero-top">
+        <span class="hero-ico">📚</span>
+        <div class="hero-txt">
+          <div class="hero-title">开始学习</div>
+          <div class="hero-sub" id="heroSub">待复习 0 · 新卡 0</div>
+        </div>
+        <button class="hero-go" id="studyAllBtn" title="全部一起学">▶</button>
       </div>
-      <div style="height:10px;background:#e7eaee;border-radius:99px;overflow:hidden">
-        <div id="goalBar" style="height:100%;width:0;background:var(--brand);transition:width .3s"></div>
+      <div class="hero-goal">
+        <div class="hero-bar"><div id="heroBarFill"></div></div>
+        <div class="hero-goal-txt" id="heroGoalTxt"></div>
       </div>
     </div>
-    <button class="btn blue studyAllBtn" id="studyAllBtn">▶ 全部一起学（到期 + 新卡）</button>
 
     <div id="undoBanner" class="hidden">
       <span id="undoText"></span>
@@ -369,13 +444,32 @@
       </div>
     </div>
 
+    <div class="sec">我的数据</div>
+    <div class="panel mydata">
+      <div class="md"><span class="mdi" style="background:var(--blue-weak);color:var(--blue)">📥</span><div><small>今日复习</small><b id="mdTodayRev">0<i>张</i></b></div></div>
+      <div class="md"><span class="mdi" style="background:var(--brand-weak);color:var(--brand)">📈</span><div><small>累计复习</small><b id="mdTotalRev">0<i>张</i></b></div></div>
+      <div class="md"><span class="mdi" style="background:var(--warn-weak);color:var(--warn)">⏱️</span><div><small>今日时长</small><b id="mdTodayTime">0秒</b></div></div>
+      <div class="md"><span class="mdi" style="background:var(--danger-weak);color:var(--danger)">🕒</span><div><small>累计时长</small><b id="mdTotalTime">0秒</b></div></div>
+    </div>
+
+    <div class="sec">本周打卡</div>
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-weight:700">打卡日历</span>
+        <span class="muted" id="calStreak"></span>
+      </div>
+      <div class="cal-row" id="calRow"></div>
+    </div>
+
+    <div class="sec">我的卡组</div>
+    <div id="deckList"></div>
+
+    <div class="sec">导入新卡组</div>
     <div id="dropZone">
       <div class="big">📄 点击选择 或 拖拽 .md 文件到这里</div>
       <div class="muted">支持任意排版：导入向导自动识别切分规则，可预览、可手动调整后再入库</div>
       <input type="file" id="fileInput" accept=".md,.markdown,.txt" multiple hidden>
     </div>
-
-    <div id="deckList"></div>
   </div>
 
   <!-- ===== 卡组详情（浏览/编辑） ===== -->
@@ -510,7 +604,7 @@
 
 <script>
 'use strict';
-const APP_VER = '1.7.0';
+const APP_VER = '1.8.0';
 document.getElementById('appVer').textContent = 'v' + APP_VER;
 const LS_KEY = 'shanbei_md_v3';
 const LS_KEY_OLD = 'shanbei_md_v2';
@@ -1094,24 +1188,43 @@ function renderHome(){
   const now = Date.now();
   const dueAll = db.cards.filter(c=>c.state!=='new' && c.due<=now).length;
   const freshLeft = Math.max(0, db.settings.dailyNew - introducedToday());
-  $('ovDue').textContent = dueAll;
-  $('ovNew').textContent = freshLeft;
-  $('ovStreak').textContent = db.stats.streak;
+  $('heroSub').textContent = `待复习 ${dueAll} · 新卡 ${freshLeft}`;
   $('studyAllBtn').style.display = (dueAll + freshLeft) ? '' : 'none';
 
-  // 每日目标进度
-  const todayRev = db.stats.dailyLog[todayStr(Date.now())] || 0;
+  // 我的数据：今日/累计 复习量与时长
+  const tk = todayStr(now);
+  const todayRev = db.stats.dailyLog[tk] || 0;
+  const todaySec = (db.stats.timeLog||{})[tk] || 0;
+  const totalRev = Object.values(db.stats.dailyLog).reduce((a,b)=>a+b, 0);
+  const totalSec = Object.values(db.stats.timeLog||{}).reduce((a,b)=>a+b, 0);
   const goal = db.settings.dailyGoal || 0;
-  const gp = $('goalPanel');
-  if(goal > 0){
-    gp.classList.remove('hidden');
-    const done = todayRev >= goal;
-    $('goalText').textContent = done ? `已达成 🎉 ${todayRev}/${goal}` : `${todayRev}/${goal} 张`;
-    $('goalBar').style.width = Math.min(100, Math.round(todayRev/goal*100)) + '%';
-    $('goalBar').style.background = done ? 'var(--warn)' : 'var(--brand)';
-  }else{
-    gp.classList.add('hidden');
+  $('heroBarFill').style.width = goal>0
+    ? Math.min(100, Math.round(todayRev/goal*100)) + '%'
+    : (todayRev ? '100%' : '0');
+  $('heroGoalTxt').textContent = goal>0
+    ? (todayRev>=goal ? `今日目标达成 🎉 ${todayRev}/${goal}` : `今日目标 ${todayRev}/${goal} 张`)
+    : `今日已复习 ${todayRev} 张`;
+  $('mdTodayRev').innerHTML = todayRev + '<i>张</i>';
+  $('mdTotalRev').innerHTML = totalRev + '<i>张</i>';
+  $('mdTodayTime').textContent = fmtDur(todaySec);
+  $('mdTotalTime').textContent = fmtDur(totalSec);
+
+  // 本周打卡日历（周一 ~ 周日，参照不背单词样式）
+  $('calStreak').textContent = `连续打卡 ${db.stats.streak} 天`;
+  const base = new Date(now); base.setHours(0,0,0,0);
+  const monday = new Date(base); monday.setDate(base.getDate() - (base.getDay()+6)%7);
+  const wds = ['一','二','三','四','五','六','日'];
+  let cal = '';
+  for(let i=0;i<7;i++){
+    const d = new Date(monday); d.setDate(monday.getDate()+i);
+    const key = todayStr(d);
+    const studied = (db.stats.dailyLog[key]||0) > 0;
+    const isToday = key===tk;
+    const future = d > base;
+    cal += `<div><div class="cal-lbl${isToday?' today':''}">周${wds[i]}</div>`+
+      `<div class="cal-d${studied?' on':''}${isToday?' today':''}${future?' dim':''}">${isToday?'今':d.getDate()}</div></div>`;
   }
+  $('calRow').innerHTML = cal;
 
   if(db.lastImport && db.lastImport.count > 0){
     $('undoBanner').classList.remove('hidden');
@@ -1132,7 +1245,7 @@ function renderHome(){
     const row = document.createElement('div'); row.className='deck d'+(di%5);
     row.innerHTML = `
       <div class="info" title="点击查看/编辑卡片">
-        <div class="name"><span class="dot"></span>${esc(d.name)}</div>
+        <div class="name"><span class="dicon">📚</span>${esc(d.name)}</div>
         <div>
           ${c.due?`<span class="badge due">待复习 ${c.due}</span>`:''}
           ${c.fresh?`<span class="badge new">新卡 ${c.fresh}</span>`:''}
