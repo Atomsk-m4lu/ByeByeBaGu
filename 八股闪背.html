@@ -431,6 +431,14 @@
   [data-theme="light"] .d3{--acc:#c53030;--accw:#ffe3e1}
   [data-theme="light"] .d4{--acc:#8250df;--accw:#efe7ff}
 
+  /* ===== UI 5.2：AI 面试对话气泡 ===== */
+  #aiChat{display:flex;flex-direction:column;}
+  .msg{max-width:86%;padding:10px 13px;border-radius:12px;margin:8px 0;font-size:14px;line-height:1.7;
+    white-space:pre-wrap;overflow-wrap:break-word;}
+  .msg.ai{background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow-sm);}
+  .msg.me{background:var(--brand-weak);color:var(--ink);margin-left:auto;}
+  .msg.sys{background:transparent;color:var(--sub);font-size:12.5px;text-align:center;max-width:100%;padding:4px;}
+
   /* ===== UI 5.1：整月打卡日历页 + 统计页排版优化 ===== */
   #calCard{cursor:pointer; transition:all .18s;}
   #calCard:hover{transform:translateY(-2px); box-shadow:var(--shadow-md);}
@@ -531,6 +539,16 @@
       <div class="cal-row" id="calRow"></div>
     </div>
 
+    <div class="sec">AI 面试模拟</div>
+    <div class="panel" style="display:flex;align-items:center;gap:12px">
+      <span class="mdi" style="background:var(--blue-weak);color:var(--blue)">🎤</span>
+      <div style="flex:1;min-width:0">
+        <b style="font-size:15px">AI 面试官拷打</b>
+        <div class="muted">大模型扮演面试官，对照参考答案点评并追问</div>
+      </div>
+      <button class="btn primary" onclick="openAi()">进入</button>
+    </div>
+
     <div class="sec">我的卡组</div>
     <div id="deckList"></div>
 
@@ -599,6 +617,34 @@
       <button class="btn gray" id="wizCancelBtn">取消</button>
       <button class="btn blue hidden" id="wizAutoAllBtn">其余文件全部自动导入</button>
       <button class="btn primary" id="wizConfirmBtn">确认导入</button>
+    </div>
+  </div>
+
+  <!-- ===== AI 面试 ===== -->
+  <div id="view-ai" class="hidden">
+    <button class="backLink" onclick="goHome()">← 返回</button>
+    <div id="aiSetup">
+      <div class="panel">
+        <div class="muted" style="margin-bottom:10px">选择要被拷打的卡组（每场最多 15 题）</div>
+        <select id="aiDeckSel" style="width:100%"></select>
+        <button class="btn primary" id="aiStart" style="width:100%;margin-top:14px">🎤 开始面试</button>
+        <p class="muted" id="aiCfgHint" style="margin-top:10px"></p>
+      </div>
+      <div id="aiHist"></div>
+    </div>
+    <div id="aiRun" class="hidden">
+      <div class="studyMeta">
+        <span id="aiProg"></span>
+        <button class="btn ghost" id="aiEndBtn" style="flex:none">结束面试</button>
+      </div>
+      <div class="panel" id="aiChat" style="max-height:58vh;overflow-y:auto;"></div>
+      <textarea id="aiInput" placeholder="输入你的回答…（Ctrl+Enter 发送）"
+        style="width:100%;min-height:70px;margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;background:var(--card);color:var(--ink);resize:vertical"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn gray" id="aiSkip" style="flex:1">跳过此题</button>
+        <button class="btn primary" id="aiSend" style="flex:2">发送回答</button>
+      </div>
+      <p class="muted" style="text-align:center;margin-top:10px">回答尽量口语化完整表述，点评会更贴近真实面试</p>
     </div>
   </div>
 
@@ -686,6 +732,12 @@
       </div>
     </div>
     <div class="panel">
+      <div class="muted" style="margin-bottom:10px">AI 面试（DeepSeek 等 OpenAI 兼容接口，Key 只保存在本机）</div>
+      <div class="setRow"><span>接口地址</span><input type="text" id="aiBase" style="width:190px" placeholder="https://api.deepseek.com"></div>
+      <div class="setRow"><span>API Key</span><input type="password" id="aiKey" style="width:190px" placeholder="sk-..."></div>
+      <div class="setRow"><span>模型</span><input type="text" id="aiModel" style="width:190px" placeholder="deepseek-chat"></div>
+    </div>
+    <div class="panel">
       <div class="setRow"><span>导出数据备份（JSON）</span><button class="btn small gray" onclick="exportData()">导出</button></div>
       <div class="setRow"><span>从备份恢复</span><button class="btn small gray" onclick="document.getElementById('restoreInput').click()">导入</button></div>
       <div class="setRow"><span>清空全部数据</span><button class="btn small ghost" onclick="wipeAll()">清空</button></div>
@@ -700,7 +752,7 @@
 
 <script>
 'use strict';
-const APP_VER = '1.10.0';
+const APP_VER = '1.11.0';
 document.getElementById('appVer').textContent = 'v' + APP_VER;
 /* 外观应用：设置里选深色/浅色时在 <html> 上打标记，"跟随系统"则交给媒体查询 */
 function applyTheme(){
@@ -718,6 +770,7 @@ function defaultDB(){
   return { decks:[], cards:[],
     settings:{ dailyNew:20, retention:0.9, dailyGoal:30, appearance:'dark' },
     stats:{ streak:0, lastStudyDay:null, dailyLog:{}, timeLog:{} },
+    ai:{ cfg:{ base:'https://api.deepseek.com', key:'', model:'deepseek-chat' }, sessions:[] },
     lastImport:null };
 }
 let db = load();
@@ -738,6 +791,7 @@ function migrateDB(d){
   if(d.settings.dailyGoal === undefined){ d.settings.dailyGoal = 30; changed = true; }
   if(d.settings.appearance === undefined){ d.settings.appearance = 'dark'; changed = true; }
   if(!d.stats.timeLog){ d.stats.timeLog = {}; changed = true; }   // 每日学习时长(秒)
+  if(!d.ai){ d.ai = { cfg:{ base:'https://api.deepseek.com', key:'', model:'deepseek-chat' }, sessions:[] }; changed = true; }
   d.cards.forEach(c=>{
     if(c.v3) return;
     if(c.state === 'review'){
@@ -1259,19 +1313,21 @@ function undoAnswer(){
 /* ---------- 渲染 ---------- */
 function switchView(v){
   document.body.classList.toggle('studying', v==='study');   // 学习页进入沉浸模式（移动端隐藏顶栏/底栏）
-  ['home','browse','cal','import','study','stats','settings'].forEach(id=>{
+  ['home','browse','cal','import','ai','study','stats','settings'].forEach(id=>{
     $('view-'+id).classList.toggle('hidden', id!==v);
   });
   document.querySelectorAll('.navtab').forEach(b=>b.classList.toggle('active',
-    (b.dataset.view==='home' && (v==='home'||v==='browse'||v==='cal')) || b.dataset.view===v));
+    (b.dataset.view==='home' && (v==='home'||v==='browse'||v==='cal'||v==='ai')) || b.dataset.view===v));
   $('pageTitle').textContent =
     v==='home' ? '不背八股' : v==='browse' ? '卡组详情' : v==='cal' ? '打卡日历' : v==='import' ? '导入向导'
-    : v==='study' ? '学习中' : v==='stats' ? '统计' : '设置';
+    : v==='ai' ? 'AI 面试' : v==='study' ? '学习中' : v==='stats' ? '统计' : '设置';
   if(v==='home') renderHome();
   if(v==='cal') renderCal();
+  if(v==='ai') openAiView();
   if(v==='import') renderWizard();
   if(v==='stats') renderStats();
-  if(v==='settings'){ $('setDailyNew').value = db.settings.dailyNew; $('setRetention').value = db.settings.retention; $('setDailyGoal').value = db.settings.dailyGoal; $('setAppearance').value = db.settings.appearance||'dark'; }
+  if(v==='settings'){ $('setDailyNew').value = db.settings.dailyNew; $('setRetention').value = db.settings.retention; $('setDailyGoal').value = db.settings.dailyGoal; $('setAppearance').value = db.settings.appearance||'dark';
+    $('aiBase').value = db.ai.cfg.base; $('aiKey').value = db.ai.cfg.key; $('aiModel').value = db.ai.cfg.model; }
 }
 function goHome(){ session=null; lastAnswer=null; browse=null; switchView('home'); }
 
@@ -1607,6 +1663,156 @@ function renderStats(){
   });
 }
 
+/* ---------- AI 面试（DeepSeek 等 OpenAI 兼容接口） ---------- */
+const AI_SYS = '你是一位严格、专业、经验丰富的中国互联网大厂面试官，全程使用中文进行模拟面试。候选人每回答一次，你必须：1) 对照参考答案给出简短点评（指出遗漏点、错误点、亮点）；2) 提出一个自然的追问（若确实没有值得追问的，写【追问】无）；3) 给出 1-5 的整数评分（对照参考答案的覆盖度与准确性，5=完整正确）。输出必须严格遵循如下格式，不要输出任何其它内容：\n【点评】…\n【追问】…\n【评分】X/5';
+let aiSess = null;
+function aiCfgOk(){ const c = db.ai.cfg; return !!(c.key && c.model); }
+function openAi(){
+  if(!aiCfgOk()){ toast('请先在「设置」里配置 API Key'); switchView('settings'); return; }
+  switchView('ai');
+}
+function openAiView(){
+  if(aiSess){ $('aiSetup').classList.add('hidden'); $('aiRun').classList.remove('hidden'); return; }
+  $('aiSetup').classList.remove('hidden'); $('aiRun').classList.add('hidden');
+  const sel = $('aiDeckSel');
+  sel.innerHTML = db.decks.length ? db.decks.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('') : '<option value="">（还没有卡组，先去导入）</option>';
+  const ok = aiCfgOk();
+  $('aiCfgHint').textContent = ok ? `当前模型：${db.ai.cfg.model}` : '尚未配置：请到「设置」填写接口地址与 API Key（推荐 DeepSeek）';
+  $('aiStart').disabled = !db.decks.length || !ok;
+  const ss = db.ai.sessions;
+  $('aiHist').innerHTML = !ss.length ? '' : '<div class="sec">历史面试</div>' + ss.slice(0,10).map(s=>{
+    const sc = s.items.filter(x=>x.score);
+    const avg = sc.length ? (sc.reduce((a,x)=>a+x.score,0)/sc.length).toFixed(1) : '-';
+    return `<div class="panel" style="padding:12px 14px;margin-bottom:10px"><b style="font-size:14px">${esc(s.deckName)}</b>
+      <div class="muted" style="margin-top:4px">${new Date(s.ts).toLocaleString('zh-CN')} · ${s.items.length} 题 · 平均 ${avg} 分</div></div>`;
+  }).join('');
+}
+async function aiChat(messages){
+  const c = db.ai.cfg;
+  const res = await fetch(c.base.replace(/\/+$/,'') + '/chat/completions', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+c.key},
+    body: JSON.stringify({ model:c.model, messages, temperature:0.7 })
+  });
+  if(!res.ok) throw new Error('HTTP '+res.status+'：'+(await res.text()).slice(0,150));
+  const d = await res.json();
+  return (d.choices && d.choices[0] && d.choices[0].message.content) || '';
+}
+function aiBubble(who, text){
+  const d = document.createElement('div'); d.className = 'msg '+who; d.textContent = text;
+  const c = $('aiChat'); c.appendChild(d); c.scrollTop = c.scrollHeight;
+}
+function aiStartRun(){
+  const deckId = $('aiDeckSel').value;
+  const deck = db.decks.find(d=>d.id===deckId);
+  if(!deck){ toast('请先选择卡组'); return; }
+  let cards = db.cards.filter(c=>c.deckId===deckId && c.q && c.a);
+  if(cards.some(c=>/^Q\d+/.test(c.q))) cards = cards.filter(c=>!/·追问/.test(c.q)); // 主问出题，追问卡留给追问环节
+  cards = cards.slice(0, 15);
+  if(!cards.length){ toast('该卡组没有带答案的题目'); return; }
+  aiSess = { deckName:deck.name, cards, idx:0, round:0, msgs:[], results:[],
+             pendingScore:null, followupQ:null, presetQ:null, busy:false };
+  $('aiSetup').classList.add('hidden'); $('aiRun').classList.remove('hidden');
+  $('aiChat').innerHTML = '';
+  $('aiSend').disabled = false; $('aiSkip').disabled = false; $('aiEndBtn').disabled = false;
+  aiBubble('sys', `面试开始：卡组「${deck.name}」，共 ${cards.length} 题。请像真实面试一样用文字完整作答。`);
+  aiAsk();
+}
+function aiCur(){ return aiSess.cards[aiSess.idx]; }
+function aiAsk(){
+  const c = aiCur();
+  aiSess.round = 0; aiSess.msgs = []; aiSess.pendingScore = null; aiSess.followupQ = null;
+  const mn = c.q.match(/^Q(\d+)/);
+  const preset = mn && db.cards.find(x=>x.deckId===c.deckId && x.q.indexOf('Q'+mn[1]+'·追问')===0);
+  aiSess.presetQ = preset ? preset.q : null;
+  aiBubble('ai', `【第 ${aiSess.idx+1}/${aiSess.cards.length} 题】${c.q}`);
+  $('aiProg').textContent = `${aiSess.deckName} · 第 ${aiSess.idx+1}/${aiSess.cards.length} 题`;
+}
+function aiUserMsg(answer){
+  const c = aiCur();
+  const ref = (c.a||'').slice(0, 3000);
+  if(aiSess.round === 1){
+    return `背景题目：「${c.q}」\n参考答案：\n${ref}\n\n面试官刚才的追问：「${aiSess.followupQ}」\n候选人对追问的回答：\n${answer}\n\n请输出：对本轮回答的点评与评分；【追问】写「无」。`;
+  }
+  return `题目：「${c.q}」\n参考答案：\n${ref}\n\n候选人的回答：\n${answer}\n\n请输出：点评、一个自然的追问与评分。`+
+         (aiSess.presetQ ? `\n若要追问，请使用这个固定问题：「${aiSess.presetQ}」` : '');
+}
+async function aiSendAnswer(){
+  if(!aiSess || aiSess.busy) return;
+  const text = $('aiInput').value.trim();
+  if(!text){ toast('先输入你的回答'); return; }
+  $('aiInput').value = '';
+  aiSess.busy = true; $('aiSend').disabled = true; $('aiSkip').disabled = true;
+  aiBubble('me', text);
+  aiSess.msgs.push({role:'user', content:aiUserMsg(text)});
+  const th = aiBubble('sys', '面试官思考中…');
+  try{
+    const out = await aiChat([{role:'system',content:AI_SYS}, ...aiSess.msgs]);
+    th.remove();
+    aiSess.msgs.push({role:'assistant', content:out});
+    aiHandle(out);
+  }catch(e){
+    th.remove();
+    aiBubble('sys', '⚠️ 调用失败：'+e.message+'（请检查网络与 Key；部分接口不支持浏览器直连）');
+  }
+  aiSess.busy = false;
+  if(aiSess){ $('aiSend').disabled = false; $('aiSkip').disabled = false; }
+}
+function aiParse(out){
+  const sc = out.match(/【评分】\s*([1-5](?:\.\d)?)/);
+  const fw = out.match(/【追问】\s*([\s\S]*?)(?=【评分】|$)/);
+  const pt = out.match(/【点评】\s*([\s\S]*?)(?=【追问】|【评分】|$)/);
+  return { score: sc ? Math.round(+sc[1]) : null,
+           follow: fw ? fw[1].replace(/\s+/g,' ').trim() : '',
+           point: pt ? pt[1].trim() : out.trim() };
+}
+function aiHandle(out){
+  const p = aiParse(out);
+  if(p.point) aiBubble('ai', '【点评】'+p.point);
+  const c = aiCur();
+  if(aiSess.round === 0){
+    aiSess.pendingScore = p.score;
+    if(p.follow && p.follow !== '无' && p.follow.length > 1){
+      aiSess.followupQ = p.follow; aiSess.round = 1;
+      aiBubble('ai', '【追问】'+p.follow);
+      return;                                   // 等待候选人的追问回答
+    }
+  }
+  aiSess.results.push({ q:c.q, score: aiSess.round===1 ? (p.score ?? aiSess.pendingScore) : p.score });
+  aiNext();
+}
+function aiNext(){
+  aiSess.idx++;
+  if(aiSess.idx < aiSess.cards.length) aiAsk();
+  else aiFinish();
+}
+function aiSkipCard(){
+  if(!aiSess || aiSess.busy) return;
+  const c = aiCur();
+  aiBubble('sys', `（跳过「${c.q}」）`);
+  aiSess.results.push({ q:c.q, score: aiSess.pendingScore });
+  aiNext();
+}
+async function aiFinish(){
+  if(!aiSess) return;
+  const s = aiSess; aiSess = null;
+  $('aiSend').disabled = true; $('aiSkip').disabled = true; $('aiEndBtn').disabled = true;
+  aiBubble('sys', '面试结束。');
+  try{
+    const list = s.results.map((r,i)=>`${i+1}. ${r.q} — ${r.score ? r.score+'分' : '未评分'}`).join('\n');
+    const out = await aiChat([
+      {role:'system', content:'你是刚结束模拟面试的面试官。根据以下各题评分与题目，用中文给出 150 字以内的总体评价，并指出最需要补强的 2-3 个方向。不要逐题打分。'},
+      {role:'user', content: list || '（候选人一题未答）'}]);
+    s.summary = out;
+    aiBubble('ai', '【总评】'+out);
+  }catch(e){ aiBubble('sys', '总评生成失败：'+e.message); }
+  s.items = s.results; delete s.cards; delete s.msgs; delete s.results;
+  db.ai.sessions.unshift({ ts:Date.now(), deckName:s.deckName, items:s.items, summary:s.summary||'' });
+  db.ai.sessions = db.ai.sessions.slice(0, 20);
+  save();
+  aiBubble('sys', '本场记录已保存。点击左上角「← 返回」退出。');
+}
+
 /* ---------- 备份 ---------- */
 function exportData(){
   const blob = new Blob([JSON.stringify(db,null,2)], {type:'application/json'});
@@ -1655,6 +1861,16 @@ $('histMonth').onchange = ()=>renderStats();
 $('calCard').onclick = openCalendar;
 $('calPrev').onclick = ()=>{ calPage.m--; if(calPage.m<0){ calPage.m=11; calPage.y--; } renderCal(); };
 $('calNext').onclick = ()=>{ if($('calNext').disabled) return; calPage.m++; if(calPage.m>11){ calPage.m=0; calPage.y++; } renderCal(); };
+$('aiStart').onclick = aiStartRun;
+$('aiSend').onclick = aiSendAnswer;
+$('aiSkip').onclick = aiSkipCard;
+$('aiEndBtn').onclick = ()=>{ if(aiSess && confirm('结束本次面试？已答题目会保存。')) aiFinish(); };
+$('aiInput').addEventListener('keydown', e=>{
+  if((e.ctrlKey||e.metaKey) && e.key==='Enter'){ e.preventDefault(); aiSendAnswer(); }
+});
+[['aiBase','base'],['aiKey','key'],['aiModel','model']].forEach(pair=>{
+  $(pair[0]).onchange = e=>{ db.ai.cfg[pair[1]] = e.target.value.trim(); save(); };
+});
 $('setDailyNew').onchange = e=>{
   db.settings.dailyNew = Math.max(0, +e.target.value||0);
   save(); toast('已保存');
