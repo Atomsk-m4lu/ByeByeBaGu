@@ -102,7 +102,9 @@
   /* 学习页 */
   #progressWrap{height:6px; background:#e7eaee; border-radius:99px; margin-bottom:14px; overflow:hidden;}
   #progressBar{height:100%; background:var(--brand); width:0; transition:width .3s;}
-  .studyMeta{display:flex; justify-content:space-between; align-items:center; font-size:13px; color:var(--sub); margin-bottom:10px;}
+  .studyMeta{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--sub); margin-bottom:10px;}
+  #studyDeckName{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  #exitBtn,#undoBtn,#studyRemain{flex:none;}
   #undoBtn,#exitBtn{border:1px solid var(--line); background:var(--card); color:var(--sub); border-radius:6px;
     padding:3px 10px; font-size:12px; cursor:pointer; min-height:26px;}
   #undoBtn:disabled{opacity:.4; cursor:not-allowed;}
