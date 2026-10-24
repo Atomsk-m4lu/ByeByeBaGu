@@ -501,7 +501,7 @@
       <div class="setRow"><span>清空全部数据</span><button class="btn small ghost" onclick="wipeAll()">清空</button></div>
       <input type="file" id="restoreInput" accept=".json" hidden>
     </div>
-    <p class="muted">数据全部保存在本浏览器 localStorage 中，换浏览器/换电脑请先导出备份再恢复。保持率越高，复习间隔越短、复习量越大。</p>
+    <p class="muted">数据全部保存在本浏览器 localStorage 中，换浏览器/换电脑请先导出备份再恢复。保持率越高，复习间隔越短、复习量越大。<br>不背八股 <b id="appVer"></b></p>
   </div>
 </div>
 
@@ -510,6 +510,8 @@
 
 <script>
 'use strict';
+const APP_VER = '1.7.0';
+document.getElementById('appVer').textContent = 'v' + APP_VER;
 const LS_KEY = 'shanbei_md_v3';
 const LS_KEY_OLD = 'shanbei_md_v2';
 const LONG_ANSWER = 1500;   // 超长答案阈值（字符）
