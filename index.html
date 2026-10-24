@@ -377,6 +377,57 @@
   }
   #progressBar{background:linear-gradient(90deg,#ffc242,#f7a400);}
 
+  /* ===== UI 5.0：外观手动切换（设置里选深色/浅色时覆盖"跟随系统"） ===== */
+  [data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#12161f; --card:#1d2433; --ink:#eef2f7; --sub:#8b97a8; --line:#2a3345;
+    --brand:#ffc242; --brand-weak:#33270d;
+    --blue:#5aa9ff; --blue-weak:#16273f;
+    --warn:#d9a53a; --warn-weak:#33270d;
+    --danger:#f4726d; --danger-weak:#33191b;
+    --shadow-sm:0 1px 3px rgba(0,0,0,.4);
+    --shadow-md:0 8px 24px rgba(0,0,0,.5);
+  }
+  html[data-theme="dark"] body{background:
+    radial-gradient(900px 420px at -10% -6%, #1a2030 0%, transparent 55%),
+    radial-gradient(900px 420px at 110% 0%, #14202e 0%, transparent 55%),
+    var(--bg);}
+  [data-theme="dark"] #cardBody pre{background:#0b1117;border-color:var(--line);}
+  [data-theme="dark"] #cardBody code{background:#0b1117;color:#c9d8e6;}
+  [data-theme="dark"] #dropZone{background:linear-gradient(180deg,#18202a,#151c24);}
+  [data-theme="dark"] .badge.all{background:#222b35;}
+  [data-theme="dark"] #progressWrap{background:#1d2733;}
+  [data-theme="dark"] .logo{box-shadow:0 3px 12px rgba(63,185,80,.25);}
+  [data-theme="dark"] .d0{--acc:#3fb950;--accw:#122b1b}
+  [data-theme="dark"] .d1{--acc:#5aa9ff;--accw:#122a44}
+  [data-theme="dark"] .d2{--acc:#d9a53a;--accw:#33270d}
+  [data-theme="dark"] .d3{--acc:#f4726d;--accw:#33191b}
+  [data-theme="dark"] .d4{--acc:#b392f0;--accw:#241b36}
+
+  [data-theme="light"]{
+    color-scheme:light;
+    --bg:#f5f3ee; --card:#ffffff; --ink:#23272e; --sub:#7a828e; --line:#e6e2d8;
+    --brand:#b97500; --brand-weak:#ffedc2;
+    --blue:#0a6ad1; --blue-weak:#d8e9ff;
+    --warn:#9a6700; --warn-weak:#fff1c9;
+    --danger:#c53030; --danger-weak:#ffe3e1;
+    --shadow-sm:0 1px 2px rgba(16,24,32,.06), 0 1px 6px rgba(16,24,32,.05);
+    --shadow-md:0 6px 20px rgba(16,24,32,.10);
+  }
+  html[data-theme="light"] body{background:
+    radial-gradient(900px 420px at -10% -6%, #f0ead8 0%, transparent 55%),
+    radial-gradient(900px 420px at 110% 0%, #dfeaf5 0%, transparent 55%),
+    var(--bg);}
+  [data-theme="light"] #cardBody pre{background:#f6f8fa;border-color:var(--line);}
+  [data-theme="light"] #cardBody code{background:#f0f1f2;color:inherit;}
+  [data-theme="light"] .badge.all{background:#f0f1f2;}
+  [data-theme="light"] #progressWrap{background:#e3e8ee;}
+  [data-theme="light"] .d0{--acc:#1a7f37;--accw:#d3f2dc}
+  [data-theme="light"] .d1{--acc:#0a6ad1;--accw:#d8e9ff}
+  [data-theme="light"] .d2{--acc:#9a6700;--accw:#fff1c9}
+  [data-theme="light"] .d3{--acc:#c53030;--accw:#ffe3e1}
+  [data-theme="light"] .d4{--acc:#8250df;--accw:#efe7ff}
+
   /* ===== UI 3.2：移动端 App 化 ===== */
   html, body{overscroll-behavior-y:contain;}          /* 关闭下拉刷新，应用手感 */
   body{-webkit-tap-highlight-color:transparent;}
@@ -585,6 +636,14 @@
         <span>每日复习目标（张，0 为不设目标）</span>
         <input type="number" id="setDailyGoal" min="0" max="1000">
       </div>
+      <div class="setRow">
+        <span>外观</span>
+        <select id="setAppearance">
+          <option value="dark">🌙 深色</option>
+          <option value="light">☀️ 浅色</option>
+          <option value="auto">🌗 跟随系统</option>
+        </select>
+      </div>
     </div>
     <div class="panel">
       <div class="setRow"><span>导出数据备份（JSON）</span><button class="btn small gray" onclick="exportData()">导出</button></div>
@@ -601,8 +660,14 @@
 
 <script>
 'use strict';
-const APP_VER = '1.8.0';
+const APP_VER = '1.9.0';
 document.getElementById('appVer').textContent = 'v' + APP_VER;
+/* 外观应用：设置里选深色/浅色时在 <html> 上打标记，"跟随系统"则交给媒体查询 */
+function applyTheme(){
+  const m = db.settings.appearance || 'dark';
+  if(m === 'auto') delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = m;
+}
 const LS_KEY = 'shanbei_md_v3';
 const LS_KEY_OLD = 'shanbei_md_v2';
 const LONG_ANSWER = 1500;   // 超长答案阈值（字符）
@@ -611,7 +676,7 @@ const PREVIEW_MAX = 200;    // 向导预览最多展示条数
 /* ---------- 数据层 ---------- */
 function defaultDB(){
   return { decks:[], cards:[],
-    settings:{ dailyNew:20, retention:0.9, dailyGoal:30 },
+    settings:{ dailyNew:20, retention:0.9, dailyGoal:30, appearance:'dark' },
     stats:{ streak:0, lastStudyDay:null, dailyLog:{}, timeLog:{} },
     lastImport:null };
 }
@@ -631,6 +696,7 @@ function migrateDB(d){
   let changed = false;
   if(!d.settings.retention){ d.settings.retention = 0.9; changed = true; }
   if(d.settings.dailyGoal === undefined){ d.settings.dailyGoal = 30; changed = true; }
+  if(d.settings.appearance === undefined){ d.settings.appearance = 'dark'; changed = true; }
   if(!d.stats.timeLog){ d.stats.timeLog = {}; changed = true; }   // 每日学习时长(秒)
   d.cards.forEach(c=>{
     if(c.v3) return;
@@ -676,11 +742,7 @@ function fmtIv(days){
 }
 
 function fmtDur(sec){
-  sec = Math.round(sec);
-  if(sec < 60) return sec + '秒';
-  const m = Math.round(sec / 60);
-  if(m < 60) return m + '分钟';
-  return Math.floor(m/60) + '小时' + (m%60 ? (m%60)+'分钟' : '');
+  return Math.round(sec/60) + '分钟';   // 时长统一按分钟显示（不背单词口径）
 }
 
 /* 极简 markdown 渲染：代码块/行内代码/加粗/挖空/换行
@@ -1168,7 +1230,7 @@ function switchView(v){
   if(v==='home') renderHome();
   if(v==='import') renderWizard();
   if(v==='stats') renderStats();
-  if(v==='settings'){ $('setDailyNew').value = db.settings.dailyNew; $('setRetention').value = db.settings.retention; $('setDailyGoal').value = db.settings.dailyGoal; }
+  if(v==='settings'){ $('setDailyNew').value = db.settings.dailyNew; $('setRetention').value = db.settings.retention; $('setDailyGoal').value = db.settings.dailyGoal; $('setAppearance').value = db.settings.appearance||'dark'; }
 }
 function goHome(){ session=null; lastAnswer=null; browse=null; switchView('home'); }
 
@@ -1532,6 +1594,10 @@ $('setDailyGoal').onchange = e=>{
   db.settings.dailyGoal = Math.max(0, Math.round(+e.target.value||0));
   save(); toast('已保存');
 };
+$('setAppearance').onchange = e=>{
+  db.settings.appearance = e.target.value;
+  save(); applyTheme(); toast('外观已切换');
+};
 $('restoreInput').onchange = e=>{
   const f = e.target.files[0]; if(!f) return;
   const r = new FileReader();
@@ -1584,6 +1650,7 @@ document.addEventListener('keydown', e=>{
 });
 
 switchView('home');
+applyTheme();
 
 /* PWA：通过 HTTPS 部署（如 GitHub Pages）且同目录存在 sw.js 时自动注册，实现离线与"安装到主屏幕"；
    本地双击 file:// 打开时静默跳过，不影响任何功能 */
