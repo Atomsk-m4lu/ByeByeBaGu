@@ -431,6 +431,25 @@
   [data-theme="light"] .d3{--acc:#c53030;--accw:#ffe3e1}
   [data-theme="light"] .d4{--acc:#8250df;--accw:#efe7ff}
 
+  /* ===== UI 5.1：整月打卡日历页 + 统计页排版优化 ===== */
+  #calCard{cursor:pointer; transition:all .18s;}
+  #calCard:hover{transform:translateY(-2px); box-shadow:var(--shadow-md);}
+  .calpanel{padding:22px 18px;}
+  .cal-nav{display:flex; align-items:center; justify-content:center; gap:22px; margin-bottom:18px;}
+  #calTitle{font-size:18px; font-weight:700; min-width:130px; text-align:center;}
+  .cal-navbtn{width:38px; height:38px; border-radius:50%; border:1px solid var(--line);
+    background:var(--card); color:var(--ink); font-size:18px; cursor:pointer; transition:all .15s;}
+  .cal-navbtn:hover:not(:disabled){border-color:var(--brand); color:var(--brand);}
+  .cal-navbtn:disabled{opacity:.3; cursor:not-allowed;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:14px 6px; text-align:center;}
+  .cal-grid .cal-d{width:38px; height:38px; font-size:14px;}
+  .cal-grid .cal-lbl{margin-bottom:0;}
+  .cal-sum{display:flex; justify-content:space-around; margin-top:22px; padding-top:16px;
+    border-top:1px solid var(--line); text-align:center;}
+  .cal-sum small{display:block; color:var(--sub); font-size:12px; margin-bottom:4px;}
+  .cal-sum b{font-size:26px;}
+  .cal-sum i{font-style:normal; font-size:13px; color:var(--sub); margin-left:3px; font-weight:400;}
+
   /* ===== UI 3.2：移动端 App 化 ===== */
   html, body{overscroll-behavior-y:contain;}          /* 关闭下拉刷新，应用手感 */
   body{-webkit-tap-highlight-color:transparent;}
@@ -504,7 +523,7 @@
     </div>
 
     <div class="sec">本周打卡</div>
-    <div class="panel">
+    <div class="panel" id="calCard" title="点击查看整月打卡日历">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <span style="font-weight:700">打卡日历</span>
         <span class="muted" id="calStreak"></span>
@@ -532,6 +551,23 @@
       <button class="btn small gray" id="browseAddBtn">＋ 加卡</button>
     </div>
     <div id="browseList"></div>
+  </div>
+
+  <!-- ===== 打卡日历（整月） ===== -->
+  <div id="view-cal" class="hidden">
+    <button class="backLink" onclick="goHome()">← 返回</button>
+    <div class="panel calpanel">
+      <div class="cal-nav">
+        <button class="cal-navbtn" id="calPrev">‹</button>
+        <span id="calTitle"></span>
+        <button class="cal-navbtn" id="calNext">›</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-sum">
+        <div><small>连续打卡</small><b><span id="calStreakN">0</span><i>天</i></b></div>
+        <div><small>累计打卡</small><b><span id="calTotalN">0</span><i>天</i></b></div>
+      </div>
+    </div>
   </div>
 
   <!-- ===== 导入向导 ===== -->
@@ -607,12 +643,12 @@
       <div class="bars" id="weekBars"></div>
     </div>
     <div class="panel">
-      <div class="muted" style="margin-bottom:8px">学习时长 <span style="font-size:11px">（单卡计时上限 60 秒，防挂机虚增）</span></div>
-      <div class="statGrid" style="grid-template-columns:repeat(4,1fr)">
-        <div class="ov"><b id="tDay">0</b><span>今日</span></div>
-        <div class="ov"><b id="tWeek">0</b><span>本周</span></div>
-        <div class="ov"><b id="tMonth">0</b><span>本月</span></div>
-        <div class="ov"><b id="tYear">0</b><span>今年</span></div>
+      <div class="muted" style="margin-bottom:12px">学习时长 <span style="font-size:11px">（单卡计时上限 60 秒，防挂机虚增）</span></div>
+      <div class="mydata">
+        <div class="md"><span class="mdi" style="background:var(--blue-weak);color:var(--blue)">📅</span><div><small>今日</small><b id="tDay">0分钟</b></div></div>
+        <div class="md"><span class="mdi" style="background:var(--brand-weak);color:var(--brand)">🗓️</span><div><small>本周</small><b id="tWeek">0分钟</b></div></div>
+        <div class="md"><span class="mdi" style="background:var(--warn-weak);color:var(--warn)">📆</span><div><small>本月</small><b id="tMonth">0分钟</b></div></div>
+        <div class="md"><span class="mdi" style="background:var(--danger-weak);color:var(--danger)">📊</span><div><small>今年</small><b id="tYear">0分钟</b></div></div>
       </div>
     </div>
     <div class="panel">
@@ -664,7 +700,7 @@
 
 <script>
 'use strict';
-const APP_VER = '1.9.0';
+const APP_VER = '1.10.0';
 document.getElementById('appVer').textContent = 'v' + APP_VER;
 /* 外观应用：设置里选深色/浅色时在 <html> 上打标记，"跟随系统"则交给媒体查询 */
 function applyTheme(){
@@ -1223,15 +1259,16 @@ function undoAnswer(){
 /* ---------- 渲染 ---------- */
 function switchView(v){
   document.body.classList.toggle('studying', v==='study');   // 学习页进入沉浸模式（移动端隐藏顶栏/底栏）
-  ['home','browse','import','study','stats','settings'].forEach(id=>{
+  ['home','browse','cal','import','study','stats','settings'].forEach(id=>{
     $('view-'+id).classList.toggle('hidden', id!==v);
   });
   document.querySelectorAll('.navtab').forEach(b=>b.classList.toggle('active',
-    (b.dataset.view==='home' && (v==='home'||v==='browse')) || b.dataset.view===v));
+    (b.dataset.view==='home' && (v==='home'||v==='browse'||v==='cal')) || b.dataset.view===v));
   $('pageTitle').textContent =
-    v==='home' ? '不背八股' : v==='browse' ? '卡组详情' : v==='import' ? '导入向导'
+    v==='home' ? '不背八股' : v==='browse' ? '卡组详情' : v==='cal' ? '打卡日历' : v==='import' ? '导入向导'
     : v==='study' ? '学习中' : v==='stats' ? '统计' : '设置';
   if(v==='home') renderHome();
+  if(v==='cal') renderCal();
   if(v==='import') renderWizard();
   if(v==='stats') renderStats();
   if(v==='settings'){ $('setDailyNew').value = db.settings.dailyNew; $('setRetention').value = db.settings.retention; $('setDailyGoal').value = db.settings.dailyGoal; $('setAppearance').value = db.settings.appearance||'dark'; }
@@ -1467,6 +1504,37 @@ function flipCard(){
   session.flip = true; renderStudy();
 }
 
+/* ---------- 打卡日历（整月） ---------- */
+let calPage = null; // {y, m}
+function openCalendar(){
+  const n = new Date();
+  calPage = { y:n.getFullYear(), m:n.getMonth() };
+  switchView('cal');
+}
+function renderCal(){
+  const { y, m } = calPage;
+  $('calTitle').textContent = `${y}年${m+1}月`;
+  const p2 = n => String(n).padStart(2,'0');
+  const startIdx = (new Date(y,m,1).getDay()+6) % 7;          // 周一为第一列
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const todayKey = todayStr(Date.now());
+  let html = '';
+  ['一','二','三','四','五','六','日'].forEach(w=>html+=`<div class="cal-lbl">周${w}</div>`);
+  for(let i=0;i<startIdx;i++) html += '<div></div>';
+  for(let d=1; d<=daysInMonth; d++){
+    const key = `${y}-${p2(m+1)}-${p2(d)}`;
+    const studied = (db.stats.dailyLog[key]||0) > 0;
+    const isToday = key===todayKey;
+    const future = key > todayKey;
+    html += `<div class="cal-d${studied?' on':''}${isToday?' today':''}${future?' dim':''}">${isToday?'今':d}</div>`;
+  }
+  $('calGrid').innerHTML = html;
+  const now = new Date();
+  $('calNext').disabled = (y===now.getFullYear() && m===now.getMonth());
+  $('calStreakN').textContent = db.stats.streak;
+  $('calTotalN').textContent = Object.values(db.stats.dailyLog).filter(v=>v>0).length;
+}
+
 function renderStats(){
   const total = db.cards.length;
   $('stTotal').textContent = total;
@@ -1584,6 +1652,9 @@ $('cardBox').addEventListener('click', e=>{
 });
 document.querySelectorAll('.rateBtn').forEach(b=>b.onclick=()=>answer(+b.dataset.r));
 $('histMonth').onchange = ()=>renderStats();
+$('calCard').onclick = openCalendar;
+$('calPrev').onclick = ()=>{ calPage.m--; if(calPage.m<0){ calPage.m=11; calPage.y--; } renderCal(); };
+$('calNext').onclick = ()=>{ if($('calNext').disabled) return; calPage.m++; if(calPage.m>11){ calPage.m=0; calPage.y++; } renderCal(); };
 $('setDailyNew').onchange = e=>{
   db.settings.dailyNew = Math.max(0, +e.target.value||0);
   save(); toast('已保存');
