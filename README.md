@@ -98,6 +98,15 @@ PWA 安装到手机主屏幕/电脑开始菜单，完全离线可用；
 
 Key 只保存在本机浏览器 localStorage，不上传、不经过任何第三方服务器。
 
+## 🐦 吉祥物 · ByteBit
+
+一只戴耳机写代码的 Q 版八哥（"八比特"，谐音"八股"），本项目唯一的官方 IP：
+
+<p align="center"><img src="docs/bytebit.svg" width="160" alt="ByteBit"></p>
+
+设计记录与使用规范见 [docs/bytebit.md](docs/bytebit.md)。
+它会在开屏、AI 面试"思考中"和目标达成庆祝时出场。
+
 ## 🧑‍💻 开发与测试
 
 零依赖、零构建，改 [`八股闪背.html`](八股闪背.html) 即是改全部：
