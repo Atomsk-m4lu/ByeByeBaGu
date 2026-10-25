@@ -509,6 +509,80 @@
     .deck{padding:15px 16px;}
     .topbar{padding-top:calc(12px + env(safe-area-inset-top));}
   }
+
+  /* ===== UI 7.0：企业级打磨 —— 设计令牌 / 焦点态 / 排版 / 空状态 / 微交互 ===== */
+  :root{
+    --shadow-lg:0 16px 48px rgba(16,24,32,.16);
+    --ease:cubic-bezier(.2,0,0,1);
+  }
+  /* 统一过渡：只声明会变化的属性（禁用 transition:all） */
+  #dropZone,.navtab,.deck,.btn,.rateBtn,.brow,.wizTab,#calCard,.cal-navbtn,#undoBtn,#exitBtn,#speakBtn{
+    transition:transform .15s var(--ease), box-shadow .18s var(--ease),
+      background-color .15s ease-out, border-color .15s ease-out, color .15s ease-out,
+      opacity .15s ease-out, filter .18s var(--ease);
+  }
+  /* 按压缩放：0.96 / 150ms，disabled 永不缩放 */
+  .btn:not(:disabled):active{transform:scale(.96);}
+  .hero-go:not(:disabled):active{transform:scale(.96);}
+  /* 触屏：取消悬停位移，避免点按后 :hover 粘滞 */
+  @media (hover:none){
+    .navtab:hover,.deck:hover,.brow:hover,#calCard:hover,.rateBtn:hover,.hero-go:hover,
+    .btn.primary:not(:disabled):hover{transform:none;}
+  }
+  #aiChat{overscroll-behavior:contain;}
+  /* 排版：中文字体栈补全 + 抗锯齿 + 数字等宽（统计不跳动） */
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB",
+      "Microsoft YaHei","Noto Sans SC",sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  h1{letter-spacing:.3px;}
+  .ov b,.md b,.cal-sum b,.mydata b,.rc-grid b,#mdTodayRev,#mdTotalRev{
+    font-variant-numeric:tabular-nums; letter-spacing:-.2px;
+  }
+  /* 键盘可达性：所有可交互元素统一品牌色焦点环 */
+  button:focus-visible,a:focus-visible,[tabindex]:focus-visible{
+    outline:none;
+    box-shadow:0 0 0 3px rgba(45,164,78,.35), var(--shadow-sm);
+  }
+  button:focus-visible{
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--brand) 32%, transparent), var(--shadow-sm);
+  }
+  input:focus-visible,textarea:focus-visible,select:focus-visible{
+    outline:none; border-color:var(--brand);
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent);
+  }
+  /* 选择与滚动条 */
+  ::selection{background:rgba(45,164,78,.25); background:color-mix(in srgb, var(--brand) 25%, transparent);}
+  *{scrollbar-width:thin; scrollbar-color:var(--line) transparent;}
+  ::-webkit-scrollbar{width:8px; height:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:99px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--sub);}
+  /* 按压反馈：悬停亮度（渐变主按钮），按压缩放已统一在上面的 0.96 规则 */
+  .btn.primary{background:linear-gradient(180deg, color-mix(in srgb, var(--brand) 86%, #fff), var(--brand));
+    box-shadow:0 1px 2px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.18);}
+  .btn.primary:hover{filter:brightness(1.06);}
+  .btn.primary:active{filter:brightness(.96);}
+  .btn.primary:disabled{background:var(--brand); opacity:.45; filter:none; transform:none; box-shadow:none;}
+  .btn.gray:hover{background:color-mix(in srgb, var(--ink) 8%, transparent);}
+  /* 顶栏品牌徽标：柔和立体 + 字重层级 */
+  .logo{letter-spacing:0; text-shadow:0 1px 2px rgba(0,0,0,.18);}
+  h1{font-weight:750;}
+  /* 面板与行卡：悬停轻微提亮，过渡统一 */
+  .panel{transition:box-shadow .2s var(--ease);}
+  #heroCard{box-shadow:0 10px 30px rgba(0,0,0,.22);}
+  /* 空状态：吉祥物占位 */
+  .empty{display:flex; flex-direction:column; align-items:center; gap:10px; padding:34px 10px 30px; font-size:13.5px;}
+  .empty::before{content:'🐦'; font-size:32px; filter:grayscale(.15); opacity:.85;}
+  /* Toast：卡片化 + 品牌色左标 */
+  .toast{background:var(--card); color:var(--ink); border:1px solid var(--line);
+    border-left:3px solid var(--brand); border-radius:12px; box-shadow:var(--shadow-lg);
+    padding:11px 18px; font-size:13.5px; line-height:1.6;}
+  /* 无障碍：跟随系统减弱动效 */
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms !important; transition-duration:.01ms !important;}
+  }
 </style>
 </head>
 <body>
@@ -895,13 +969,18 @@
 
 <script>
 'use strict';
-const APP_VER = '1.14.0';
+const APP_VER = '1.15.0';
 document.getElementById('appVer').textContent = 'v' + APP_VER;
 /* 外观应用：设置里选深色/浅色时在 <html> 上打标记，"跟随系统"则交给媒体查询 */
 function applyTheme(){
   const m = db.settings.appearance || 'dark';
+  // 主题切换瞬间禁用所有过渡，避免整页颜色一起"糊"过去，下一帧恢复
+  const st = document.createElement('style');
+  st.textContent = '*,*::before,*::after{transition:none !important;}';
+  document.head.appendChild(st);
   if(m === 'auto') delete document.documentElement.dataset.theme;
   else document.documentElement.dataset.theme = m;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>st.remove()));
 }
 const LS_KEY = 'shanbei_md_v3';
 const LS_KEY_OLD = 'shanbei_md_v2';
