@@ -58,6 +58,11 @@
 空格翻面、四键评分（重来/困难/良好/简单）、评分可撤销（Ctrl+Z）、
 连错 5 次自动标记顽固卡 🔥、填空卡（`==挖空==` 点击揭示）。
 
+**🎯 弱卡优先与断点续学**
+组队时按"最近 10 次评价"计算薄弱分，薄弱卡本轮自动多出现 2~3 次（借鉴
+[SocialWork-Flashcards](https://github.com/wangPing2002/SocialWork-Flashcards) 的机制）；
+中途退出/刷新不丢进度，首页一键"继续学"。
+
 **📊 数据看得见**
 每日目标与打卡日历、日/周/月/年学习时长、按月历史查询、累计统计。
 
@@ -115,6 +120,7 @@ Key 只保存在本机浏览器 localStorage，不上传、不经过任何第三
 node tests/test-parser.js   # markdown 解析与切分策略
 node tests/test-fsrs.js     # FSRS 调度不变量
 node tests/test-cloze.js    # 填空卡渲染
+node tests/test-queue.js    # 弱卡优先队列
 ```
 
 ```
@@ -134,7 +140,26 @@ node tests/test-cloze.js    # 填空卡渲染
 - [st3v3nmw/obsidian-spaced-repetition](https://github.com/st3v3nmw/obsidian-spaced-repetition)（MIT）— 行内卡与挖空语法、代码围栏解析
 - [L-M-Sherlock/markdown2anki](https://github.com/L-M-Sherlock/markdown2anki)（MIT）— 标题层级归一化切分
 - [ObsidianToAnki/Obsidian_to_Anki](https://github.com/ObsidianToAnki/Obsidian_to_Anki) · [e-chehil/anki-quizify](https://github.com/e-chehil/anki-quizify) — 导入向导的设计思想（未复用代码）
+- [wangPing2002/SocialWork-Flashcards](https://github.com/wangPing2002/SocialWork-Flashcards) — 会话中断恢复、弱卡优先排队的机制设计（未复用代码）
 
 ## 📄 许可证
 
 [MIT](LICENSE) © 2026 nina-noschool
+
+---
+
+<!-- ===== 维护规则（贡献者与本人共用） =====
+   本 README 顶部永远描述"当前真实状态"：功能变了就改对应段落，不留过时描述。
+   版本历史只写在下方「更新历史」，倒序追加，不另开 CHANGELOG 文件。
+   ======================================================== -->
+
+## 🗂 更新历史
+
+### v1.13.0（2026-10-25）
+- 会话中断恢复：中途退出/刷新页面后，首页出现「继续学」横幅，从上次中断位置继续
+- 弱卡优先队列：按最近 10 次评价计算薄弱分，薄弱卡本轮自动再现 2~3 次且不相邻（借鉴 SocialWork-Flashcards）
+- 设置新增「重置复习进度（保留卡组）」，与「清空全部数据」分离
+- 新增 `tests/test-queue.js`（12 项）
+
+### v1.12.0 及更早
+见 [docs/bytebit.md](docs/bytebit.md)（吉祥物设计记录）与 git 提交历史。

@@ -1,6 +1,6 @@
 ﻿/* 八股闪背 Service Worker：缓存优先，支持完全离线使用。
    改版后想强制更新缓存，把 CACHE 常量的版本号 +1 即可。 */
-const CACHE = 'shanbei-v15';
+const CACHE = 'shanbei-v16';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', e => {

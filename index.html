@@ -57,7 +57,7 @@
     background:var(--ink); color:#fff; padding:10px 18px; border-radius:8px; font-size:14px;
     opacity:0; pointer-events:none; transition:opacity .25s; z-index:99; max-width:90%;}
   .toast.show{opacity:.95;}
-  #undoBanner{display:flex; align-items:center; justify-content:space-between; gap:10px;
+  #undoBanner,#resumeBanner{display:flex; align-items:center; justify-content:space-between; gap:10px;
     background:var(--blue-weak); border:1px solid #b6e3ff; border-radius:var(--radius);
     padding:10px 14px; margin-bottom:14px; font-size:13px;}
 
@@ -532,6 +532,14 @@
       </div>
     </div>
 
+    <div id="resumeBanner" class="hidden">
+      <span id="resumeText"></span>
+      <div style="display:flex;gap:8px">
+        <button class="btn small blue" onclick="resumeStudy()">继续学</button>
+        <button class="btn small ghost" onclick="dismissResume()">×</button>
+      </div>
+    </div>
+
     <div class="sec">我的数据</div>
     <div class="panel mydata">
       <div class="md"><span class="mdi" style="background:var(--blue-weak);color:var(--blue)">📥</span><div><small>今日复习</small><b id="mdTodayRev">0<i>张</i></b></div></div>
@@ -750,6 +758,7 @@
     <div class="panel">
       <div class="setRow"><span>导出数据备份（JSON）</span><button class="btn small gray" onclick="exportData()">导出</button></div>
       <div class="setRow"><span>从备份恢复</span><button class="btn small gray" onclick="document.getElementById('restoreInput').click()">导入</button></div>
+      <div class="setRow"><span>重置复习进度（保留卡组）</span><button class="btn small ghost" onclick="resetProgress()">重置</button></div>
       <div class="setRow"><span>清空全部数据</span><button class="btn small ghost" onclick="wipeAll()">清空</button></div>
       <input type="file" id="restoreInput" accept=".json" hidden>
     </div>
@@ -844,7 +853,7 @@
 
 <script>
 'use strict';
-const APP_VER = '1.12.0';
+const APP_VER = '1.13.0';
 document.getElementById('appVer').textContent = 'v' + APP_VER;
 /* 外观应用：设置里选深色/浅色时在 <html> 上打标记，"跟随系统"则交给媒体查询 */
 function applyTheme(){
@@ -863,7 +872,8 @@ function defaultDB(){
     settings:{ dailyNew:20, retention:0.9, dailyGoal:30, appearance:'dark' },
     stats:{ streak:0, lastStudyDay:null, dailyLog:{}, timeLog:{} },
     ai:{ cfg:{ base:'https://api.deepseek.com', key:'', model:'deepseek-chat' }, sessions:[] },
-    lastImport:null };
+    lastImport:null,
+    resume:null };   // 未完成的学习会话（退出/关闭页面后可继续）
 }
 let db = load();
 function load(){
@@ -1332,6 +1342,38 @@ function touchStreak(){
 
 /* ---------- 队列 ---------- */
 let session = null; // {deckId, deckName, queue:[cardId], idx, total, flip, startedAt}
+/* 薄弱分：由最近 10 次评价计算，答错越多、刚答错、顽固卡分数越高 */
+function weakScore(card){
+  const h = (card.history||[]).slice(-10);
+  if(!h.length) return 0;
+  let sc = h.filter(x=>x.r===1).length * 8;
+  if(h[h.length-1].r === 1) sc += 10;       // 上一次就答错
+  if(card.leech) sc += 20;
+  sc += (card.lapses||0) * 2;
+  return sc;
+}
+/* 弱卡优先：把薄弱卡额外织入队列（中度薄弱本轮再现 1 次、高度薄弱 2 次，即共出现 2~3 次），
+   原有到期顺序保持不变，且避免同一张卡相邻出现 */
+function weaveWeak(queue, cards){
+  if(queue.length < 2) return queue;
+  const byId = new Map(cards.map(c=>[c.id,c]));
+  const weak = queue.filter(id=>{ const c=byId.get(id); return c && weakScore(c) >= 20; });
+  if(!weak.length) return queue;
+  const extra = [];
+  weak.forEach(id=>{
+    const n = weakScore(byId.get(id)) >= 40 ? 2 : 1;
+    for(let i=0;i<n;i++) extra.push(id);
+  });
+  const out = queue.slice();
+  const span = out.length + extra.length;
+  extra.forEach((id,i)=>{
+    let pos = Math.min(out.length, Math.max(1, Math.round((i+1)*span/(extra.length+1))));
+    let tries = 0;
+    while(tries++ < 10 && (out[pos-1]===id || out[pos]===id)) pos = pos % out.length + 1;
+    out.splice(pos, 0, id);
+  });
+  return out;
+}
 function buildQueue(deckId){
   const now = Date.now();
   const inScope = c => deckId ? c.deckId === deckId : true;
@@ -1339,7 +1381,7 @@ function buildQueue(deckId){
                       .sort((a,b)=>a.due-b.due);
   const quota = Math.max(0, db.settings.dailyNew - introducedToday());
   const fresh = db.cards.filter(c=>inScope(c) && c.state==='new').slice(0, quota);
-  return [...due, ...fresh].map(c=>c.id);
+  return weaveWeak([...due, ...fresh].map(c=>c.id), db.cards);
 }
 function startStudy(deckId){
   const deckName = deckId ? (db.decks.find(d=>d.id===deckId)||{}).name : '全部卡组';
@@ -1347,15 +1389,38 @@ function startStudy(deckId){
   const queue = buildQueue(deckId);
   if(!queue.length){
     const hasNew = db.cards.some(c=>(!deckId || c.deckId===deckId) && c.state==='new');
-    toast(hasNew ? '今日新卡额度已用完，明天再来 🌱' : '当前没有到期的卡片 ✅');
+    toast(hasNew ? '今日新卡额度已用完，明天再来 ??' : '当前没有到期的卡片 ?');
     return;
   }
   session = { deckId, deckName, queue, idx:0, total:queue.length,
               flip:false, startedAt:Date.now() };
+  db.resume = { deckId, deckName, queue:queue.slice(), idx:0, total:queue.length, ts:Date.now() };
   lastAnswer = null;
+  save();
   switchView('study');
   renderStudy();
 }
+/* 会话中断恢复：进度随每次评分落库，退出/刷新后可从上次位置继续 */
+function saveResume(){
+  if(session && session.idx < session.queue.length)
+    db.resume = { deckId:session.deckId, deckName:session.deckName,
+                  queue:session.queue.slice(), idx:session.idx, total:session.total, ts:Date.now() };
+  else db.resume = null;
+}
+function resumeStudy(){
+  const r = db.resume;
+  if(!r) return;
+  const left = r.queue.slice(r.idx).filter(id=>db.cards.some(c=>c.id===id));
+  if(!left.length){ db.resume=null; save(); renderHome(); toast('上次会话已无可学的卡片'); return; }
+  session = { deckId:r.deckId, deckName:r.deckName, queue:left, idx:0, total:left.length,
+              flip:false, startedAt:Date.now() };
+  db.resume = null;
+  lastAnswer = null;
+  switchView('study');
+  renderStudy();
+  toast('已回到上次中断的地方');
+}
+function dismissResume(){ db.resume=null; save(); renderHome(); }
 function currentCard(){
   if(!session || session.idx >= session.queue.length) return null;
   return db.cards.find(c=>c.id===session.queue[session.idx]);
@@ -1383,7 +1448,7 @@ function answer(r){
   }
   if(r===1){ session.queue.push(card.id); session.total++; } // 重来：本轮尾部再现
   session.idx++; session.flip=false;
-  touchStreak(); save(); renderStudy();
+  touchStreak(); saveResume(); save(); renderStudy();
 }
 function undoAnswer(){
   if(!lastAnswer || !session || !session.flip) return;
@@ -1421,7 +1486,7 @@ function switchView(v){
   if(v==='settings'){ $('setDailyNew').value = db.settings.dailyNew; $('setRetention').value = db.settings.retention; $('setDailyGoal').value = db.settings.dailyGoal; $('setAppearance').value = db.settings.appearance||'dark';
     $('aiBase').value = db.ai.cfg.base; $('aiKey').value = db.ai.cfg.key; $('aiModel').value = db.ai.cfg.model; }
 }
-function goHome(){ session=null; lastAnswer=null; browse=null; switchView('home'); }
+function goHome(){ saveResume(); session=null; lastAnswer=null; browse=null; switchView('home'); }
 
 function deckCounts(deckId){
   const now = Date.now();
@@ -1438,6 +1503,14 @@ function renderHome(){
   const freshLeft = Math.max(0, db.settings.dailyNew - introducedToday());
   $('heroSub').textContent = `待复习 ${dueAll} · 新卡 ${freshLeft}`;
   $('studyAllBtn').style.display = (dueAll + freshLeft) ? '' : 'none';
+
+  // 会话恢复横幅
+  const rs = db.resume;
+  const canResume = !!(rs && rs.idx < rs.queue.length &&
+                       rs.queue.slice(rs.idx).some(id=>db.cards.some(c=>c.id===id)));
+  $('resumeBanner').classList.toggle('hidden', !canResume);
+  if(canResume) $('resumeText').textContent =
+    `上次「${rs.deckName}」学到一半，还剩 ${rs.queue.length - rs.idx} 张`;
 
   // 我的数据：今日/累计 复习量与时长
   const tk = todayStr(now);
@@ -1615,6 +1688,7 @@ function renderStudy(){
   $('cardBox').classList.toggle('hidden', !card);
   $('undoBtn').disabled = !lastAnswer;
   if(!card){
+    db.resume = null;                                       // 本轮完成，无需续学
     const mins = Math.max(1, Math.round((Date.now()-session.startedAt)/F_MIN));
     $('doneSummary').textContent =
       `${session.deckName} · 本轮完成 ${new Set(session.queue).size} 张，用时 ${mins} 分钟`;
@@ -1920,11 +1994,24 @@ function wipeAll(){
   if(db.cards.length && !confirm('确定清空全部卡组、卡片和进度？此操作不可恢复！')) return;
   db = defaultDB(); save(); switchView('home'); toast('已清空');
 }
+/* 只清学习进度，卡组与卡片内容保留（换题库时用） */
+function resetProgress(){
+  if(!db.cards.length){ toast('当前没有卡片'); return; }
+  if(!confirm('重置所有卡片的学习进度？卡组和卡片内容会保留，此操作不可恢复！')) return;
+  const now = Date.now();
+  db.cards.forEach(c=>{
+    c.s=0; c.d=0; c.state='new'; c.due=now; c.last=null; c.interval=0;
+    c.lapses=0; c.leech=false; c.history=[];
+  });
+  db.stats = { streak:0, lastStudyDay:null, dailyLog:{}, timeLog:{} };
+  db.resume = null; lastAnswer = null;
+  save(); switchView('settings'); toast('已重置学习进度，卡组已保留');
+}
 
 /* ---------- 事件绑定 ---------- */
 document.querySelectorAll('.navtab').forEach(b=>b.onclick=()=>{
   if(b.dataset.view !== 'import') wizard = null;
-  session = null; lastAnswer = null; browse = null;
+  saveResume(); session = null; lastAnswer = null; browse = null;
   switchView(b.dataset.view);
 });
 $('studyAllBtn').onclick = ()=>startStudy(null);
