@@ -605,9 +605,9 @@
       <h1 id="pageTitle">不背八股</h1>
     </div>
     <div class="navbtns">
-      <button class="navtab active" data-view="home">🗂 卡组</button>
-      <button class="navtab" data-view="stats">📊 统计</button>
-      <button class="navtab" data-view="settings">⚙️ 设置</button>
+      <button class="navtab active" data-view="home" data-i18n="🗂 卡组">🗂 卡组</button>
+      <button class="navtab" data-view="stats" data-i18n="📊 统计">📊 统计</button>
+      <button class="navtab" data-view="settings" data-i18n="⚙️ 设置">⚙️ 设置</button>
     </div>
   </div>
 
@@ -617,10 +617,10 @@
       <div class="hero-top">
         <span class="hero-ico">📚</span>
         <div class="hero-txt">
-          <div class="hero-title">开始学习</div>
+          <div class="hero-title" data-i18n="开始学习">开始学习</div>
           <div class="hero-sub" id="heroSub">待复习 0 · 新卡 0</div>
         </div>
-        <button class="hero-go" id="studyAllBtn" title="全部一起学">▶</button>
+        <button class="hero-go" id="studyAllBtn" data-i18n-title="全部一起学" title="全部一起学">▶</button>
       </div>
       <div class="hero-goal">
         <div class="hero-bar"><div id="heroBarFill"></div></div>
@@ -631,7 +631,7 @@
     <div id="undoBanner" class="hidden">
       <span id="undoText"></span>
       <div style="display:flex;gap:8px">
-        <button class="btn small blue" onclick="undoLastImport()">撤销</button>
+        <button class="btn small blue" onclick="undoLastImport()" data-i18n="撤销">撤销</button>
         <button class="btn small ghost" onclick="dismissUndo()">×</button>
       </div>
     </div>
@@ -639,55 +639,55 @@
     <div id="resumeBanner" class="hidden">
       <span id="resumeText"></span>
       <div style="display:flex;gap:8px">
-        <button class="btn small blue" onclick="resumeStudy()">继续学</button>
+        <button class="btn small blue" onclick="resumeStudy()" data-i18n="继续学">继续学</button>
         <button class="btn small ghost" onclick="dismissResume()">×</button>
       </div>
     </div>
 
-    <div class="sec">我的数据</div>
+    <div class="sec" data-i18n="我的数据">我的数据</div>
     <div class="panel mydata">
-      <div class="md"><span class="mdi" style="background:var(--blue-weak);color:var(--blue)">📥</span><div><small>今日复习</small><b id="mdTodayRev">0<i>张</i></b></div></div>
-      <div class="md"><span class="mdi" style="background:var(--brand-weak);color:var(--brand)">📈</span><div><small>累计复习</small><b id="mdTotalRev">0<i>张</i></b></div></div>
-      <div class="md"><span class="mdi" style="background:var(--warn-weak);color:var(--warn)">⏱️</span><div><small>今日时长</small><b id="mdTodayTime">0秒</b></div></div>
-      <div class="md"><span class="mdi" style="background:var(--danger-weak);color:var(--danger)">🕒</span><div><small>累计时长</small><b id="mdTotalTime">0秒</b></div></div>
+      <div class="md"><span class="mdi" style="background:var(--blue-weak);color:var(--blue)">📥</span><div><small data-i18n="今日复习">今日复习</small><b id="mdTodayRev">0<i>张</i></b></div></div>
+      <div class="md"><span class="mdi" style="background:var(--brand-weak);color:var(--brand)">📈</span><div><small data-i18n="累计复习">累计复习</small><b id="mdTotalRev">0<i>张</i></b></div></div>
+      <div class="md"><span class="mdi" style="background:var(--warn-weak);color:var(--warn)">⏱️</span><div><small data-i18n="今日时长">今日时长</small><b id="mdTodayTime">0秒</b></div></div>
+      <div class="md"><span class="mdi" style="background:var(--danger-weak);color:var(--danger)">🕒</span><div><small data-i18n="累计时长">累计时长</small><b id="mdTotalTime">0秒</b></div></div>
     </div>
 
-    <div class="sec">本周打卡</div>
-    <div class="panel" id="calCard" title="点击查看整月打卡日历">
+    <div class="sec" data-i18n="本周打卡">本周打卡</div>
+    <div class="panel" id="calCard" data-i18n-title="点击查看整月打卡日历" title="点击查看整月打卡日历">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <span style="font-weight:700">打卡日历</span>
+        <span style="font-weight:700" data-i18n="打卡日历">打卡日历</span>
         <span class="muted" id="calStreak"></span>
       </div>
       <div class="cal-row" id="calRow"></div>
     </div>
 
-    <div class="sec">AI 面试模拟</div>
+    <div class="sec" data-i18n="AI 面试模拟">AI 面试模拟</div>
     <div class="panel" style="display:flex;align-items:center;gap:12px">
       <span class="mdi" style="background:var(--blue-weak);color:var(--blue)">🎤</span>
       <div style="flex:1;min-width:0">
-        <b style="font-size:15px">AI 面试官拷打</b>
-        <div class="muted">大模型扮演面试官，对照参考答案点评并追问</div>
+        <b style="font-size:15px" data-i18n="AI 面试官拷打">AI 面试官拷打</b>
+        <div class="muted" data-i18n="大模型扮演面试官，对照参考答案点评并追问">大模型扮演面试官，对照参考答案点评并追问</div>
       </div>
-      <button class="btn primary" onclick="openAi()">进入</button>
+      <button class="btn primary" onclick="openAi()" data-i18n="进入">进入</button>
     </div>
 
-    <div class="sec">我的卡组</div>
+    <div class="sec" data-i18n="我的卡组">我的卡组</div>
     <div id="deckList"></div>
 
-    <div class="sec">导入新卡组</div>
+    <div class="sec" data-i18n="导入新卡组">导入新卡组</div>
     <div id="dropZone">
-      <div class="big">?? 点击选择 或 拖拽 .md 文件到这里</div>
-      <div class="muted">支持任意排版：导入向导自动识别切分规则，可预览、可手动调整后再入库</div>
+      <div class="big" data-i18n="点击选择 或 拖拽 .md 文件到这里">📎 点击选择 或 拖拽 .md 文件到这里</div>
+      <div class="muted" data-i18n="支持任意排版：导入向导自动识别切分规则，可预览、可手动调整后再入库">支持任意排版：导入向导自动识别切分规则，可预览、可手动调整后再入库</div>
       <input type="file" id="fileInput" accept=".md,.markdown,.txt" multiple hidden>
     </div>
     <div style="text-align:center; margin-top:10px">
-      <button class="btn small ghost" id="pasteToggle" onclick="togglePaste()">或粘贴文本导入 ▾</button>
+      <button class="btn small ghost" id="pasteToggle" onclick="togglePaste()" data-i18n="或粘贴文本导入 ▾">或粘贴文本导入 ▾</button>
     </div>
     <div id="pasteBox" class="hidden" style="margin-top:10px">
       <textarea id="pasteInput" rows="5" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;background:var(--card);color:var(--ink);resize:vertical" placeholder="直接粘贴 Markdown：## 标题+正文、问：/答：、- 列表、问题 :: 答案 都行，向导会自动识别"></textarea>
       <div style="text-align:right; margin-top:8px; display:flex; gap:8px; justify-content:flex-end">
-        <button class="btn small ghost" id="aiGenBtn" onclick="aiGenCards()" title="把粘贴的笔记交给大模型整理成问答卡">🤖 AI 出题</button>
-        <button class="btn small blue" onclick="importPaste()">解析粘贴内容</button>
+        <button class="btn small ghost" id="aiGenBtn" onclick="aiGenCards()" data-i18n-title="把粘贴的笔记交给大模型整理成问答卡" title="把粘贴的笔记交给大模型整理成问答卡">🤖 AI 出题</button>
+        <button class="btn small blue" onclick="importPaste()" data-i18n="解析粘贴内容">解析粘贴内容</button>
       </div>
     </div>
   </div>
@@ -705,7 +705,7 @@
 
   <!-- ===== 打卡日历（整月） ===== -->
   <div id="view-cal" class="hidden">
-    <button class="backLink" onclick="goHome()">← 返回</button>
+    <button class="backLink" onclick="goHome()" data-i18n="← 返回">← 返回</button>
     <div class="panel calpanel">
       <div class="cal-nav">
         <button class="cal-navbtn" id="calPrev">‹</button>
@@ -714,8 +714,8 @@
       </div>
       <div class="cal-grid" id="calGrid"></div>
       <div class="cal-sum">
-        <div><small>连续打卡</small><b><span id="calStreakN">0</span><i>天</i></b></div>
-        <div><small>累计打卡</small><b><span id="calTotalN">0</span><i>天</i></b></div>
+        <div><small data-i18n="连续打卡">连续打卡</small><b><span id="calStreakN">0</span><i data-i18n="天">天</i></b></div>
+        <div><small data-i18n="累计打卡">累计打卡</small><b><span id="calTotalN">0</span><i data-i18n="天">天</i></b></div>
       </div>
     </div>
   </div>
@@ -746,20 +746,20 @@
     </div>
     <div class="panel" id="wizPreview"></div>
     <div class="wizActions">
-      <button class="btn gray" id="wizCancelBtn">取消</button>
-      <button class="btn blue hidden" id="wizAutoAllBtn">其余文件全部自动导入</button>
-      <button class="btn primary" id="wizConfirmBtn">确认导入</button>
+      <button class="btn gray" id="wizCancelBtn" data-i18n="取消">取消</button>
+      <button class="btn blue hidden" id="wizAutoAllBtn" data-i18n="其余文件全部自动导入">其余文件全部自动导入</button>
+      <button class="btn primary" id="wizConfirmBtn" data-i18n="确认导入">确认导入</button>
     </div>
   </div>
 
   <!-- ===== AI 面试 ===== -->
   <div id="view-ai" class="hidden">
-    <button class="backLink" onclick="goHome()">← 返回</button>
+    <button class="backLink" onclick="goHome()" data-i18n="← 返回">← 返回</button>
     <div id="aiSetup">
       <div class="panel">
-        <div class="muted" style="margin-bottom:10px">选择要被拷打的卡组（每场最多 15 题）</div>
+        <div class="muted" style="margin-bottom:10px" data-i18n="选择要被拷打的卡组（每场最多 15 题）">选择要被拷打的卡组（每场最多 15 题）</div>
         <select id="aiDeckSel" style="width:100%"></select>
-        <button class="btn primary" id="aiStart" style="width:100%;margin-top:14px">🎤 开始面试</button>
+        <button class="btn primary" id="aiStart" style="width:100%;margin-top:14px" data-i18n="🎤 开始面试">🎤 开始面试</button>
         <p class="muted" id="aiCfgHint" style="margin-top:10px"></p>
       </div>
       <div id="aiHist"></div>
@@ -767,16 +767,16 @@
     <div id="aiRun" class="hidden">
       <div class="studyMeta">
         <span id="aiProg"></span>
-        <button class="btn ghost" id="aiEndBtn" style="flex:none">结束面试</button>
+        <button class="btn ghost" id="aiEndBtn" style="flex:none" data-i18n="结束面试">结束面试</button>
       </div>
       <div class="panel" id="aiChat" style="max-height:58vh;overflow-y:auto;"></div>
-      <textarea id="aiInput" placeholder="输入你的回答…（Ctrl+Enter 发送）"
+      <textarea id="aiInput" data-i18n-ph="输入你的回答…（Ctrl+Enter 发送）" placeholder="输入你的回答…（Ctrl+Enter 发送）"
         style="width:100%;min-height:70px;margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;background:var(--card);color:var(--ink);resize:vertical"></textarea>
       <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="btn gray" id="aiSkip" style="flex:1">跳过此题</button>
-        <button class="btn primary" id="aiSend" style="flex:2">发送回答</button>
+        <button class="btn gray" id="aiSkip" style="flex:1" data-i18n="跳过此题">跳过此题</button>
+        <button class="btn primary" id="aiSend" style="flex:2" data-i18n="发送回答">发送回答</button>
       </div>
-      <p class="muted" style="text-align:center;margin-top:10px">回答尽量口语化完整表述，点评会更贴近真实面试</p>
+      <p class="muted" style="text-align:center;margin-top:10px" data-i18n="回答尽量口语化完整表述，点评会更贴近真实面试">回答尽量口语化完整表述，点评会更贴近真实面试</p>
     </div>
   </div>
 
@@ -784,56 +784,56 @@
   <div id="view-study" class="hidden">
     <div id="progressWrap"><div id="progressBar"></div></div>
     <div class="studyMeta">
-      <button id="exitBtn" title="退出本轮学习（已答的进度已保存）" onclick="goHome()">← 退出</button>
+      <button id="exitBtn" data-i18n-title="退出本轮学习（已答的进度已保存）" data-i18n="← 退出" title="退出本轮学习（已答的进度已保存）" onclick="goHome()">← 退出</button>
       <span id="studyDeckName"></span>
-      <button id="undoBtn" disabled onclick="undoAnswer()">↩ 撤销评分</button>
+      <button id="undoBtn" disabled data-i18n="↩ 撤销评分" onclick="undoAnswer()">↩ 撤销评分</button>
       <button id="speakBtn" title="朗读当前卡面（再点停止）" onclick="toggleSpeak()">🔊</button>
       <span id="studyRemain"></span>
     </div>
     <div id="cardBox">
       <div class="tag" id="cardTag"></div>
       <div id="cardBody"></div>
-      <div id="answerHint">👆 点击卡片或按空格查看答案 · 答案里的 ▇▇▇ 是挖空，点击逐个显示</div>
+      <div id="answerHint" data-i18n="点击卡片或按空格查看答案 · 答案里的 ▇▇▇ 是挖空，点击逐个显示">👆 点击卡片或按空格查看答案 · 答案里的 ▇▇▇ 是挖空，点击逐个显示</div>
       <div id="rateRow">
-        <button class="rateBtn r1" data-r="1"><b>重来</b><small id="iv1"></small></button>
-        <button class="rateBtn r2" data-r="2"><b>困难</b><small id="iv2"></small></button>
-        <button class="rateBtn r3" data-r="3"><b>良好</b><small id="iv3"></small></button>
-        <button class="rateBtn r4" data-r="4"><b>简单</b><small id="iv4"></small></button>
+        <button class="rateBtn r1" data-r="1"><b data-i18n="重来">重来</b><small id="iv1"></small></button>
+        <button class="rateBtn r2" data-r="2"><b data-i18n="困难">困难</b><small id="iv2"></small></button>
+        <button class="rateBtn r3" data-r="3"><b data-i18n="良好">良好</b><small id="iv3"></small></button>
+        <button class="rateBtn r4" data-r="4"><b data-i18n="简单">简单</b><small id="iv4"></small></button>
       </div>
     </div>
     <div id="doneBox" class="panel doneBox hidden">
       <div class="emoji">🎉</div>
-      <h2 style="margin-bottom:8px">本轮学习完成！</h2>
+      <h2 style="margin-bottom:8px" data-i18n="本轮学习完成！">本轮学习完成！</h2>
       <p class="muted" id="doneSummary" style="margin-bottom:16px"></p>
-      <button class="btn primary" onclick="goHome()">返回卡组</button>
+      <button class="btn primary" onclick="goHome()" data-i18n="返回卡组">返回卡组</button>
     </div>
-    <p class="muted" style="text-align:center; margin-top:12px">空格 翻面 · 1/2/3/4 评分 · Ctrl+Z 撤销 · 手机：左滑重来 / 右滑良好</p>
+    <p class="muted" style="text-align:center; margin-top:12px" data-i18n="空格 翻面 · 1/2/3/4 评分 · Ctrl+Z 撤销 · 手机：左滑重来 / 右滑良好">空格 翻面 · 1/2/3/4 评分 · Ctrl+Z 撤销 · 手机：左滑重来 / 右滑良好</p>
   </div>
 
   <!-- ===== 统计页 ===== -->
   <div id="view-stats" class="hidden">
-    <button class="btn primary" style="width:100%; margin-bottom:14px" onclick="openRecap()">📊 年度背诵报告</button>
+    <button class="btn primary" style="width:100%; margin-bottom:14px" onclick="openRecap()" data-i18n="📊 年度背诵报告">📊 年度背诵报告</button>
     <div class="statGrid">
-      <div class="ov"><b id="stTotal">0</b><span>总卡片</span></div>
-      <div class="ov"><b id="stMature" style="color:var(--brand)">0</b><span>复习中</span></div>
-      <div class="ov"><b id="stFresh" style="color:var(--warn)">0</b><span>未开始</span></div>
+      <div class="ov"><b id="stTotal">0</b><span data-i18n="总卡片">总卡片</span></div>
+      <div class="ov"><b id="stMature" style="color:var(--brand)">0</b><span data-i18n="复习中">复习中</span></div>
+      <div class="ov"><b id="stFresh" style="color:var(--warn)">0</b><span data-i18n="未开始">未开始</span></div>
     </div>
     <div class="panel">
-      <div class="muted" style="margin-bottom:4px">近 7 天每日复习量</div>
+      <div class="muted" style="margin-bottom:4px" data-i18n="近 7 天每日复习量">近 7 天每日复习量</div>
       <div class="bars" id="weekBars"></div>
     </div>
     <div class="panel">
-      <div class="muted" style="margin-bottom:12px">学习时长 <span style="font-size:11px">（单卡计时上限 60 秒，防挂机虚增）</span></div>
+      <div class="muted" style="margin-bottom:12px"><span data-i18n="学习时长">学习时长</span> <span style="font-size:11px" data-i18n="（单卡计时上限 60 秒，防挂机虚增）">（单卡计时上限 60 秒，防挂机虚增）</span></div>
       <div class="mydata">
-        <div class="md"><span class="mdi" style="background:var(--blue-weak);color:var(--blue)">📅</span><div><small>今日</small><b id="tDay">0分钟</b></div></div>
-        <div class="md"><span class="mdi" style="background:var(--brand-weak);color:var(--brand)">🗓️</span><div><small>本周</small><b id="tWeek">0分钟</b></div></div>
-        <div class="md"><span class="mdi" style="background:var(--warn-weak);color:var(--warn)">📆</span><div><small>本月</small><b id="tMonth">0分钟</b></div></div>
-        <div class="md"><span class="mdi" style="background:var(--danger-weak);color:var(--danger)">📊</span><div><small>今年</small><b id="tYear">0分钟</b></div></div>
+        <div class="md"><span class="mdi" style="background:var(--blue-weak);color:var(--blue)">📅</span><div><small data-i18n="今日">今日</small><b id="tDay">0分钟</b></div></div>
+        <div class="md"><span class="mdi" style="background:var(--brand-weak);color:var(--brand)">🗓️</span><div><small data-i18n="本周">本周</small><b id="tWeek">0分钟</b></div></div>
+        <div class="md"><span class="mdi" style="background:var(--warn-weak);color:var(--warn)">📆</span><div><small data-i18n="本月">本月</small><b id="tMonth">0分钟</b></div></div>
+        <div class="md"><span class="mdi" style="background:var(--danger-weak);color:var(--danger)">📊</span><div><small data-i18n="今年">今年</small><b id="tYear">0分钟</b></div></div>
       </div>
     </div>
     <div class="panel">
       <div class="setRow" style="border-bottom:none;padding-bottom:8px">
-        <span>历史查询（按月）</span>
+        <span data-i18n="历史查询（按月）">历史查询（按月）</span>
         <input type="month" id="histMonth">
       </div>
       <div id="histBody" class="muted"></div>
@@ -845,40 +845,48 @@
   <div id="view-settings" class="hidden">
     <div class="panel">
       <div class="setRow">
-        <span>每天新卡上限</span>
+        <span data-i18n="每天新卡上限">每天新卡上限</span>
         <input type="number" id="setDailyNew" min="0" max="200">
       </div>
       <div class="setRow">
-        <span>目标记忆保持率（FSRS）</span>
+        <span data-i18n="目标记忆保持率（FSRS）">目标记忆保持率（FSRS）</span>
         <input type="number" id="setRetention" min="0.7" max="0.98" step="0.01">
       </div>
       <div class="setRow">
-        <span>每日复习目标（张，0 为不设目标）</span>
+        <span data-i18n="每日复习目标（张，0 为不设目标）">每日复习目标（张，0 为不设目标）</span>
         <input type="number" id="setDailyGoal" min="0" max="1000">
       </div>
       <div class="setRow">
-        <span>外观</span>
+        <span data-i18n="外观">外观</span>
         <select id="setAppearance">
-          <option value="dark">🌙 深色</option>
-          <option value="light">☀️ 浅色</option>
-          <option value="auto">🌗 跟随系统</option>
+          <option value="dark" data-i18n="🌙 深色">🌙 深色</option>
+          <option value="light" data-i18n="☀️ 浅色">☀️ 浅色</option>
+          <option value="auto" data-i18n="🖥 跟随系统">🖥 跟随系统</option>
+        </select>
+      </div>
+      <div class="setRow">
+        <span data-i18n="界面语言">界面语言</span>
+        <select id="setLang">
+          <option value="" data-i18n="🌐 跟随浏览器">🌐 跟随浏览器</option>
+          <option value="zh" data-i18n="🇨🇳 中文">🇨🇳 中文</option>
+          <option value="en" data-i18n="🇬🇧 English">🇬🇧 English</option>
         </select>
       </div>
     </div>
     <div class="panel">
-      <div class="muted" style="margin-bottom:10px">AI 面试（DeepSeek 等 OpenAI 兼容接口，Key 只保存在本机）</div>
-      <div class="setRow"><span>接口地址</span><input type="text" id="aiBase" style="width:190px" placeholder="https://api.deepseek.com"></div>
+      <div class="muted" style="margin-bottom:10px" data-i18n="AI 面试（DeepSeek 等 OpenAI 兼容接口，Key 只保存在本机）">AI 面试（DeepSeek 等 OpenAI 兼容接口，Key 只保存在本机）</div>
+      <div class="setRow"><span data-i18n="接口地址">接口地址</span><input type="text" id="aiBase" style="width:190px" placeholder="https://api.deepseek.com"></div>
       <div class="setRow"><span>API Key</span><input type="password" id="aiKey" style="width:190px" placeholder="sk-..."></div>
-      <div class="setRow"><span>模型</span><input type="text" id="aiModel" style="width:190px" placeholder="deepseek-chat"></div>
+      <div class="setRow"><span data-i18n="模型">模型</span><input type="text" id="aiModel" style="width:190px" placeholder="deepseek-chat"></div>
     </div>
     <div class="panel">
-      <div class="setRow"><span>导出数据备份（JSON）</span><button class="btn small gray" onclick="exportData()">导出</button></div>
-      <div class="setRow"><span>从备份恢复</span><button class="btn small gray" onclick="document.getElementById('restoreInput').click()">导入</button></div>
-      <div class="setRow"><span>重置复习进度（保留卡组）</span><button class="btn small ghost" onclick="resetProgress()">重置</button></div>
-      <div class="setRow"><span>清空全部数据</span><button class="btn small ghost" onclick="wipeAll()">清空</button></div>
+      <div class="setRow"><span data-i18n="导出数据备份（JSON）">导出数据备份（JSON）</span><button class="btn small gray" onclick="exportData()" data-i18n="导出">导出</button></div>
+      <div class="setRow"><span data-i18n="从备份恢复">从备份恢复</span><button class="btn small gray" onclick="document.getElementById('restoreInput').click()" data-i18n="导入">导入</button></div>
+      <div class="setRow"><span data-i18n="重置复习进度（保留卡组）">重置复习进度（保留卡组）</span><button class="btn small ghost" onclick="resetProgress()" data-i18n="重置">重置</button></div>
+      <div class="setRow"><span data-i18n="清空全部数据">清空全部数据</span><button class="btn small ghost" onclick="wipeAll()" data-i18n="清空">清空</button></div>
       <input type="file" id="restoreInput" accept=".json" hidden>
     </div>
-    <p class="muted">数据全部保存在本浏览器 localStorage 中，换浏览器/换电脑请先导出备份再恢复。保持率越高，复习间隔越短、复习量越大。<br>不背八股 <b id="appVer"></b></p>
+    <p class="muted" data-i18n="数据全部保存在本浏览器 localStorage 中，换浏览器/换电脑请先导出备份再恢复。保持率越高，复习间隔越短、复习量越大。">数据全部保存在本浏览器 localStorage 中，换浏览器/换电脑请先导出备份再恢复。保持率越高，复习间隔越短、复习量越大。<br>不背八股 <b id="appVer"></b></p>
   </div>
 </div>
 
@@ -887,11 +895,11 @@
   <div id="recapCard">
     <svg width="64" height="64" viewBox="0 0 240 240" style="display:block;margin:0 auto 6px" aria-hidden="true"><use href="#bbSplashSym"/></svg>
     <div class="rc-year" id="rcYear"></div>
-    <div class="rc-title">年度背诵报告</div>
+    <div class="rc-title" data-i18n="年度背诵报告">年度背诵报告</div>
     <div class="rc-grid" id="rcGrid"></div>
-    <div class="rc-top">最常复习的卡组：<b id="rcTop">—</b></div>
-    <div class="rc-foot">不背八股 · 每一张卡都不会辜负你</div>
-    <button class="btn small ghost" onclick="closeRecap()">关闭</button>
+    <div class="rc-top"><span data-i18n="最常复习的卡组：">最常复习的卡组：</span><b id="rcTop">—</b></div>
+    <div class="rc-foot" data-i18n="不背八股 · 每一张卡都不会辜负你">不背八股 · 每一张卡都不会辜负你</div>
+    <button class="btn small ghost" onclick="closeRecap()" data-i18n="关闭">关闭</button>
   </div>
 </div>
 
@@ -982,7 +990,7 @@
 
 <script>
 'use strict';
-const APP_VER = '1.16.1';
+const APP_VER = '1.17.0';
 document.getElementById('appVer').textContent = 'v' + APP_VER;
 /* 外观应用：设置里选深色/浅色时在 <html> 上打标记，"跟随系统"则交给媒体查询 */
 function applyTheme(){
@@ -1045,6 +1053,170 @@ function migrateDB(d){
   return d;
 }
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(db)); }
+
+/* ---------- i18n（中/英）：键为中文原串，缺译自动回落中文 ----------
+   UI_LANG 在初始化时决定：设置项优先，否则跟随 navigator.language */
+let UI_LANG = 'zh';
+const I18N_EN = {
+  /* 顶栏与导航 */
+  '🗂 卡组':'🗂 Decks', '📊 统计':'📊 Stats', '⚙️ 设置':'⚙️ Settings',
+  '卡组详情':'Deck details', '打卡日历':'Study calendar', '导入向导':'Import wizard',
+  'AI 面试':'AI interview', '学习中':'Studying', '设置':'Settings',
+  /* 首页 */
+  '开始学习':'Start studying', '待复习 {0} · 新卡 {1}':'To review {0} · New {1}',
+  '今日目标 {0}/{1} 张':'Daily goal {0}/{1}', '今日目标达成 ?? {0}/{1}':'Goal reached ?? {0}/{1}',
+  '今日已复习 {0} 张':'{0} cards reviewed today',
+  '我的数据':'My data','今日复习':'Today','累计复习':'All-time','今日时长':'Time today','累计时长':'Time total',
+  '本周打卡':'This week','打卡日历':'Calendar','连续打卡 {0} 天':'{0}-day streak',
+  'AI 面试模拟':'AI mock interview','AI 面试官拷打':'AI interviewer','进入':'Open',
+  '大模型扮演面试官，对照参考答案点评并追问':'An LLM plays the interviewer: critiques, follows up, scores',
+  '我的卡组':'My decks','学习':'Study','删':'Del',
+  '待复习 {0}':'Due {0}','新卡 {0}':'New {0}','共 {0}':'/{0}',
+  '还没有卡组，先导入一个 markdown 文件吧':'No decks yet — import a markdown file first',
+  '支持任意排版：章节嵌套、问答对、列表、行内卡均可':'Any layout works: nested headings, Q&A, lists, inline cards',
+  '最近导入了 {0} 张卡':'Imported {0} cards','撤销':'Undo',
+  '上次「{0}」学到一半，还剩 {1} 张':'Paused "{0}" halfway — {1} cards left','继续学':'Resume',
+  '导入新卡组':'Import decks','点击选择 或 拖拽 .md 文件到这里':'Click or drop .md files here',
+  '支持任意排版：导入向导自动识别切分规则，可预览、可手动调整后再入库':'Any layout: the wizard detects the split rule, preview before importing',
+  '或粘贴文本导入 ▾':'Or paste text ▾','收起粘贴框 ▴':'Hide paste box ▴',
+  '解析粘贴内容':'Parse pasted text','生成中…':'Generating…','先粘贴一点内容再解析':'Paste something first',
+  '先粘贴一点内容再解析（AI 出题同理）':'Paste something first',
+  '已回到上次中断的地方':'Back to where you left off','上次会话已无可学的卡片':'Nothing left to study from that session',
+  /* 学习页 */
+  '← 退出':'← Exit','撤销评分':'Undo rating','剩余 {0} / {1}':'Left {0} / {1}',
+  '新卡':'New','🔥顽固 · ':'🔥Leech · ','🔁 第 {0} 次 · 记忆强度≈{1}':'🔁 Review #{0} · strength≈{1}',
+  '今':'T','周{0}':'{0}',
+  '??顽固 · ':'🔥Leech · ',
+  '重来':'Again','困难':'Hard','良好':'Good','简单':'Easy','10分钟':'10m',
+  '空格 翻面 · 1/2/3/4 评分 · Ctrl+Z 撤销 · 手机：左滑重来 / 右滑良好':'Space to flip · 1/2/3/4 to rate · Ctrl+Z undo · swipe left=Again / right=Good',
+  '本轮学习完成！':'Session complete!','返回卡组':'Back to decks',
+  '{0} · 本轮完成 {1} 张，用时 {2} 分钟':'{0} · {1} cards done in {2} min',
+  '这张卡已连续答错 5 次，标记为顽固卡——建议换个角度理解，别死背':'5 lapses in a row — flagged as a leech. Try understanding it differently instead of rote learning',
+  '已撤销上次评分':'Rating undone',
+  /* 浏览/编辑 */
+  '← 返回卡组':'← Back to decks','搜索问题或答案…':'Search Q or A…','＋ 加卡':'＋ Add card',
+  '删除此卡':'Delete card','保存修改':'Save','取消编辑':'Cancel','返回':'Back',
+  '编辑卡片':'Edit card','新加卡片':'New card','问题':'Question','答案':'Answer','标签':'Tag',
+  '没有匹配的卡片':'No matching cards','已删除':'Deleted','已保存':'Saved',
+  /* 导入向导 */
+  '切分策略':'Split strategy','? 自动识别':'? Auto-detect',
+  '标题切卡 · ## 二级标题':'Headings · ## level 2','标题切卡 · ### 三级标题':'Headings · ### level 3',
+  '标题切卡 · #### 四级标题':'Headings · #### level 4','问答对 · 问：/答：或 Q:/A:':'Q&A pairs · Q:/A:',
+  '列表项 · - 问题：答案':'List items · - Q: A','行内卡 · 问题 :: 答案':'Inline cards · Q :: A',
+  ' 跳过与已有卡片重复的内容':' Skip content duplicated in existing cards',
+  '取消':'Cancel','确认导入':'Import','其余文件全部自动导入':'Auto-import the rest',
+  '保存':'Save','卡组为空':'This deck is empty','张':'cards',
+  '张卡，其中 {0} 张疑似重复':' cards, {0} look like duplicates',
+  '问题 {0}':'Card {0}','空答案':'Empty answer','疑似重复':'Duplicate?','超长答案':'Overlong',
+  '张卡 · {0} 张空答案 · {1} 张疑似重复':' cards · {0} empty · {1} duplicates',
+  '导入为卡组':'Import as deck','目标卡组不存在':'Target deck missing',
+  '请选择 .md / .txt 文件':'Please choose .md / .txt files',
+  '没有可导入的新卡片（全部为空或重复）':'Nothing new to import (all empty or duplicates)',
+  '「{0}」导入 {1} 张卡':'Imported {1} cards into "{0}"',
+  '，跳过重复 {0}':', skipped {0} duplicates',
+  '自动导入 {0} 个卡组 / {1} 张卡':'Auto-imported {0} decks / {1} cards',
+  'AI 出题失败：{0}':'AI generation failed: {0}',
+  '模型没有返回内容':'The model returned nothing',
+  '此浏览器不支持语音朗读':'Text-to-speech is not supported in this browser',
+  /* 统计 */
+  '📊 年度背诵报告':'📊 Yearly recap','总卡片':'Total cards','复习中':'In review','未开始':'Not started',
+  '近 7 天每日复习量':'Last 7 days','学习时长':'Study time','（单卡计时上限 60 秒，防挂机虚增）':'(capped at 60s per card to keep it honest)',
+  '今日':'Today','本周':'This week','本月':'This month','今年':'This year',
+  '历史查询（按月）':'History (by month)','本月合计':'Month total',
+  '该月暂无学习记录':'No records this month','累计学习 {0} 天 · 累计复习 {1} 张 · 顽固卡 {2} 张':'Studied {0} days · {1} reviews · {2} leeches',
+  '各卡组进度':'Deck progress',
+  '年度背诵报告':'Yearly Recap','复习卡片':'Cards reviewed','学习天数':'Study days','投入时长':'Time invested',
+  '连续打卡':'Streak','已掌握':'Mastered','顽固卡':'Leeches',
+  '最常复习的卡组：':'Most-studied deck:','不背八股 · 每一张卡都不会辜负你':'ByeByeBaGu · every card pays off','关闭':'Close',
+  '该月没有学习记录':'No records this month',
+  /* 日历 */
+  '一':'Mo','二':'Tu','三':'We','四':'Th','五':'Fr','六':'Sa','日':'Su','今':'Today',
+  '连续打卡':'Streak','累计打卡':'Total days','天':' days',
+  '{0}年{1}月':'{0}-{1}',
+  /* 设置 */
+  '每天新卡上限':'New cards/day','目标记忆保持率（FSRS）':'Target retention (FSRS)',
+  '每日复习目标（张，0 为不设目标）':'Daily review goal (0 = none)','外观':'Appearance',
+  '?? 深色':'🌙 Dark','?? 浅色':'☀️ Light','?? 跟随系统':'🖥 Auto',
+  '界面语言':'Language','🌐 跟随浏览器':'🌐 Auto','?? 中文':'?? Chinese','?? English':'?? English',
+  '接口地址':'Base URL','模型':'Model','导出数据备份（JSON）':'Export backup (JSON)','导出':'Export',
+  '从备份恢复':'Restore backup','导入':'Import','重置复习进度（保留卡组）':'Reset progress (keep decks)',
+  '重置':'Reset','清空全部数据':'Wipe all data','清空':'Wipe',
+  '数据全部保存在本浏览器 localStorage 中，换浏览器/换电脑请先导出备份再恢复。保持率越高，复习间隔越短、复习量越大。':'All data lives in this browser\'s localStorage — export a backup before switching devices. Higher retention = shorter intervals = more daily reviews.',
+  '已重置学习进度，卡组已保留':'Progress reset, decks kept','当前没有卡片':'No cards yet',
+  '确定清空全部卡组、卡片和进度？此操作不可恢复！':'Wipe all decks, cards and progress? This cannot be undone!',
+  '确定清空全部卡组、卡片和进度？':'Wipe all decks, cards and progress? This cannot be undone!',
+  '已清空':'Wiped','已导出':'Exported',
+  '重置所有卡片的学习进度？卡组和卡片内容会保留，此操作不可恢复！':'Reset learning progress for all cards? Decks and content are kept. This cannot be undone!',
+  '确定清空全部数据？':'Wipe all data?',
+  '已保存':'Saved','外观已切换':'Appearance updated','语言已切换':'Language updated',
+  /* AI 面试 */
+  'AI 面试':'AI interview','开始面试':'Start','结束面试':'End interview','跳过此题':'Skip','发送回答':'Send',
+  '输入你的回答…（Ctrl+Enter 发送）':'Type your answer… (Ctrl+Enter to send)',
+  '选择一个卡组开始模拟面试':'Pick a deck to start','本场记录已保存。点击左上角「← 返回」退出。':'Session saved. Click "← Back" to exit.',
+  '请先在「设置」里配置 API Key':'Set an API key in Settings first',
+  '请先在「设置」里配置 AI 面试的 API Key':'Set an API key in Settings first',
+  '正在面试中':'Interview in progress','面试已结束':'Interview ended',
+  '追问':'Follow-up','评分':'Score','总评':'Overall',
+  '面试官正在思考…':'The interviewer is thinking…','回答为空':'Empty answer',
+  '【点评】':'【点评】','【追问】':'【追问】','【评分】':'【评分】','【总评】':'【总评】',
+  /* 时长/日期/间隔 */
+  '{0}分钟':'{0}m','{0}天':'{0}d','{0}个月':'{0}mo','{0}年':'{0}y','1天':'1d','1天后':'1d later',
+  '天后':'d later','已到期':'Due now','{0}天后':'{0}d later','{0}天后到期':'due in {0}d',
+  '点击卡片或按空格查看答案 · 答案里的 ▇▇▇ 是挖空，点击逐个显示':'Tap the card or press Space to reveal · ▇▇▇ blocks are clozes, tap to reveal',
+  '🌐 跟随浏览器':'🌐 Follow browser','🇨🇳 中文':'🇨🇳 中文','🇬🇧 English':'🇬🇧 English',
+  '🌙 深色':'🌙 Dark','☀️ 浅色':'☀️ Light','🖥 跟随系统':'🖥 Auto',
+  'AI 面试（DeepSeek 等 OpenAI 兼容接口，Key 只保存在本机）':'AI interview (DeepSeek or any OpenAI-compatible endpoint; the key never leaves this device)',
+  '全部一起学':'Study all','直接粘贴 Markdown：## 标题+正文、问：/答：、- 列表、问题 :: 答案 都行，向导会自动识别':'Paste Markdown in any shape: ## heading+body, Q:/A:, - list, Q :: A — the wizard auto-detects',
+  '把粘贴的笔记交给大模型整理成问答卡':'Let an LLM turn the pasted notes into Q&A cards',
+  /* 通用 toast */
+  '已回到首页':'Back home',
+  '请选择 .md / .txt 文件':'Please choose .md / .txt files',
+  '先粘贴一点内容再解析':'Paste something first',
+  '先把笔记粘进上面的输入框':'Paste your notes into the box above first',
+  '请先在「设置」里配置 AI 面试的 API Key':'Set the AI API key in Settings first',
+  'AI 出题失败：{0}':'AI generation failed: {0}',
+  '没有可导入的新卡片（全部为空或重复）':'Nothing new to import (all empty or duplicates)',
+  '已撤销':'Undone','今日新卡额度已用完，明天再来 😅':'Daily new-card limit reached — come back tomorrow 😅',
+  '当前没有到期的卡片 😐':'No cards due right now 😐','上次会话已无可学的卡片':'Nothing left in that session',
+  '已回到上次中断的地方':'Back to where you left off','已撤销上次评分':'Rating undone',
+  '已保存':'Saved','已删除':'Deleted','问题不能为空':'Question cannot be empty','已添加':'Added',
+  '请先在「设置」里配置 API Key':'Set the API key in Settings first','请先选择卡组':'Pick a deck first',
+  '该卡组没有带答案的题目':'This deck has no cards with answers','先输入你的回答':'Type your answer first',
+  '已清空':'Wiped','已重置学习进度，卡组已保留':'Progress reset, decks kept',
+  '已保存，下次评分生效':'Saved — applies to the next rating','恢复成功':'Restored',
+  '备份文件格式不对':'Invalid backup file','🎉 今日目标达成（{0} 张）！已连续打卡 {1} 天':'🎉 Daily goal reached ({0} cards)! {1}-day streak',
+  '点击查看/编辑卡片':'Click to view/edit cards','删除卡组「{0}」及其 {1} 张卡片？':'Delete deck "{0}" and its {1} cards?',
+  '暂无数据':'No data yet','历史面试':'Past interviews','张':'cards','天':'days',
+  '（还没有卡组，先去导入）':'(No decks yet — import one first)',
+  '当前模型：{0}':'Current model: {0}',
+  '尚未配置：请到「设置」填写接口地址与 API Key（推荐 DeepSeek）':'Not configured: set the base URL and API key in Settings (DeepSeek recommended)',
+  '选择要被拷打的卡组（每场最多 15 题）':'Pick the deck to be grilled on (max 15 questions per session)',
+  '🎤 开始面试':'🎤 Start interview','结束面试':'End interview','跳过此题':'Skip',
+  '发送回答':'Send answer','输入你的回答…（Ctrl+Enter 发送）':'Type your answer… (Ctrl+Enter to send)',
+  '回答尽量口语化完整表述，点评会更贴近真实面试':'Answer in full spoken sentences — critiques will feel closer to a real interview',
+  '← 退出':'← Exit','↩ 撤销评分':'↩ Undo rating','← 返回':'← Back','＋ 加卡':'＋ Add card',
+  '退出本轮学习（已答的进度已保存）':'Exit this session (progress on answered cards is saved)',
+  '或粘贴文本导入 ▾':'Or paste text ▾','收起粘贴框 ▴':'Hide paste box ▴',
+  '🤖 AI 出题':'🤖 AI generate','📊 年度背诵报告':'📊 Yearly recap',
+  '🗂 卡组':'🗂 Decks','📊 统计':'📊 Stats','⚙️ 设置':'⚙️ Settings',
+  '卡组详情':'Deck details','导入向导':'Import wizard',
+  'AI 面试':'AI interview','学习中':'Studying','设置':'Settings'
+};
+function t(s, ...args){
+  let out = UI_LANG === 'en' ? (I18N_EN[s] || s) : s;
+  args.forEach((a,i)=>{ out = out.split('{'+i+'}').join(String(a)); });
+  return out;
+}
+/* 静态 HTML 的 data-i18n 标记应用（语言切换/初始化时调用） */
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll('[data-i18n-title]').forEach(el=>{ el.title = t(el.dataset.i18nTitle); });
+}
+function detectLang(){ return (navigator.language||'zh').toLowerCase().startsWith('zh') ? 'zh' : 'en'; }
+function syncLang(){
+  UI_LANG = db.settings.lang || detectLang();
+}
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
 function hashStr(s){
   let h = 5381;
@@ -1081,6 +1253,12 @@ function sameDay(a,b){ return todayStr(a)===todayStr(b); }
 function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function fileName2Deck(name){ return name.replace(/\.(md|markdown|txt)$/i,'').slice(0,40); }
 function fmtIv(days){
+  if(UI_LANG === 'en'){
+    if(days===1) return '1d';
+    if(days<30) return days+'d';
+    if(days<365) return (days/30).toFixed(days%30?1:0)+'mo';
+    return (days/365).toFixed(1)+'y';
+  }
   if(days===1) return '1天';
   if(days<30) return days+'天';
   if(days<365) return (days/30).toFixed(days%30?1:0)+'个月';
@@ -1088,6 +1266,11 @@ function fmtIv(days){
 }
 
 function fmtDur(sec){
+  if(UI_LANG === 'en'){
+    if(sec < 3600) return Math.round(sec/60) + 'm';
+    const h = Math.floor(sec/3600), m = Math.round(sec%3600/60);
+    return h + 'h' + (m ? ' '+m+'m' : '');
+  }
   return Math.round(sec/60) + '分钟';   // 时长统一按分钟显示（不背单词口径）
 }
 
@@ -1333,7 +1516,7 @@ let wizard = null; // {files:[{name,norm,strategy,level,result}], idx, skipDup}
 
 function openWizard(files){
   const arr = [...files].filter(f=>/\.(md|markdown|txt)$/i.test(f.name));
-  if(!arr.length){ toast('请选择 .md / .txt 文件'); return; }
+  if(!arr.length){ toast(t('请选择 .md / .txt 文件')); return; }
   let loaded = [], pending = arr.length;
   arr.forEach(f=>{
     const r = new FileReader();
@@ -1354,11 +1537,11 @@ function openWizard(files){
 function togglePaste(){
   const b = $('pasteBox');
   b.classList.toggle('hidden');
-  $('pasteToggle').textContent = b.classList.contains('hidden') ? '或粘贴文本导入 ▾' : '收起粘贴框 ▴';
+  $('pasteToggle').textContent = b.classList.contains('hidden') ? t('或粘贴文本导入 ▾') : t('收起粘贴框 ▴');
 }
 function importPaste(){
   const txt = $('pasteInput').value.trim();
-  if(!txt){ toast('先粘贴一点内容再解析'); return; }
+  if(!txt){ toast(t('先粘贴一点内容再解析')); return; }
   openWizard([new File([txt], '粘贴的笔记.md', {type:'text/markdown'})]);
   $('pasteInput').value = '';
   togglePaste();
@@ -1367,8 +1550,8 @@ function importPaste(){
    （借鉴 repeater 的 LLM helper，复用已有 AI 配置与向导管线） */
 async function aiGenCards(){
   const txt = $('pasteInput').value.trim();
-  if(!txt){ toast('先把笔记粘进上面的输入框'); return; }
-  if(!aiCfgOk()){ toast('请先在「设置」里配置 AI 面试的 API Key'); switchView('settings'); return; }
+  if(!txt){ toast(t('先把笔记粘进上面的输入框')); return; }
+  if(!aiCfgOk()){ toast(t('请先在「设置」里配置 AI 面试的 API Key')); switchView('settings'); return; }
   const btn = $('aiGenBtn');
   btn.disabled = true; btn.textContent = '生成中…';
   try{
@@ -1379,7 +1562,7 @@ async function aiGenCards(){
     if(!out.trim()) throw new Error('模型没有返回内容');
     $('pasteInput').value = out.trim();
     importPaste();
-  }catch(e){ toast('AI 出题失败：' + e.message); }
+  }catch(e){ toast(t('AI 出题失败：{0}', e.message)); }
   btn.disabled = false; btn.textContent = '🤖 AI 出题';
 }
 function strategyVal(f){ return f.strategy==='heading' ? 'h'+f.level : f.strategy; }function setStrategyVal(f, val){
@@ -1482,7 +1665,7 @@ function confirmImport(){
     save();
     toast(`「${res.deck.name}」导入 ${res.kept} 张卡${res.skipped?`，跳过重复 ${res.skipped}`:''}`);
   }else{
-    save(); toast('没有可导入的新卡片（全部为空或重复）');
+    save(); toast(t('没有可导入的新卡片（全部为空或重复）'));
   }
   if(wizard.idx < wizard.files.length-1){ wizard.idx++; renderWizard(); }
   else { wizard = null; switchView('home'); }
@@ -1510,7 +1693,7 @@ function undoLastImport(){
   const ids = new Set(db.lastImport.deckIds);
   db.decks = db.decks.filter(d=>!ids.has(d.id));
   db.cards = db.cards.filter(c=>!ids.has(c.deckId));
-  db.lastImport = null; save(); renderHome(); toast('已撤销');
+  db.lastImport = null; save(); renderHome(); toast(t('已撤销'));
 }
 function dismissUndo(){ db.lastImport = null; save(); renderHome(); }
 
@@ -1598,14 +1781,14 @@ function resumeStudy(){
   const r = db.resume;
   if(!r) return;
   const left = r.queue.slice(r.idx).filter(id=>db.cards.some(c=>c.id===id));
-  if(!left.length){ db.resume=null; save(); renderHome(); toast('上次会话已无可学的卡片'); return; }
+  if(!left.length){ db.resume=null; save(); renderHome(); toast(t('上次会话已无可学的卡片')); return; }
   session = { deckId:r.deckId, deckName:r.deckName, queue:left, idx:0, total:left.length,
               flip:false, startedAt:Date.now() };
   db.resume = null;
   lastAnswer = null;
   switchView('study');
   renderStudy();
-  toast('已回到上次中断的地方');
+  toast(t('已回到上次中断的地方'));
 }
 function dismissResume(){ db.resume=null; save(); renderHome(); }
 
@@ -1631,7 +1814,7 @@ function stopSpeak(){
   speaking = false; updateSpeakBtn();
 }
 function toggleSpeak(){
-  if(!('speechSynthesis' in window)){ toast('此浏览器不支持语音朗读'); return; }
+  if(!('speechSynthesis' in window)){ toast(t('此浏览器不支持语音朗读')); return; }
   if(speaking){ stopSpeak(); return; }
   const card = currentCard(); if(!card) return;
   const text = plainText(session.flip ? card.a : card.q);
@@ -1666,7 +1849,7 @@ function answer(r){
   db.stats.dailyLog[t] = (db.stats.dailyLog[t]||0)+1;
   if(db.settings.dailyGoal > 0 && db.stats.dailyLog[t] >= db.settings.dailyGoal && db.stats.lastGoalHitDay !== t){
     db.stats.lastGoalHitDay = t;
-    setTimeout(()=>toast(`🎉 今日目标达成（${db.settings.dailyGoal} 张）！已连续打卡 ${db.stats.streak} 天`), 400);
+    setTimeout(()=>toast(t('🎉 今日目标达成（{0} 张）！已连续打卡 {1} 天', db.settings.dailyGoal, db.stats.streak)), 400);
   }
   if(r===1){ session.queue.push(card.id); session.total++; } // 重来：本轮尾部再现
   session.idx++; session.flip=false;
@@ -1686,11 +1869,13 @@ function undoAnswer(){
   db.stats.streak = lastAnswer.streak;
   db.stats.lastStudyDay = lastAnswer.lastStudyDay;
   lastAnswer = null;
-  save(); renderStudy(); toast('已撤销上次评分');
+  save(); renderStudy(); toast(t('已撤销上次评分'));
 }
 
 /* ---------- 渲染 ---------- */
+let curView = 'home';
 function switchView(v){
+  curView = v;
   document.body.classList.toggle('studying', v==='study');   // 学习页进入沉浸模式（移动端隐藏顶栏/底栏）
   ['home','browse','cal','import','ai','study','stats','settings'].forEach(id=>{
     $('view-'+id).classList.toggle('hidden', id!==v);
@@ -1698,14 +1883,16 @@ function switchView(v){
   document.querySelectorAll('.navtab').forEach(b=>b.classList.toggle('active',
     (b.dataset.view==='home' && (v==='home'||v==='browse'||v==='cal'||v==='ai')) || b.dataset.view===v));
   $('pageTitle').textContent =
-    v==='home' ? '不背八股' : v==='browse' ? '卡组详情' : v==='cal' ? '打卡日历' : v==='import' ? '导入向导'
-    : v==='ai' ? 'AI 面试' : v==='study' ? '学习中' : v==='stats' ? '统计' : '设置';
+    v==='home' ? t('🗂 卡组') : v==='browse' ? t('卡组详情') : v==='cal' ? t('打卡日历') : v==='import' ? t('导入向导')
+    : v==='ai' ? t('AI 面试') : v==='study' ? t('学习中') : t('设置');
+  applyI18n();
   if(v==='home') renderHome();
   if(v==='cal') renderCal();
   if(v==='ai') openAiView();
   if(v==='import') renderWizard();
   if(v==='stats') renderStats();
   if(v==='settings'){ $('setDailyNew').value = db.settings.dailyNew; $('setRetention').value = db.settings.retention; $('setDailyGoal').value = db.settings.dailyGoal; $('setAppearance').value = db.settings.appearance||'dark';
+    $('setLang').value = db.settings.lang || '';
     $('aiBase').value = db.ai.cfg.base; $('aiKey').value = db.ai.cfg.key; $('aiModel').value = db.ai.cfg.model; }
 }
 function goHome(){ stopSpeak(); saveResume(); session=null; lastAnswer=null; browse=null; switchView('home'); }
@@ -1723,7 +1910,7 @@ function renderHome(){
   const now = Date.now();
   const dueAll = db.cards.filter(c=>c.state!=='new' && c.due<=now).length;
   const freshLeft = Math.max(0, db.settings.dailyNew - introducedToday());
-  $('heroSub').textContent = `待复习 ${dueAll} · 新卡 ${freshLeft}`;
+  $('heroSub').textContent = t('待复习 {0} · 新卡 {1}', dueAll, freshLeft);
   $('studyAllBtn').style.display = (dueAll + freshLeft) ? '' : 'none';
 
   // 会话恢复横幅
@@ -1732,7 +1919,7 @@ function renderHome(){
                        rs.queue.slice(rs.idx).some(id=>db.cards.some(c=>c.id===id)));
   $('resumeBanner').classList.toggle('hidden', !canResume);
   if(canResume) $('resumeText').textContent =
-    `上次「${rs.deckName}」学到一半，还剩 ${rs.queue.length - rs.idx} 张`;
+    t('上次「{0}」学到一半，还剩 {1} 张', rs.deckName, rs.queue.length - rs.idx);
 
   // 我的数据：今日/累计 复习量与时长
   const tk = todayStr(now);
@@ -1745,15 +1932,15 @@ function renderHome(){
     ? Math.min(100, Math.round(todayRev/goal*100)) + '%'
     : (todayRev ? '100%' : '0');
   $('heroGoalTxt').textContent = goal>0
-    ? (todayRev>=goal ? `今日目标达成 🎉 ${todayRev}/${goal}` : `今日目标 ${todayRev}/${goal} 张`)
-    : `今日已复习 ${todayRev} 张`;
-  $('mdTodayRev').innerHTML = todayRev + '<i>张</i>';
-  $('mdTotalRev').innerHTML = totalRev + '<i>张</i>';
+    ? (todayRev>=goal ? t('今日目标达成 ?? {0}/{1}', todayRev, goal) : t('今日目标 {0}/{1} 张', todayRev, goal))
+    : t('今日已复习 {0} 张', todayRev);
+  $('mdTodayRev').innerHTML = todayRev + '<i>'+t('张')+'</i>';
+  $('mdTotalRev').innerHTML = totalRev + '<i>'+t('张')+'</i>';
   $('mdTodayTime').textContent = fmtDur(todaySec);
   $('mdTotalTime').textContent = fmtDur(totalSec);
 
   // 本周打卡日历（周一 ~ 周日，参照不背单词样式）
-  $('calStreak').textContent = `连续打卡 ${db.stats.streak} 天`;
+  $('calStreak').textContent = t('连续打卡 {0} 天', db.stats.streak);
   const base = new Date(now); base.setHours(0,0,0,0);
   const monday = new Date(base); monday.setDate(base.getDate() - (base.getDay()+6)%7);
   const wds = ['一','二','三','四','五','六','日'];
@@ -1764,21 +1951,21 @@ function renderHome(){
     const studied = (db.stats.dailyLog[key]||0) > 0;
     const isToday = key===tk;
     const future = d > base;
-    cal += `<div><div class="cal-lbl${isToday?' today':''}">周${wds[i]}</div>`+
-      `<div class="cal-d${studied?' on':''}${isToday?' today':''}${future?' dim':''}">${isToday?'今':d.getDate()}</div></div>`;
+    cal += `<div><div class="cal-lbl${isToday?' today':''}">${UI_LANG==='en'?['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i]:'周'+wds[i]}</div>`+
+      `<div class="cal-d${studied?' on':''}${isToday?' today':''}${future?' dim':''}">${d.getDate()}</div></div>`;
   }
   $('calRow').innerHTML = cal;
 
   if(db.lastImport && db.lastImport.count > 0){
     $('undoBanner').classList.remove('hidden');
-    $('undoText').textContent = `最近导入了 ${db.lastImport.count} 张卡`;
+    $('undoText').textContent = t('最近导入了 {0} 张卡', db.lastImport.count);
   }else{
     $('undoBanner').classList.add('hidden');
   }
 
   const list = $('deckList'); list.innerHTML='';
   if(!db.decks.length){
-    list.innerHTML = '<div class="empty">还没有卡组，先导入一个 markdown 文件吧<br><br>支持任意排版：章节嵌套、问答对、列表、行内卡均可</div>';
+    list.innerHTML = `<div class="empty">${t('还没有卡组，先导入一个 markdown 文件吧')}<br><br>${t('支持任意排版：章节嵌套、问答对、列表、行内卡均可')}</div>`;
     return;
   }
   db.decks.forEach((d,di)=>{
@@ -1787,22 +1974,22 @@ function renderHome(){
     const pct = c.all ? Math.round(learned/c.all*100) : 0;
     const row = document.createElement('div'); row.className='deck d'+(di%5);
     row.innerHTML = `
-      <div class="info" title="点击查看/编辑卡片">
-        <div class="name"><span class="dicon">📚</span>${esc(d.name)}</div>
+      <div class="info" data-i18n-title="点击查看/编辑卡片" title="${t('点击查看/编辑卡片')}">
+        <div class="name"><span class="dicon">📦</span>${esc(d.name)}</div>
         <div>
-          ${c.due?`<span class="badge due">待复习 ${c.due}</span>`:''}
-          ${c.fresh?`<span class="badge new">新卡 ${c.fresh}</span>`:''}
-          <span class="badge all">共 ${c.all}</span>
+          ${c.due?`<span class="badge due">${t('待复习 {0}', c.due)}</span>`:''}
+          ${c.fresh?`<span class="badge new">${t('新卡 {0}', c.fresh)}</span>`:''}
+          <span class="badge all">${t('共 {0}', c.all)}</span>
         </div>
         <div class="dprog"><div style="width:${pct}%"></div></div>
       </div>
-      <button class="btn primary" ${(!c.due && !c.fresh)?'disabled':''}>学习</button>
-      <button class="btn ghost">删</button>`;
+      <button class="btn primary" ${(!c.due && !c.fresh)?'disabled':''}>${t('学习')}</button>
+      <button class="btn ghost">${t('删')}</button>`;
     row.querySelector('.info').onclick = ()=>openBrowse(d.id);
     row.querySelector('.primary').onclick = (e)=>{ e.stopPropagation(); startStudy(d.id); };
     row.querySelector('.ghost').onclick = (e)=>{
       e.stopPropagation();
-      if(confirm(`删除卡组「${d.name}」及其 ${c.all} 张卡片？`)){
+      if(confirm(t('删除卡组「{0}」及其 {1} 张卡片？', d.name, c.all))){
         db.decks = db.decks.filter(x=>x.id!==d.id);
         db.cards = db.cards.filter(x=>x.deckId!==d.id);
         save(); renderHome();
@@ -1821,21 +2008,21 @@ function openBrowse(deckId){
 }
 function dueText(c){
   const now = Date.now();
-  if(c.state==='new') return '新卡';
-  if(c.due<=now) return '已到期';
-  return Math.ceil((c.due-now)/F_DAY)+'天后';
+  if(c.state==='new') return t('新卡');
+  if(c.due<=now) return t('已到期');
+  return t('{0}天后', Math.ceil((c.due-now)/F_DAY));
 }
 function renderBrowse(){
   const deck = db.decks.find(d=>d.id===browse.deckId);
   if(!deck){ goHome(); return; }
-  $('browseTitle').textContent = `${deck.name}（${db.cards.filter(c=>c.deckId===deck.id).length} 张）`;
+  $('browseTitle').textContent = `${deck.name}（${db.cards.filter(c=>c.deckId===deck.id).length} ${t('张')}）`;
   const q = browse.query.trim().toLowerCase();
   const cards = db.cards.filter(c=>c.deckId===deck.id)
     .filter(c=>!q || c.q.toLowerCase().includes(q) || c.a.toLowerCase().includes(q))
     .sort((a,b)=> (a.state==='new') - (b.state==='new') || a.due-b.due);
   const list = $('browseList'); list.innerHTML='';
   if(!cards.length){
-    list.innerHTML = `<div class="empty">${q?'没有匹配的卡片':'卡组为空'}</div>`;
+    list.innerHTML = `<div class="empty">${q?t('没有匹配的卡片'):t('卡组为空')}</div>`;
   }
   cards.forEach(c=>{
     const div = document.createElement('div'); div.className='brow';
@@ -1843,25 +2030,25 @@ function renderBrowse(){
       div.className='brow open';
       div.innerHTML = `
         <div class="editBox">
-          <label class="muted">问题</label>
+          <label class="muted">${t('问题')}</label>
           <textarea id="editQ">${esc(c.q)}</textarea>
-          <label class="muted">答案</label>
+          <label class="muted">${t('答案')}</label>
           <textarea id="editA" style="min-height:120px">${esc(c.a)}</textarea>
           <div class="row">
-            <button class="btn primary saveBtn">保存</button>
-            <button class="btn danger delBtn">删除此卡</button>
-            <button class="btn gray cancelBtn">取消</button>
+            <button class="btn primary saveBtn">${t('保存')}</button>
+            <button class="btn danger delBtn">${t('删除此卡')}</button>
+            <button class="btn gray cancelBtn">${t('取消')}</button>
           </div>
         </div>`;
       div.querySelector('.saveBtn').onclick = ()=>{
         c.q = div.querySelector('#editQ').value.trim() || c.q;
         c.a = div.querySelector('#editA').value.trim();
-        save(); browse.editing = null; renderBrowse(); toast('已保存');
+        save(); browse.editing = null; renderBrowse(); toast(t('已保存'));
       };
       div.querySelector('.delBtn').onclick = ()=>{
         if(confirm('删除这张卡片？')){
           db.cards = db.cards.filter(x=>x.id!==c.id);
-          save(); browse.editing = null; renderBrowse(); toast('已删除');
+          save(); browse.editing = null; renderBrowse(); toast(t('已删除'));
         }
       };
       div.querySelector('.cancelBtn').onclick = ()=>{ browse.editing=null; renderBrowse(); };
@@ -1893,11 +2080,11 @@ function renderBrowse(){
       </div>`;
     div.querySelector('.saveBtn').onclick = ()=>{
       const q = div.querySelector('#editQ').value.trim();
-      if(!q){ toast('问题不能为空'); return; }
+      if(!q){ toast(t('问题不能为空')); return; }
       db.cards.push({ id:uid(), deckId:deck.id, q, a:div.querySelector('#editA').value.trim(),
         tag:null, s:0, d:0, state:'new', due:Date.now(), last:null, interval:0,
         lapses:0, leech:false, history:[] });
-      save(); browse.editing = null; renderBrowse(); toast('已添加');
+      save(); browse.editing = null; renderBrowse(); toast(t('已添加'));
     };
     div.querySelector('.cancelBtn').onclick = ()=>{ browse.editing=null; renderBrowse(); };
     list.prepend(div);
@@ -1912,20 +2099,21 @@ function renderStudy(){
   if(!card){
     db.resume = null;                                       // 本轮完成，无需续学
     const mins = Math.max(1, Math.round((Date.now()-session.startedAt)/F_MIN));
-    $('doneSummary').textContent =
-      `${session.deckName} · 本轮完成 ${new Set(session.queue).size} 张，用时 ${mins} 分钟`;
+    $('doneSummary').textContent = t('{0} · 本轮完成 {1} 张，用时 {2} 分钟',
+      session.deckName, new Set(session.queue).size, mins);
     $('progressBar').style.width = '100%';
     return;
   }
   if(!session.flip) session.cardShownAt = Date.now();   // 卡片亮出即开始计时
   $('progressBar').style.width = Math.round(session.idx/session.total*100)+'%';
   $('studyDeckName').textContent = session.deckName;
-  $('studyRemain').textContent = `剩余 ${session.total - session.idx} / ${session.total}`;
+  $('studyRemain').textContent = t('剩余 {0} / {1}', session.total - session.idx, session.total);
   $('cardTag').textContent =
     (card.tag ? card.tag+' · ' : '')+
-    (card.leech ? '🔥顽固 · ' : '')+
-    (card.state==='new' ? '🆕 新卡'
-      : `🔁 第 ${card.history.length+1} 次 · 记忆强度≈${card.s>=1?Math.round(card.s)+'天':Math.round(card.s*24*60)+'分钟'}`);
+    (card.leech ? t('🔥顽固 · ') : '')+
+    (card.state==='new' ? '🆕 '+t('新卡')
+      : t('🔁 第 {0} 次 · 记忆强度≈{1}', card.history.length+1,
+          card.s>=1 ? t('{0}天', Math.round(card.s)) : t('{0}分钟', Math.round(card.s*24*60))));
   $('cardBody').innerHTML = session.flip
     ? mdLite(card.a)
     : '<div style="font-size:19px;font-weight:650;line-height:1.65">'+mdLite(card.q)+'</div>';
@@ -1936,10 +2124,10 @@ function renderStudy(){
   $('answerHint').style.display = session.flip ? 'none' : 'block';
   $('rateRow').classList.toggle('show', session.flip);
   if(session.flip){
-    $('iv1').textContent = '10分钟';
+    $('iv1').textContent = t('10分钟');
     for(const r of [2,3,4]){
       const res = fsrsNext(card, r, Date.now(), db.settings.retention);
-      $('iv'+r).textContent = res.interval ? fmtIv(res.interval) : '10分钟';
+      $('iv'+r).textContent = res.interval ? fmtIv(res.interval) : t('10分钟');
     }
   }
 }
@@ -1957,13 +2145,15 @@ function openCalendar(){
 }
 function renderCal(){
   const { y, m } = calPage;
-  $('calTitle').textContent = `${y}年${m+1}月`;
+  $('calTitle').textContent = t('{0}年{1}月', y, m+1);
   const p2 = n => String(n).padStart(2,'0');
   const startIdx = (new Date(y,m,1).getDay()+6) % 7;          // 周一为第一列
   const daysInMonth = new Date(y, m+1, 0).getDate();
   const todayKey = todayStr(Date.now());
   let html = '';
-  ['一','二','三','四','五','六','日'].forEach(w=>html+=`<div class="cal-lbl">周${w}</div>`);
+  (UI_LANG==='en' ? ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+                  : ['一','二','三','四','五','六','日'].map(w=>'周'+w))
+    .forEach(w=>html+=`<div class="cal-lbl">${w}</div>`);
   for(let i=0;i<startIdx;i++) html += '<div></div>';
   for(let d=1; d<=daysInMonth; d++){
     const key = `${y}-${p2(m+1)}-${p2(d)}`;
@@ -2014,26 +2204,30 @@ function renderStats(){
   const mk = hm.value;
   const active = [...new Set([...Object.keys(tl), ...Object.keys(db.stats.dailyLog)])]
     .filter(k=>k.slice(0,7)===mk).sort();
-  const wd = ['日','一','二','三','四','五','六'];
+  const wd = UI_LANG==='en' ? ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] : ['日','一','二','三','四','五','六'];
   let sumRev = 0, sumSec = 0, rows = '';
   active.forEach(k=>{
     const rv = db.stats.dailyLog[k]||0, sc = tl[k]||0;
     sumRev += rv; sumSec += sc;
+    const dt = new Date(k);
+    const dateTxt = UI_LANG==='en'
+      ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][dt.getMonth()]+' '+(+k.slice(8))+' '+wd[dt.getDay()]
+      : `${mk.slice(5).replace('-','月')}${k.slice(8)}日 周${wd[dt.getDay()]}`;
     rows += `<div style="display:flex;justify-content:space-between;padding:7px 2px;border-bottom:1px solid var(--line)">
-      <span>${mk.slice(5).replace('-','月')}${k.slice(8)}日 周${wd[new Date(k).getDay()]}</span>
-      <span>${rv} 张 · ${fmtDur(sc)}</span></div>`;
+      <span>${dateTxt}</span>
+      <span>${rv} ${t('张')} · ${fmtDur(sc)}</span></div>`;
   });
   $('histBody').innerHTML = rows
     ? rows + `<div style="display:flex;justify-content:space-between;padding:9px 2px;font-weight:600;color:var(--ink)">
-        <span>本月合计</span><span>${sumRev} 张 · ${fmtDur(sumSec)}</span></div>`
-    : '<div class="empty">该月暂无学习记录</div>';
+        <span>${t('本月合计')}</span><span>${sumRev} ${t('张')} · ${fmtDur(sumSec)}</span></div>`
+    : `<div class="empty">${t('该月暂无学习记录')}</div>`;
 
-  const ds = $('deckStats');  if(!db.decks.length){ ds.innerHTML='<div class="empty">暂无数据</div>'; return; }
+  const ds = $('deckStats');  if(!db.decks.length){ ds.innerHTML=`<div class="empty">${t('暂无数据')}</div>`; return; }
   const days = Object.keys(db.stats.dailyLog).length;
   const totalRev = Object.values(db.stats.dailyLog).reduce((a,b)=>a+b, 0);
   const leechN = db.cards.filter(c=>c.leech).length;
-  ds.innerHTML = `<div class="muted" style="margin-bottom:10px">累计学习 <b>${days}</b> 天 · 累计复习 <b>${totalRev}</b> 张 · 顽固卡 <b>${leechN}</b> 张</div>`
-    + '<div class="muted" style="margin-bottom:8px">各卡组进度</div>';
+  ds.innerHTML = `<div class="muted" style="margin-bottom:10px">${t('累计学习 {0} 天 · 累计复习 {1} 张 · 顽固卡 {2} 张', days, totalRev, leechN)}</div>`
+    + `<div class="muted" style="margin-bottom:8px">${t('各卡组进度')}</div>`;
   db.decks.forEach(d=>{
     const c = deckCounts(d.id);
     const learned = c.all - c.fresh;
@@ -2076,12 +2270,12 @@ function openRecap(){
   });
   $('rcYear').textContent = y;
   $('rcGrid').innerHTML = [
-    ['复习卡片', revCount + ' 张'],
-    ['学习天数', days + ' 天'],
-    ['投入时长', fmtDur(totalSec)],
-    ['连续打卡', db.stats.streak + ' 天'],
-    ['已掌握', mastered + ' 张'],
-    ['顽固卡', leechN + ' 张'],
+    [t('复习卡片'), revCount + ' ' + t('张')],
+    [t('学习天数'), days + ' ' + t('天')],
+    [t('投入时长'), fmtDur(totalSec)],
+    [t('连续打卡'), db.stats.streak + ' ' + t('天')],
+    [t('已掌握'), mastered + ' ' + t('张')],
+    [t('顽固卡'), leechN + ' ' + t('张')],
   ].map(([k,v])=>`<div><b>${v}</b><small>${k}</small></div>`).join('');
   $('rcTop').textContent = topName;
   $('recapOverlay').classList.remove('hidden');
@@ -2089,23 +2283,26 @@ function openRecap(){
 function closeRecap(){ $('recapOverlay').classList.add('hidden'); }
 
 /* ---------- AI 面试（DeepSeek 等 OpenAI 兼容接口） ---------- */
-const AI_SYS = '你是一位严格、专业、经验丰富的中国互联网大厂面试官，全程使用中文进行模拟面试。候选人每回答一次，你必须：1) 对照参考答案给出简短点评（指出遗漏点、错误点、亮点）；2) 提出一个自然的追问（若确实没有值得追问的，写【追问】无）；3) 给出 1-5 的整数评分（对照参考答案的覆盖度与准确性，5=完整正确）。输出必须严格遵循如下格式，不要输出任何其它内容：\n【点评】…\n【追问】…\n【评分】X/5';
+/* 提示词跟随界面语言：英文界面时面试官用英文提问点评（标记保留【】便于解析） */
+const AI_SYS_ZH = '你是一位严格、专业、经验丰富的中国互联网大厂面试官，全程使用中文进行模拟面试。候选人每回答一次，你必须：1) 对照参考答案给出简短点评（指出遗漏点、错误点、亮点）；2) 提出一个自然的追问（若确实没有值得追问的，写【追问】无）；3) 给出 1-5 的整数评分（对照参考答案的覆盖度与准确性，5=完整正确）。输出必须严格遵循如下格式，不要输出任何其它内容：\n【点评】…\n【追问】…\n【评分】X/5';
+const AI_SYS_EN = 'You are a strict, professional, experienced interviewer at a top internet company, conducting the mock interview in English. Every time the candidate answers you must: 1) give a brief critique against the reference answer (missed points, errors, highlights); 2) ask one natural follow-up question (write 【追问】none if there is truly nothing worth asking); 3) give an integer score 1-5 (coverage & accuracy vs the reference, 5 = complete and correct). Output strictly in this format and nothing else:\n【点评】…\n【追问】…\n【评分】X/5';
+const AI_SYS = () => UI_LANG === 'en' ? AI_SYS_EN : AI_SYS_ZH;
 let aiSess = null;
 function aiCfgOk(){ const c = db.ai.cfg; return !!(c.key && c.model); }
 function openAi(){
-  if(!aiCfgOk()){ toast('请先在「设置」里配置 API Key'); switchView('settings'); return; }
+  if(!aiCfgOk()){ toast(t('请先在「设置」里配置 API Key')); switchView('settings'); return; }
   switchView('ai');
 }
 function openAiView(){
   if(aiSess){ $('aiSetup').classList.add('hidden'); $('aiRun').classList.remove('hidden'); return; }
   $('aiSetup').classList.remove('hidden'); $('aiRun').classList.add('hidden');
   const sel = $('aiDeckSel');
-  sel.innerHTML = db.decks.length ? db.decks.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('') : '<option value="">（还没有卡组，先去导入）</option>';
+  sel.innerHTML = db.decks.length ? db.decks.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('') : `<option value="">${t('（还没有卡组，先去导入）')}</option>`;
   const ok = aiCfgOk();
-  $('aiCfgHint').textContent = ok ? `当前模型：${db.ai.cfg.model}` : '尚未配置：请到「设置」填写接口地址与 API Key（推荐 DeepSeek）';
+  $('aiCfgHint').textContent = ok ? t('当前模型：{0}', db.ai.cfg.model) : t('尚未配置：请到「设置」填写接口地址与 API Key（推荐 DeepSeek）');
   $('aiStart').disabled = !db.decks.length || !ok;
   const ss = db.ai.sessions;
-  $('aiHist').innerHTML = !ss.length ? '' : '<div class="sec">历史面试</div>' + ss.slice(0,10).map(s=>{
+  $('aiHist').innerHTML = !ss.length ? '' : `<div class="sec">${t('历史面试')}</div>` + ss.slice(0,10).map(s=>{
     const sc = s.items.filter(x=>x.score);
     const avg = sc.length ? (sc.reduce((a,x)=>a+x.score,0)/sc.length).toFixed(1) : '-';
     return `<div class="panel" style="padding:12px 14px;margin-bottom:10px"><b style="font-size:14px">${esc(s.deckName)}</b>
@@ -2130,11 +2327,11 @@ function aiBubble(who, text){
 function aiStartRun(){
   const deckId = $('aiDeckSel').value;
   const deck = db.decks.find(d=>d.id===deckId);
-  if(!deck){ toast('请先选择卡组'); return; }
+  if(!deck){ toast(t('请先选择卡组')); return; }
   let cards = db.cards.filter(c=>c.deckId===deckId && c.q && c.a);
   if(cards.some(c=>/^Q\d+/.test(c.q))) cards = cards.filter(c=>!/·追问/.test(c.q)); // 主问出题，追问卡留给追问环节
   cards = cards.slice(0, 15);
-  if(!cards.length){ toast('该卡组没有带答案的题目'); return; }
+  if(!cards.length){ toast(t('该卡组没有带答案的题目')); return; }
   aiSess = { deckName:deck.name, cards, idx:0, round:0, msgs:[], results:[],
              pendingScore:null, followupQ:null, presetQ:null, busy:false };
   $('aiSetup').classList.add('hidden'); $('aiRun').classList.remove('hidden');
@@ -2165,7 +2362,7 @@ function aiUserMsg(answer){
 async function aiSendAnswer(){
   if(!aiSess || aiSess.busy) return;
   const text = $('aiInput').value.trim();
-  if(!text){ toast('先输入你的回答'); return; }
+  if(!text){ toast(t('先输入你的回答')); return; }
   $('aiInput').value = '';
   aiSess.busy = true; $('aiSend').disabled = true; $('aiSkip').disabled = true;
   aiBubble('me', text);
@@ -2175,7 +2372,7 @@ async function aiSendAnswer(){
   th.innerHTML = '<svg width="54" height="54" viewBox="0 0 240 240" style="display:block;margin:0 auto 2px" aria-hidden="true"><use href="#bbThinkSym"></use></svg>面试官思考中…';
   const c0 = $('aiChat'); c0.appendChild(th); c0.scrollTop = c0.scrollHeight;
   try{
-    const out = await aiChat([{role:'system',content:AI_SYS}, ...aiSess.msgs]);
+    const out = await aiChat([{role:'system',content:AI_SYS()}, ...aiSess.msgs]);
     th.remove();
     aiSess.msgs.push({role:'assistant', content:out});
     aiHandle(out);
@@ -2251,11 +2448,11 @@ function exportData(){
 }
 function wipeAll(){
   if(db.cards.length && !confirm('确定清空全部卡组、卡片和进度？此操作不可恢复！')) return;
-  db = defaultDB(); save(); switchView('home'); toast('已清空');
+  db = defaultDB(); save(); switchView('home'); toast(t('已清空'));
 }
 /* 只清学习进度，卡组与卡片内容保留（换题库时用） */
 function resetProgress(){
-  if(!db.cards.length){ toast('当前没有卡片'); return; }
+  if(!db.cards.length){ toast(t('当前没有卡片')); return; }
   if(!confirm('重置所有卡片的学习进度？卡组和卡片内容会保留，此操作不可恢复！')) return;
   const now = Date.now();
   db.cards.forEach(c=>{
@@ -2264,7 +2461,7 @@ function resetProgress(){
   });
   db.stats = { streak:0, lastStudyDay:null, dailyLog:{}, timeLog:{} };
   db.resume = null; lastAnswer = null;
-  save(); switchView('settings'); toast('已重置学习进度，卡组已保留');
+  save(); switchView('settings'); toast(t('已重置学习进度，卡组已保留'));
 }
 
 /* ---------- 事件绑定 ---------- */
@@ -2314,21 +2511,31 @@ $('aiInput').addEventListener('keydown', e=>{
 });
 $('setDailyNew').onchange = e=>{
   db.settings.dailyNew = Math.max(0, +e.target.value||0);
-  save(); toast('已保存');
+  save(); toast(t('已保存'));
 };
 $('setRetention').onchange = e=>{
   let v = +e.target.value;
   if(!(v>0.5 && v<1)) v = 0.9;
   db.settings.retention = v;
-  save(); toast('已保存，下次评分生效');
+  save(); toast(t('已保存，下次评分生效'));
 };
 $('setDailyGoal').onchange = e=>{
   db.settings.dailyGoal = Math.max(0, Math.round(+e.target.value||0));
-  save(); toast('已保存');
+  save(); toast(t('已保存'));
 };
 $('setAppearance').onchange = e=>{
   db.settings.appearance = e.target.value;
-  save(); applyTheme(); toast('外观已切换');
+  save(); applyTheme(); toast(t('外观已切换'));
+};
+$('setLang').onchange = e=>{
+  db.settings.lang = e.target.value;
+  save(); syncLang(); applyI18n();
+  // 动态渲染的区块全部重刷，避免残留旧语言
+  switchView(curView);
+  if(curView==='home') renderHome();
+  if(curView==='stats') renderStats();
+  if(curView==='ai') openAiView();
+  toast(t('语言已切换'));
 };
 $('restoreInput').onchange = e=>{
   const f = e.target.files[0]; if(!f) return;
@@ -2338,8 +2545,8 @@ $('restoreInput').onchange = e=>{
       const d = JSON.parse(r.result);
       if(!d || !Array.isArray(d.cards) || !Array.isArray(d.decks)) throw 0;
       if(!confirm(`恢复备份（${d.decks.length} 个卡组 / ${d.cards.length} 张卡）？将覆盖当前数据。`)) return;
-      db = migrateDB(Object.assign(defaultDB(), d)); save(); switchView('home'); toast('恢复成功');
-    }catch(_){ toast('备份文件格式不对'); }
+      db = migrateDB(Object.assign(defaultDB(), d)); save(); switchView('home'); toast(t('恢复成功'));
+    }catch(_){ toast(t('备份文件格式不对')); }
   };
   r.readAsText(f,'utf-8'); e.target.value='';
 };
@@ -2382,8 +2589,9 @@ document.addEventListener('keydown', e=>{
   }
 });
 
-switchView('home');
-applyTheme();
+  syncLang(); applyI18n();
+  switchView('home');
+  applyTheme();
 
 /* 开屏：最长 0.9 秒，点击可跳过 */
 const splashEl = $('splash');

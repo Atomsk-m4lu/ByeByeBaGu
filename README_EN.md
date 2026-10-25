@@ -32,8 +32,7 @@ ByeByeBaGu ("bye-bye, rote answers") slices your interview notes into flashcards
 algorithm to schedule reviews right before you forget, then has an LLM play the interviewer and **grill you on the spot** —
 because knowing it isn't enough; you have to be able to say it.
 
-> Built primarily for Chinese tech-interview prep (八股文 / 面经). The UI is Chinese, but the engine works with
-> any Markdown notes in any language.
+> Built primarily for Chinese tech-interview prep (八股文 / 面经). The UI now supports English too — switch in Settings.
 
 <div align="center">
 <table>
@@ -52,6 +51,11 @@ because knowing it isn't enough; you have to be able to say it.
 </div>
 
 ## ✨ Features
+
+**🌐 Bilingual UI (Chinese / English)**
+One tap in Settings to switch between 中文 and English (or follow your browser). Dates, intervals,
+durations, the calendar and stats are all localized — and the AI interviewer asks and critiques in
+English when the UI is English.
 
 **📥 Import any layout**
 Drop in a `.md` file (or **paste text directly**) — the import wizard auto-detects how to split it
@@ -198,6 +202,12 @@ Design & implementation drew on these open-source projects; details in [THIRD_PA
    ========================================== -->
 
 ## 🗂 Changelog
+
+### v1.17.0 (2026-10-25)
+- Bilingual UI: dictionary-based i18n (~190 strings), new "Language" setting (中文 / English / follow browser)
+- Localized formatting: intervals (1d/3mo/1.2y), durations (45m/1h 20m), calendar (Mon~Sun), stat dates (Oct 24 Fri)
+- AI interviewer prompt follows the UI language (asks/critiques in English when the UI is English)
+- Verified view-by-view in a browser: zero visible Chinese left in English mode
 
 ### v1.16.1 (2026-10-25)
 - New brand icon: the ByteBit face (navy tile, green headphones, ivory beak), matching the in-app splash;
