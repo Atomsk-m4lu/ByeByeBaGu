@@ -104,8 +104,8 @@
   #progressBar{height:100%; background:var(--brand); width:0; transition:width .3s;}
   .studyMeta{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--sub); margin-bottom:10px;}
   #studyDeckName{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-  #exitBtn,#undoBtn,#studyRemain{flex:none;}
-  #undoBtn,#exitBtn{border:1px solid var(--line); background:var(--card); color:var(--sub); border-radius:6px;
+ #exitBtn,#undoBtn,#studyRemain{flex:none;}
+ #undoBtn,#exitBtn,#speakBtn{border:1px solid var(--line); background:var(--card); color:var(--sub); border-radius:6px;
     padding:3px 10px; font-size:12px; cursor:pointer; min-height:26px;}
   #undoBtn:disabled{opacity:.4; cursor:not-allowed;}
   #exitBtn:hover{color:var(--danger); border-color:var(--danger);}
@@ -449,6 +449,24 @@
   .msg.me{background:var(--brand-weak);color:var(--ink);margin-left:auto;}
   .msg.sys{background:transparent;color:var(--sub);font-size:12.5px;text-align:center;max-width:100%;padding:4px;}
 
+  /* ===== UI 6.0：粘贴导入 + TTS 朗读 + 年度背诵报告（借鉴 Loopky） ===== */
+  #speakBtn.on{color:var(--brand); border-color:var(--brand);}
+  #recapOverlay{position:fixed; inset:0; z-index:80; display:flex; align-items:center; justify-content:center;
+    background:rgba(8,10,16,.78); backdrop-filter:blur(4px); padding:20px;}
+  #recapCard{background:linear-gradient(165deg,#1c2942,#12161f 70%); border:1px solid #2c3a54;
+    border-radius:20px; padding:26px 22px 20px; width:min(420px,100%); text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);}
+  .rc-year{font-size:46px; font-weight:800; line-height:1.1; letter-spacing:2px;
+    background:linear-gradient(90deg,#ffc242,#ff8a5c); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .rc-title{color:#c8d3e8; font-size:14px; letter-spacing:6px; margin:4px 0 18px;}
+  .rc-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px;}
+  .rc-grid div{background:rgba(255,255,255,.06); border-radius:12px; padding:10px 4px;}
+  .rc-grid b{display:block; font-size:17px; color:var(--brand);}
+  .rc-grid small{color:#9aa7bd; font-size:11px;}
+  .rc-top{color:#c8d3e8; font-size:12.5px; margin-bottom:4px;}
+  .rc-top b{color:var(--brand);}
+  .rc-foot{color:#5f6f8f; font-size:11px; margin:10px 0 14px;}
+
   /* ===== UI 5.1：整月打卡日历页 + 统计页排版优化 ===== */
   #calCard{cursor:pointer; transition:all .18s;}
   #calCard:hover{transform:translateY(-2px); box-shadow:var(--shadow-md);}
@@ -572,9 +590,18 @@
 
     <div class="sec">导入新卡组</div>
     <div id="dropZone">
-      <div class="big">📄 点击选择 或 拖拽 .md 文件到这里</div>
+      <div class="big">?? 点击选择 或 拖拽 .md 文件到这里</div>
       <div class="muted">支持任意排版：导入向导自动识别切分规则，可预览、可手动调整后再入库</div>
       <input type="file" id="fileInput" accept=".md,.markdown,.txt" multiple hidden>
+    </div>
+    <div style="text-align:center; margin-top:10px">
+      <button class="btn small ghost" id="pasteToggle" onclick="togglePaste()">或粘贴文本导入 ▾</button>
+    </div>
+    <div id="pasteBox" class="hidden" style="margin-top:10px">
+      <textarea id="pasteInput" rows="5" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;background:var(--card);color:var(--ink);resize:vertical" placeholder="直接粘贴 Markdown：## 标题+正文、问：/答：、- 列表、问题 :: 答案 都行，向导会自动识别"></textarea>
+      <div style="text-align:right; margin-top:8px">
+        <button class="btn small blue" onclick="importPaste()">解析粘贴内容</button>
+      </div>
     </div>
   </div>
 
@@ -673,6 +700,7 @@
       <button id="exitBtn" title="退出本轮学习（已答的进度已保存）" onclick="goHome()">← 退出</button>
       <span id="studyDeckName"></span>
       <button id="undoBtn" disabled onclick="undoAnswer()">↩ 撤销评分</button>
+      <button id="speakBtn" title="朗读当前卡面（再点停止）" onclick="toggleSpeak()">🔊</button>
       <span id="studyRemain"></span>
     </div>
     <div id="cardBox">
@@ -697,6 +725,7 @@
 
   <!-- ===== 统计页 ===== -->
   <div id="view-stats" class="hidden">
+    <button class="btn primary" style="width:100%; margin-bottom:14px" onclick="openRecap()">📊 年度背诵报告</button>
     <div class="statGrid">
       <div class="ov"><b id="stTotal">0</b><span>总卡片</span></div>
       <div class="ov"><b id="stMature" style="color:var(--brand)">0</b><span>复习中</span></div>
@@ -763,6 +792,19 @@
       <input type="file" id="restoreInput" accept=".json" hidden>
     </div>
     <p class="muted">数据全部保存在本浏览器 localStorage 中，换浏览器/换电脑请先导出备份再恢复。保持率越高，复习间隔越短、复习量越大。<br>不背八股 <b id="appVer"></b></p>
+  </div>
+</div>
+
+<!-- ===== 年度背诵报告 ===== -->
+<div id="recapOverlay" class="hidden" onclick="if(event.target===this) closeRecap()">
+  <div id="recapCard">
+    <svg width="64" height="64" viewBox="0 0 240 240" style="display:block;margin:0 auto 6px" aria-hidden="true"><use href="#bbSplashSym"/></svg>
+    <div class="rc-year" id="rcYear"></div>
+    <div class="rc-title">年度背诵报告</div>
+    <div class="rc-grid" id="rcGrid"></div>
+    <div class="rc-top">最常复习的卡组：<b id="rcTop">—</b></div>
+    <div class="rc-foot">不背八股 · 每一张卡都不会辜负你</div>
+    <button class="btn small ghost" onclick="closeRecap()">关闭</button>
   </div>
 </div>
 
@@ -853,7 +895,7 @@
 
 <script>
 'use strict';
-const APP_VER = '1.13.0';
+const APP_VER = '1.14.0';
 document.getElementById('appVer').textContent = 'v' + APP_VER;
 /* 外观应用：设置里选深色/浅色时在 <html> 上打标记，"跟随系统"则交给媒体查询 */
 function applyTheme(){
@@ -1194,8 +1236,20 @@ function openWizard(files){
     r.readAsText(f,'utf-8');
   });
 }
-function strategyVal(f){ return f.strategy==='heading' ? 'h'+f.level : f.strategy; }
-function setStrategyVal(f, val){
+/* 粘贴直导入：把剪贴板文本包成 File 走同一条向导管线（借鉴 Loopky 的 paste-a-list-in） */
+function togglePaste(){
+  const b = $('pasteBox');
+  b.classList.toggle('hidden');
+  $('pasteToggle').textContent = b.classList.contains('hidden') ? '或粘贴文本导入 ▾' : '收起粘贴框 ▴';
+}
+function importPaste(){
+  const txt = $('pasteInput').value.trim();
+  if(!txt){ toast('先粘贴一点内容再解析'); return; }
+  openWizard([new File([txt], '粘贴的笔记.md', {type:'text/markdown'})]);
+  $('pasteInput').value = '';
+  togglePaste();
+}
+function strategyVal(f){ return f.strategy==='heading' ? 'h'+f.level : f.strategy; }function setStrategyVal(f, val){
   if(val === 'auto'){
     const a = autoDetect(f.norm.text);
     f.strategy = a.name; f.level = a.level;
@@ -1421,6 +1475,41 @@ function resumeStudy(){
   toast('已回到上次中断的地方');
 }
 function dismissResume(){ db.resume=null; save(); renderHome(); }
+
+/* ---------- TTS 朗读（浏览器自带语音合成，零依赖） ---------- */
+let speaking = false;
+function plainText(md){
+  return String(md)
+    .replace(/```[\s\S]*?```/g, ' （代码块省略） ')
+    .replace(/`([^`]*)`/g, '$1')
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/^[-+*]\s+/gm, '')
+    .replace(/(\*\*|__|\*|~~|==)/g, '')
+    .replace(/<\/?[a-z][^>]*>/gi, '')
+    .trim();
+}
+function updateSpeakBtn(){
+  const b = $('speakBtn');
+  if(b) b.textContent = speaking ? '⏹' : '🔊';
+}
+function stopSpeak(){
+  if(window.speechSynthesis) speechSynthesis.cancel();
+  speaking = false; updateSpeakBtn();
+}
+function toggleSpeak(){
+  if(!('speechSynthesis' in window)){ toast('此浏览器不支持语音朗读'); return; }
+  if(speaking){ stopSpeak(); return; }
+  const card = currentCard(); if(!card) return;
+  const text = plainText(session.flip ? card.a : card.q);
+  if(!text) return;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'zh-CN'; u.rate = 1;
+  u.onend = u.onerror = ()=>{ speaking = false; updateSpeakBtn(); };
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+  speaking = true; updateSpeakBtn();
+}
 function currentCard(){
   if(!session || session.idx >= session.queue.length) return null;
   return db.cards.find(c=>c.id===session.queue[session.idx]);
@@ -1486,7 +1575,7 @@ function switchView(v){
   if(v==='settings'){ $('setDailyNew').value = db.settings.dailyNew; $('setRetention').value = db.settings.retention; $('setDailyGoal').value = db.settings.dailyGoal; $('setAppearance').value = db.settings.appearance||'dark';
     $('aiBase').value = db.ai.cfg.base; $('aiKey').value = db.ai.cfg.key; $('aiModel').value = db.ai.cfg.model; }
 }
-function goHome(){ saveResume(); session=null; lastAnswer=null; browse=null; switchView('home'); }
+function goHome(){ stopSpeak(); saveResume(); session=null; lastAnswer=null; browse=null; switchView('home'); }
 
 function deckCounts(deckId){
   const now = Date.now();
@@ -1806,8 +1895,7 @@ function renderStats(){
         <span>本月合计</span><span>${sumRev} 张 · ${fmtDur(sumSec)}</span></div>`
     : '<div class="empty">该月暂无学习记录</div>';
 
-  const ds = $('deckStats');
-  if(!db.decks.length){ ds.innerHTML='<div class="empty">暂无数据</div>'; return; }
+  const ds = $('deckStats');  if(!db.decks.length){ ds.innerHTML='<div class="empty">暂无数据</div>'; return; }
   const days = Object.keys(db.stats.dailyLog).length;
   const totalRev = Object.values(db.stats.dailyLog).reduce((a,b)=>a+b, 0);
   const leechN = db.cards.filter(c=>c.leech).length;
@@ -1828,6 +1916,44 @@ function renderStats(){
       </div>`;
   });
 }
+
+/* ---------- 年度背诵报告（借鉴 Loopky 的 Recap） ---------- */
+function openRecap(){
+  const y = new Date().getFullYear();
+  const pre = String(y);
+  const dl = db.stats.dailyLog || {}, tl = db.stats.timeLog || {};
+  const yearEntries = Object.entries(dl).filter(([k])=>k.slice(0,4)===pre);
+  const revCount = yearEntries.reduce((a,[,v])=>a+v, 0);
+  const days = yearEntries.filter(([,v])=>v>0).length;
+  const totalSec = Object.keys(tl).filter(k=>k.slice(0,4)===pre).reduce((a,k)=>a+tl[k], 0);
+  const mastered = db.cards.filter(c=>c.state==='review' && (c.interval||0) >= 21).length;
+  const leechN = db.cards.filter(c=>c.leech).length;
+  // 最常复习的卡组：按今年复习记录数
+  const yearStart = new Date(y,0,1).getTime();
+  const cnt = {};
+  db.cards.forEach(c=>{
+    const n = (c.history||[]).filter(h=>h.t>=yearStart).length;
+    if(n) cnt[c.deckId] = (cnt[c.deckId]||0) + n;
+  });
+  let topName = '—';
+  Object.entries(cnt).sort((a,b)=>b[1]-a[1]).some(([id])=>{
+    const d = db.decks.find(x=>x.id===id);
+    if(d){ topName = d.name; return true; }
+    return false;
+  });
+  $('rcYear').textContent = y;
+  $('rcGrid').innerHTML = [
+    ['复习卡片', revCount + ' 张'],
+    ['学习天数', days + ' 天'],
+    ['投入时长', fmtDur(totalSec)],
+    ['连续打卡', db.stats.streak + ' 天'],
+    ['已掌握', mastered + ' 张'],
+    ['顽固卡', leechN + ' 张'],
+  ].map(([k,v])=>`<div><b>${v}</b><small>${k}</small></div>`).join('');
+  $('rcTop').textContent = topName;
+  $('recapOverlay').classList.remove('hidden');
+}
+function closeRecap(){ $('recapOverlay').classList.add('hidden'); }
 
 /* ---------- AI 面试（DeepSeek 等 OpenAI 兼容接口） ---------- */
 const AI_SYS = '你是一位严格、专业、经验丰富的中国互联网大厂面试官，全程使用中文进行模拟面试。候选人每回答一次，你必须：1) 对照参考答案给出简短点评（指出遗漏点、错误点、亮点）；2) 提出一个自然的追问（若确实没有值得追问的，写【追问】无）；3) 给出 1-5 的整数评分（对照参考答案的覆盖度与准确性，5=完整正确）。输出必须严格遵循如下格式，不要输出任何其它内容：\n【点评】…\n【追问】…\n【评分】X/5';
@@ -2011,7 +2137,7 @@ function resetProgress(){
 /* ---------- 事件绑定 ---------- */
 document.querySelectorAll('.navtab').forEach(b=>b.onclick=()=>{
   if(b.dataset.view !== 'import') wizard = null;
-  saveResume(); session = null; lastAnswer = null; browse = null;
+  stopSpeak(); saveResume(); session = null; lastAnswer = null; browse = null;
   switchView(b.dataset.view);
 });
 $('studyAllBtn').onclick = ()=>startStudy(null);
