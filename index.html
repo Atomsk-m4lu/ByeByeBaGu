@@ -119,6 +119,8 @@
   #cardBody pre code{background:none; padding:0;}
   #cardBody .cloze{background:var(--blue-weak); color:var(--blue); border-radius:4px;
     padding:0 5px; cursor:pointer; font-weight:600; user-select:none;}
+  #cardBody .mdimg{max-width:100%; height:auto; border-radius:8px; margin:6px 0;
+    border:1px solid var(--line); display:block;}
   #answerHint{text-align:center; color:var(--sub); font-size:13px; margin-top:16px;}
   #rateRow{display:none; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:18px;}
   #rateRow.show{display:grid;}
@@ -509,6 +511,80 @@
     .deck{padding:15px 16px;}
     .topbar{padding-top:calc(12px + env(safe-area-inset-top));}
   }
+
+  /* ===== UI 7.0：企业级打磨 —— 设计令牌 / 焦点态 / 排版 / 空状态 / 微交互 ===== */
+  :root{
+    --shadow-lg:0 16px 48px rgba(16,24,32,.16);
+    --ease:cubic-bezier(.2,0,0,1);
+  }
+  /* 统一过渡：只声明会变化的属性（禁用 transition:all） */
+  #dropZone,.navtab,.deck,.btn,.rateBtn,.brow,.wizTab,#calCard,.cal-navbtn,#undoBtn,#exitBtn,#speakBtn{
+    transition:transform .15s var(--ease), box-shadow .18s var(--ease),
+      background-color .15s ease-out, border-color .15s ease-out, color .15s ease-out,
+      opacity .15s ease-out, filter .18s var(--ease);
+  }
+  /* 按压缩放：0.96 / 150ms，disabled 永不缩放 */
+  .btn:not(:disabled):active{transform:scale(.96);}
+  .hero-go:not(:disabled):active{transform:scale(.96);}
+  /* 触屏：取消悬停位移，避免点按后 :hover 粘滞 */
+  @media (hover:none){
+    .navtab:hover,.deck:hover,.brow:hover,#calCard:hover,.rateBtn:hover,.hero-go:hover,
+    .btn.primary:not(:disabled):hover{transform:none;}
+  }
+  #aiChat{overscroll-behavior:contain;}
+  /* 排版：中文字体栈补全 + 抗锯齿 + 数字等宽（统计不跳动） */
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB",
+      "Microsoft YaHei","Noto Sans SC",sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  h1{letter-spacing:.3px;}
+  .ov b,.md b,.cal-sum b,.mydata b,.rc-grid b,#mdTodayRev,#mdTotalRev{
+    font-variant-numeric:tabular-nums; letter-spacing:-.2px;
+  }
+  /* 键盘可达性：所有可交互元素统一品牌色焦点环 */
+  button:focus-visible,a:focus-visible,[tabindex]:focus-visible{
+    outline:none;
+    box-shadow:0 0 0 3px rgba(45,164,78,.35), var(--shadow-sm);
+  }
+  button:focus-visible{
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--brand) 32%, transparent), var(--shadow-sm);
+  }
+  input:focus-visible,textarea:focus-visible,select:focus-visible{
+    outline:none; border-color:var(--brand);
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent);
+  }
+  /* 选择与滚动条 */
+  ::selection{background:rgba(45,164,78,.25); background:color-mix(in srgb, var(--brand) 25%, transparent);}
+  *{scrollbar-width:thin; scrollbar-color:var(--line) transparent;}
+  ::-webkit-scrollbar{width:8px; height:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:99px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--sub);}
+  /* 按压反馈：悬停亮度（渐变主按钮），按压缩放已统一在上面的 0.96 规则 */
+  .btn.primary{background:linear-gradient(180deg, color-mix(in srgb, var(--brand) 86%, #fff), var(--brand));
+    box-shadow:0 1px 2px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.18);}
+  .btn.primary:hover{filter:brightness(1.06);}
+  .btn.primary:active{filter:brightness(.96);}
+  .btn.primary:disabled{background:var(--brand); opacity:.45; filter:none; transform:none; box-shadow:none;}
+  .btn.gray:hover{background:color-mix(in srgb, var(--ink) 8%, transparent);}
+  /* 顶栏品牌徽标：柔和立体 + 字重层级 */
+  .logo{letter-spacing:0; text-shadow:0 1px 2px rgba(0,0,0,.18);}
+  h1{font-weight:750;}
+  /* 面板与行卡：悬停轻微提亮，过渡统一 */
+  .panel{transition:box-shadow .2s var(--ease);}
+  #heroCard{box-shadow:0 10px 30px rgba(0,0,0,.22);}
+  /* 空状态：吉祥物占位 */
+  .empty{display:flex; flex-direction:column; align-items:center; gap:10px; padding:34px 10px 30px; font-size:13.5px;}
+  .empty::before{content:'🐦'; font-size:32px; filter:grayscale(.15); opacity:.85;}
+  /* Toast：卡片化 + 品牌色左标 */
+  .toast{background:var(--card); color:var(--ink); border:1px solid var(--line);
+    border-left:3px solid var(--brand); border-radius:12px; box-shadow:var(--shadow-lg);
+    padding:11px 18px; font-size:13.5px; line-height:1.6;}
+  /* 无障碍：跟随系统减弱动效 */
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms !important; transition-duration:.01ms !important;}
+  }
 </style>
 </head>
 <body>
@@ -599,7 +675,8 @@
     </div>
     <div id="pasteBox" class="hidden" style="margin-top:10px">
       <textarea id="pasteInput" rows="5" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;background:var(--card);color:var(--ink);resize:vertical" placeholder="直接粘贴 Markdown：## 标题+正文、问：/答：、- 列表、问题 :: 答案 都行，向导会自动识别"></textarea>
-      <div style="text-align:right; margin-top:8px">
+      <div style="text-align:right; margin-top:8px; display:flex; gap:8px; justify-content:flex-end">
+        <button class="btn small ghost" id="aiGenBtn" onclick="aiGenCards()" title="把粘贴的笔记交给大模型整理成问答卡">🤖 AI 出题</button>
         <button class="btn small blue" onclick="importPaste()">解析粘贴内容</button>
       </div>
     </div>
@@ -895,13 +972,18 @@
 
 <script>
 'use strict';
-const APP_VER = '1.14.0';
+const APP_VER = '1.16.0';
 document.getElementById('appVer').textContent = 'v' + APP_VER;
 /* 外观应用：设置里选深色/浅色时在 <html> 上打标记，"跟随系统"则交给媒体查询 */
 function applyTheme(){
   const m = db.settings.appearance || 'dark';
+  // 主题切换瞬间禁用所有过渡，避免整页颜色一起"糊"过去，下一帧恢复
+  const st = document.createElement('style');
+  st.textContent = '*,*::before,*::after{transition:none !important;}';
+  document.head.appendChild(st);
   if(m === 'auto') delete document.documentElement.dataset.theme;
   else document.documentElement.dataset.theme = m;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>st.remove()));
 }
 const LS_KEY = 'shanbei_md_v3';
 const LS_KEY_OLD = 'shanbei_md_v2';
@@ -959,7 +1041,23 @@ function hashStr(s){
   for(let i=0;i<s.length;i++) h = ((h<<5)+h+s.charCodeAt(i))>>>0;
   return h.toString(36)+':'+s.length;
 }
-function existingHashes(){ return new Set(db.cards.map(c=>hashStr(c.q+'|'+c.a))); }
+function existingHashes(){ return new Set(db.cards.map(c=>dedupKey(c.q,c.a))); }
+/* 语义去重键（借鉴 repeater/hashcards 的 meaning-only hashing）：
+   剥掉 markdown 标记与空白后哈希——笔记里调格式、改标点再导入，
+   不会产生重复卡，也不会重置已有复习进度 */
+function meaningKey(s){
+  return String(s)
+    .replace(/\r\n?/g,'\n')
+    .replace(/^\s*[-+*]\s+/gm,'')            // 列表标记
+    .replace(/^\s*#{1,6}\s+/gm,'')           // 标题标记
+    .replace(/[*_~`]/g,'')                   // 强调/行内代码标记
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g,'')   // 图片不参与含义
+    .replace(/\[([^\]]*)\]\([^)]*\)/g,'$1')  // 链接保留文字
+    .replace(/[，。？！；：、·…—""''（）《》【】,.?!;:'"()]/g,'')  // 标点不参与含义（连字符保留，防止 10-20 与 1020 误合并）
+    .replace(/\s+/g,'')
+    .toLowerCase();
+}
+function dedupKey(q,a){ return hashStr(meaningKey(q)+'|'+meaningKey(a)); }
 
 /* ---------- 小工具 ---------- */
 const $ = id => document.getElementById(id);
@@ -998,6 +1096,12 @@ function mdLite(s){
     return '\u0000'+(blocks.length-1)+'\u0000';
   });
   html = html
+    .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (_,alt,src)=>{          // 图片（架构图/示意图）
+      if(!/^(https?:\/\/|data:image\/)/i.test(src)) return alt;     // 只放行 http(s)/data 图片
+      blocks.push('<img class="mdimg" loading="lazy" alt="'+alt.replace(/"/g,'&quot;')+
+        '" src="'+src.replace(/"/g,'%22')+'">');
+      return '\u0000'+(blocks.length-1)+'\u0000';
+    })
     .replace(/\*\*([^*\n]+)\*\*/g,'<b>$1</b>')
     .replace(/==((?:(?!==)[^\n])+?)==/g, (_,a)=>'<span class="cloze" data-v="'+a.replace(/"/g,'&quot;')+'" onclick="toggleCloze(this)">▇▇▇</span>')
     .replace(/\n/g,'<br>');
@@ -1249,6 +1353,25 @@ function importPaste(){
   $('pasteInput').value = '';
   togglePaste();
 }
+/* AI 出题：把粘贴的笔记交给大模型整理成标准问答卡，成功后直接进导入向导
+   （借鉴 repeater 的 LLM helper，复用已有 AI 配置与向导管线） */
+async function aiGenCards(){
+  const txt = $('pasteInput').value.trim();
+  if(!txt){ toast('先把笔记粘进上面的输入框'); return; }
+  if(!aiCfgOk()){ toast('请先在「设置」里配置 AI 面试的 API Key'); switchView('settings'); return; }
+  const btn = $('aiGenBtn');
+  btn.disabled = true; btn.textContent = '生成中…';
+  try{
+    const out = await aiChat([
+      { role:'system', content:'你是八股文出题助手。把用户提供的笔记整理成问答卡片。输出必须是纯 markdown，每张卡的格式严格为：一行"## 问题"，下面紧跟若干行答案正文（可含代码块）。不要输出任何解释、前言、编号或结语。问题要像面试官的提问；答案忠实于原笔记，简洁完整，保留关键代码。' },
+      { role:'user', content: txt.slice(0, 6000) }
+    ]);
+    if(!out.trim()) throw new Error('模型没有返回内容');
+    $('pasteInput').value = out.trim();
+    importPaste();
+  }catch(e){ toast('AI 出题失败：' + e.message); }
+  btn.disabled = false; btn.textContent = '🤖 AI 出题';
+}
 function strategyVal(f){ return f.strategy==='heading' ? 'h'+f.level : f.strategy; }function setStrategyVal(f, val){
   if(val === 'auto'){
     const a = autoDetect(f.norm.text);
@@ -1268,7 +1391,7 @@ function refreshResult(f){
   f.result = {
     cards,
     deckName: r.deckName,
-    dups: cards.filter(c=>dupSet.has(hashStr(c.q+'|'+c.a))).length,
+      dups: cards.filter(c=>dupSet.has(dedupKey(c.q,c.a))).length,
     empties: cards.filter(c=>!c.a).length,
     longs: cards.filter(c=>c.a.length > LONG_ANSWER).length
   };
@@ -1306,7 +1429,7 @@ function renderWizard(){
   const pv = $('wizPreview'); pv.innerHTML = '';
   const dupSet = existingHashes();
   r.cards.slice(0, PREVIEW_MAX).forEach((c,i)=>{
-    const isDup = dupSet.has(hashStr(c.q+'|'+c.a));
+      const isDup = dupSet.has(dedupKey(c.q,c.a));
     const div = document.createElement('div');
     div.className = 'pitem'+(c.a?'':(isDup?' warnEmpty':' warnEmpty'))+(c.a.length>LONG_ANSWER?' warnLong':'');
     const aprev = c.a ? esc(c.a.length>120? c.a.slice(0,120)+'…' : c.a).replace(/\n/g,' ⏎ ') : '（空答案，导入后建议手动补充）';
@@ -1329,7 +1452,7 @@ function importOne(f, dupSet, skipDup){
   const deck = { id:uid(), name:f.result.deckName || fileName2Deck(f.name), createdAt:Date.now() };
   let kept = 0, skipped = 0;
   for(const c of f.result.cards){
-    const h = hashStr(c.q+'|'+c.a);
+    const h = dedupKey(c.q,c.a);
     if(skipDup && dupSet.has(h)){ skipped++; continue; }
     dupSet.add(h);
     db.cards.push({ id:uid(), deckId:deck.id, q:c.q, a:c.a, tag:c.tag||null,

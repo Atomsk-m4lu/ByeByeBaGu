@@ -93,8 +93,23 @@ PWA 安装到手机主屏幕/电脑开始菜单，完全离线可用；
 | 列表项 | `- 问题：一句话答案` | 一行一卡 |
 | 行内卡 | `问题 :: 答案` | 语法来自 obsidian-spaced-repetition |
 
-代码块、行内代码内的 `#`、`---`、`==`、`::` 不会被误切；重复导入自动按内容去重。
+代码块、行内代码内的 `#`、`---`、`==`、`::` 不会被误切；重复导入按**语义键**去重（剥离 markdown 标记/标点/空白后哈希，调格式不会产生重复卡或重置进度）。
 `tests/` 目录附了四种排版的[示例文件](samples/)，拖进去即可体验。
+
+### 让 AI 帮你写卡
+
+首页「粘贴文本导入」旁有一个 **🤖 AI 出题** 按钮：把任意笔记/面经粘进输入框，点一下，
+大模型（用你在设置里配的 DeepSeek Key）会把笔记整理成标准问答卡并直接送进导入向导预览。
+
+不想用应用内置功能？也可以把[导入规格](docs/import-spec.md)整段喂给任意 AI（ChatGPT、Claude、Cursor…），
+让它把你的笔记转成可导入格式，再用提示词结尾加一句：
+
+> 输出必须严格遵守上面规格中「标题切卡」策略的格式：每张卡一行 `## 问题`，紧跟答案正文。
+
+### 🖼 图片与挖空
+
+答案里支持 markdown 图片（`![](https://…)` 或 base64 data URL，架构图直接进卡片）与
+`==挖空==`（点击逐个揭示）。
 
 ## 🤖 AI 面试配置
 
@@ -143,6 +158,7 @@ node tests/test-queue.js    # 弱卡优先队列
 - [ObsidianToAnki/Obsidian_to_Anki](https://github.com/ObsidianToAnki/Obsidian_to_Anki) · [e-chehil/anki-quizify](https://github.com/e-chehil/anki-quizify) — 导入向导的设计思想（未复用代码）
 - [wangPing2002/SocialWork-Flashcards](https://github.com/wangPing2002/SocialWork-Flashcards) — 会话中断恢复、弱卡优先排队的机制设计（未复用代码）
 - [jvsena42/loopky](https://github.com/jvsena42/loopky) — 粘贴直导入、朗读卡面、年度 Recap 的机制设计（未复用代码）
+- [shaankhosla/repeater](https://github.com/shaankhosla/repeater) · [felixborretti/hashcards](https://github.com/felixborretti/hashcards) — 语义去重、AI 出题的机制设计（未复用代码）
 
 ## 📄 许可证
 
@@ -156,6 +172,12 @@ node tests/test-queue.js    # 弱卡优先队列
    ======================================================== -->
 
 ## 🗂 更新历史
+
+### v1.16.0（2026-10-25）
+- 语义去重哈希：剥离 markdown 标记/标点/空白后哈希，改格式再导入不再产生重复卡、不再重置进度（借鉴 repeater/hashcards）
+- 🤖 AI 出题：粘贴笔记一键让大模型整理成问答卡并送进导入向导（借鉴 repeater 的 LLM helper）
+- 答案支持 markdown 图片渲染（http/https/data:image，带安全过滤）
+- README 新增「让 AI 帮你写卡」生态章节；新增 `tests/test-dedup.js`（8 项）
 
 ### v1.15.0（2026-10-25）
 - UI 7.0 企业级打磨：中文字体栈补全与抗锯齿、统计数字等宽（tabular-nums）、全组件品牌色焦点环、卡片化 Toast、空状态吉祥物、细滚动条、主题切换过渡抑制、跟随系统减弱动效
