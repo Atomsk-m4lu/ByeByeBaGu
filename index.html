@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>不背八股 · Markdown 背诵卡片</title>
-<meta name="theme-color" content="#1a7f37">
+<meta name="theme-color" content="#1C2942">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0e1319">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -188,11 +188,8 @@
 
   .topbar{margin-bottom:22px;}
   .brand{display:flex;align-items:center;gap:12px;min-width:0;}
-  .logo{width:40px;height:40px;flex:none;border-radius:12px;
-    background:linear-gradient(135deg,#2da44e,#116329);
-    color:#fff;font-size:20px;font-weight:800;
-    display:flex;align-items:center;justify-content:center;
-    box-shadow:0 3px 10px rgba(26,127,55,.35);}
+  .logo{width:40px;height:40px;flex:none;border-radius:12px;display:block;
+    box-shadow:0 3px 10px rgba(0,0,0,.35);}
   h1{font-size:21px;letter-spacing:.5px;}
   .navtab{padding:7px 16px;transition:all .15s;box-shadow:var(--shadow-sm);border-color:transparent;}
   .navtab:hover{transform:translateY(-1px);}
@@ -568,8 +565,7 @@
   .btn.primary:active{filter:brightness(.96);}
   .btn.primary:disabled{background:var(--brand); opacity:.45; filter:none; transform:none; box-shadow:none;}
   .btn.gray:hover{background:color-mix(in srgb, var(--ink) 8%, transparent);}
-  /* 顶栏品牌徽标：柔和立体 + 字重层级 */
-  .logo{letter-spacing:0; text-shadow:0 1px 2px rgba(0,0,0,.18);}
+  /* 顶栏品牌徽标：字重层级（图标为内联 SVG） */
   h1{font-weight:750;}
   /* 面板与行卡：悬停轻微提亮，过渡统一 */
   .panel{transition:box-shadow .2s var(--ease);}
@@ -591,7 +587,21 @@
 <div id="app">
   <div class="topbar">
     <div class="brand">
-      <span class="logo">背</span>
+      <svg class="logo" width="40" height="40" viewBox="0 0 128 128" role="img" aria-label="不背八股">
+        <rect width="128" height="128" rx="30" fill="#1C2942"/>
+        <path d="M32 60 a32 32 0 0 1 64 0" stroke="#00E676" stroke-width="9" fill="none" stroke-linecap="round"/>
+        <rect x="24" y="54" width="17" height="26" rx="8.5" fill="#10151c"/>
+        <rect x="24" y="54" width="17" height="26" rx="8.5" fill="none" stroke="#00E676" stroke-width="2.5"/>
+        <rect x="87" y="54" width="17" height="26" rx="8.5" fill="#10151c"/>
+        <rect x="87" y="54" width="17" height="26" rx="8.5" fill="none" stroke="#00E676" stroke-width="2.5"/>
+        <ellipse cx="64" cy="80" rx="35" ry="29" fill="#3A414D"/>
+        <circle cx="50" cy="78" r="9.5" fill="#F5F0E1"/>
+        <circle cx="78" cy="78" r="9.5" fill="#F5F0E1"/>
+        <circle cx="52" cy="80" r="4.5" fill="#12161F"/>
+        <circle cx="80" cy="80" r="4.5" fill="#12161F"/>
+        <path d="M56 92 L72 92 L64 103 Z" fill="#EFE7D2"/>
+        <rect x="60" y="24" width="9" height="9" fill="#00E676"/>
+      </svg>
       <h1 id="pageTitle">不背八股</h1>
     </div>
     <div class="navbtns">
@@ -972,7 +982,7 @@
 
 <script>
 'use strict';
-const APP_VER = '1.16.0';
+const APP_VER = '1.16.1';
 document.getElementById('appVer').textContent = 'v' + APP_VER;
 /* 外观应用：设置里选深色/浅色时在 <html> 上打标记，"跟随系统"则交给媒体查询 */
 function applyTheme(){

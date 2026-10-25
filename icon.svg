@@ -1,8 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
-  <rect x="8" y="8" width="176" height="176" rx="36" fill="#2da44e"/>
-  <rect x="34" y="30" width="104" height="132" rx="10" fill="#ffffff" opacity="0.92"/>
-  <rect x="58" y="22" width="104" height="132" rx="10" fill="#dafbe1" stroke="#2da44e" stroke-width="4"/>
-  <text x="110" y="104" font-family="'Microsoft YaHei',sans-serif" font-size="58" font-weight="700"
-        fill="#1a7f37" text-anchor="middle">背</text>
-  <rect x="78" y="126" width="64" height="8" rx="4" fill="#2da44e" opacity="0.6"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- 不背八股 · ByteBit 头像图标（与应用开屏吉祥物同源：藏青底 + 绿耳机 + 大眼 + 象牙喙） -->
+  <rect width="128" height="128" rx="30" fill="#1C2942"/>
+  <!-- 耳机梁 -->
+  <path d="M32 60 a32 32 0 0 1 64 0" stroke="#00E676" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <!-- 耳机罩 -->
+  <rect x="24" y="54" width="17" height="26" rx="8.5" fill="#10151c"/>
+  <rect x="24" y="54" width="17" height="26" rx="8.5" fill="none" stroke="#00E676" stroke-width="2.5"/>
+  <rect x="87" y="54" width="17" height="26" rx="8.5" fill="#10151c"/>
+  <rect x="87" y="54" width="17" height="26" rx="8.5" fill="none" stroke="#00E676" stroke-width="2.5"/>
+  <!-- 头 -->
+  <ellipse cx="64" cy="80" rx="35" ry="29" fill="#3A414D"/>
+  <!-- 眼 -->
+  <circle cx="50" cy="78" r="9.5" fill="#F5F0E1"/>
+  <circle cx="78" cy="78" r="9.5" fill="#F5F0E1"/>
+  <circle cx="52" cy="80" r="4.5" fill="#12161F"/>
+  <circle cx="80" cy="80" r="4.5" fill="#12161F"/>
+  <!-- 喙 -->
+  <path d="M56 92 L72 92 L64 103 Z" fill="#EFE7D2"/>
+  <!-- 像素 -->
+  <rect x="60" y="24" width="9" height="9" fill="#00E676"/>
 </svg>

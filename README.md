@@ -173,6 +173,11 @@ node tests/test-queue.js    # 弱卡优先队列
 
 ## 🗂 更新历史
 
+### v1.16.1（2026-10-25）
+- 全新品牌图标：ByteBit 头像（藏青底 + 绿耳机 + 大眼 + 象牙喙），与应用开屏吉祥物同源；
+  替换 icon.svg / 顶栏徽标 / PWA manifest 主题色（绿 → 藏青）
+- GitHub 仓库 About 的 Social preview 需要在仓库设置里手动重新上传 icon.svg
+
 ### v1.16.0（2026-10-25）
 - 语义去重哈希：剥离 markdown 标记/标点/空白后哈希，改格式再导入不再产生重复卡、不再重置进度（借鉴 repeater/hashcards）
 - 🤖 AI 出题：粘贴笔记一键让大模型整理成问答卡并送进导入向导（借鉴 repeater 的 LLM helper）

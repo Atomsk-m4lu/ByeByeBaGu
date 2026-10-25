@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>图标候选 · 不背八股</title>
+<style>
+  body{background:#0d1117;color:#e6edf3;font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+    display:flex;flex-direction:column;align-items:center;padding:40px 20px;gap:36px;}
+  h1{font-size:18px;margin:0;}
+  .row{display:flex;gap:48px;flex-wrap:wrap;justify-content:center;}
+  .cand{display:flex;flex-direction:column;align-items:center;gap:14px;width:300px;}
+  .cand .tag{font-size:15px;font-weight:700;}
+  .cand .desc{font-size:12px;color:#8b949e;text-align:center;line-height:1.6;}
+  .sizes{display:flex;align-items:flex-end;gap:18px;}
+  .sc{text-align:center;font-size:10px;color:#8b949e;display:flex;flex-direction:column;align-items:center;gap:6px;}
+  svg{display:block;}
+  .bgline{background:#161b22;border-radius:12px;padding:18px;display:flex;align-items:flex-end;gap:22px;}
+</style>
+</head>
+<body>
+<h1>不背八股 · 新图标候选（左：128px 实际观感 ｜ 右：48/16px 缩小可读性）</h1>
+<div class="row">
+
+<!-- ═══════════ 方案 A：ByteBit 头像 ═══════════ -->
+<div class="cand">
+  <div class="tag">A · ByteBit 头像</div>
+  <div class="sizes">
+    <div class="sc"><svg id="icoA" width="128" height="128" viewBox="0 0 128 128"></svg>128</div>
+    <div class="bgline">
+      <div class="sc"><svg width="48" height="48" viewBox="0 0 128 128"><use href="#icoA-symbol"/></svg>48</div>
+      <div class="sc"><svg width="16" height="16" viewBox="0 0 128 128"><use href="#icoA-symbol"/></svg>16</div>
+    </div>
+  </div>
+  <div class="desc">吉祥物正脸：藏青圆角底 + 绿耳机 + 大眼 + 象牙喙<br>和应用开屏完全同源，品牌感最强</div>
+</div>
+
+<!-- ═══════════ 方案 B：卡片 + 探头 ═══════════ -->
+<div class="cand">
+  <div class="tag">B · 卡片探头</div>
+  <div class="sizes">
+    <div class="sc"><svg id="icoB" width="128" height="128" viewBox="0 0 128 128"></svg>128</div>
+    <div class="bgline">
+      <div class="sc"><svg width="48" height="48" viewBox="0 0 128 128"><use href="#icoB-symbol"/></svg>48</div>
+      <div class="sc"><svg width="16" height="16" viewBox="0 0 128 128"><use href="#icoB-symbol"/></svg>16</div>
+    </div>
+  </div>
+  <div class="desc">刷卡隐喻：琥珀卡后探出 ByteBit 的眼睛和耳机<br>"背卡"的直觉最强，绿点睛</div>
+</div>
+
+<!-- ═══════════ 方案 C：极简卡组 ═══════════ -->
+<div class="cand">
+  <div class="tag">C · 极简卡组</div>
+  <div class="sizes">
+    <div class="sc"><svg id="icoC" width="128" height="128" viewBox="0 0 128 128"></svg>128</div>
+    <div class="bgline">
+      <div class="sc"><svg width="48" height="48" viewBox="0 0 128 128"><use href="#icoC-symbol"/></svg>48</div>
+      <div class="sc"><svg width="16" height="16" viewBox="0 0 128 128"><use href="#icoC-symbol"/></svg>16</div>
+    </div>
+  </div>
+  <div class="desc">去掉"背"字的现代卡组堆叠 + 绿像素高亮<br>最克制、最像大厂产品图标</div>
+</div>
+
+</div>
+
+<!-- ═══════════ SVG 定义 ═══════════ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+
+<!-- A：ByteBit 头像 -->
+<g id="icoA-symbol">
+  <rect width="128" height="128" rx="30" fill="#1C2942"/>
+  <!-- 耳机梁 -->
+  <path d="M32 60 a32 32 0 0 1 64 0" stroke="#00E676" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <!-- 耳机罩 -->
+  <rect x="24" y="54" width="17" height="26" rx="8.5" fill="#10151c"/>
+  <rect x="24" y="54" width="17" height="26" rx="8.5" fill="none" stroke="#00E676" stroke-width="2.5"/>
+  <rect x="87" y="54" width="17" height="26" rx="8.5" fill="#10151c"/>
+  <rect x="87" y="54" width="17" height="26" rx="8.5" fill="none" stroke="#00E676" stroke-width="2.5"/>
+  <!-- 头 -->
+  <ellipse cx="64" cy="80" rx="35" ry="29" fill="#3A414D"/>
+  <!-- 眼 -->
+  <circle cx="50" cy="78" r="9.5" fill="#F5F0E1"/>
+  <circle cx="78" cy="78" r="9.5" fill="#F5F0E1"/>
+  <circle cx="52" cy="80" r="4.5" fill="#12161F"/>
+  <circle cx="80" cy="80" r="4.5" fill="#12161F"/>
+  <!-- 喙 -->
+  <path d="M56 92 L72 92 L64 103 Z" fill="#EFE7D2"/>
+  <!-- 像素 -->
+  <rect x="60" y="24" width="9" height="9" fill="#00E676"/>
+</g>
+
+<!-- B：卡片探头 -->
+<g id="icoB-symbol">
+  <rect width="128" height="128" rx="30" fill="#1C2942"/>
+  <!-- 后卡（琥珀，倾斜） -->
+  <rect x="30" y="34" width="68" height="76" rx="10" fill="#FFC242" transform="rotate(-8 64 72)"/>
+  <!-- ByteBit 从卡后探头：耳机梁 + 头顶 + 眼睛 -->
+  <path d="M44 52 a20 20 0 0 1 40 0" stroke="#00E676" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <rect x="40" y="48" width="10" height="15" rx="5" fill="#10151c" stroke="#00E676" stroke-width="2"/>
+  <rect x="78" y="48" width="10" height="15" rx="5" fill="#10151c" stroke="#00E676" stroke-width="2"/>
+  <ellipse cx="64" cy="70" rx="24" ry="20" fill="#3A414D"/>
+  <circle cx="55" cy="68" r="6.5" fill="#F5F0E1"/>
+  <circle cx="73" cy="68" r="6.5" fill="#F5F0E1"/>
+  <circle cx="56.5" cy="69.5" r="3" fill="#12161F"/>
+  <circle cx="74.5" cy="69.5" r="3" fill="#12161F"/>
+  <path d="M58 79 L70 79 L64 87 Z" fill="#EFE7D2"/>
+  <!-- 前卡（白，遮住下半张脸 → 探头感） -->
+  <rect x="34" y="86" width="72" height="30" rx="8" fill="#F5F0E1"/>
+  <rect x="46" y="96" width="48" height="5" rx="2.5" fill="#1C2942" opacity=".8"/>
+  <rect x="54" y="106" width="32" height="4" rx="2" fill="#1C2942" opacity=".35"/>
+</g>
+
+<!-- C：极简卡组 -->
+<g id="icoC-symbol">
+  <rect width="128" height="128" rx="30" fill="#12161F"/>
+  <!-- 三张层叠卡：微旋转制造手持扇形感 -->
+  <rect x="30" y="26" width="58" height="76" rx="9" fill="#3A414D" transform="rotate(-12 59 64)"/>
+  <rect x="40" y="26" width="58" height="76" rx="9" fill="#F5F0E1" transform="rotate(4 69 64)"/>
+  <rect x="44" y="30" width="58" height="76" rx="9" fill="#FFC242"/>
+  <!-- 卡面内容：一条"问题"深条 + 绿像素 -->
+  <rect x="54" y="44" width="38" height="7" rx="3.5" fill="#12161F" opacity=".85"/>
+  <rect x="54" y="58" width="28" height="6" rx="3" fill="#12161F" opacity=".4"/>
+  <rect x="54" y="70" width="33" height="6" rx="3" fill="#12161F" opacity=".4"/>
+  <rect x="86" y="88" width="9" height="9" fill="#00E676"/>
+</g>
+
+</defs>
+</svg>
+
+<script>
+  document.getElementById('icoA').innerHTML = '<use href="#icoA-symbol"/>';
+  document.getElementById('icoB').innerHTML = '<use href="#icoB-symbol"/>';
+  document.getElementById('icoC').innerHTML = '<use href="#icoC-symbol"/>';
+</script>
+</body>
+</html>
