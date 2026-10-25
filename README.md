@@ -1,6 +1,6 @@
-﻿<div align="center">
+<div align="center">
 
-<img src="icon.svg" width="88" alt="不背八股">
+<img src="icon.svg" width="96" alt="不背八股">
 
 # 不背八股 · ByeByeBaGu
 
@@ -8,9 +8,14 @@
 
 *导入 → 间隔重复 → AI 面试官拷打，一个 HTML 文件全搞定*
 
+[![在线使用](https://img.shields.io/badge/🚀-在线使用-FFC242?style=for-the-badge)](https://nina-noschool.github.io/ByeByeBaGu/)
+[![下载 HTML](https://img.shields.io/badge/⬇️-下载单文件-1C2942?style=for-the-badge)](八股闪背.html)
+[![安装指南](https://img.shields.io/badge/📱-安装到手机-1C2942?style=for-the-badge)](deploy/一键安装指南.md)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![No Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](#特性)
+[![No Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](#-特性)
 [![Single File](https://img.shields.io/badge/app-single%20file%20HTML-blue)](八股闪背.html)
+[![FSRS](https://img.shields.io/badge/algorithm-FSRS%206-8A2BE2)](#-特性)
 [![PWA](https://img.shields.io/badge/PWA-installable-5A0FC8)](deploy/一键安装指南.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-ff69b4)](https://github.com/nina-noschool/ByeByeBaGu/pulls)
 
@@ -21,47 +26,50 @@
 ## 为什么做它
 
 背八股最大的痛点：**看了就忘，面试时说不出口**。
-不背八股把你的面经笔记切成卡片，用间隔重复算法安排你"什么快忘了就什么时候再见面"，
+不背八股把你的面经笔记切成卡片，用 FSRS 间隔重复算法安排你"什么快忘了就什么时候再见面"，
 再让大模型扮演面试官**当场拷打你**——背过，更要用嘴说过。
 
 <div align="center">
 <table>
   <tr>
     <td align="center"><img src="docs/screenshots/home.png" width="200"><br><sub>首页 · 目标与数据</sub></td>
-    <td align="center"><img src="docs/screenshots/study.png" width="200"><br><sub>沉浸式刷卡</sub></td>
-    <td align="center"><img src="docs/screenshots/decks.png" width="200"><br><sub>卡组与 AI 面试</sub></td>
+    <td align="center"><img src="docs/screenshots/study.png" width="200"><br><sub>沉浸式刷卡 · 四键评分</sub></td>
+    <td align="center"><img src="docs/screenshots/decks.png" width="200"><br><sub>卡组详情 · 浏览编辑</sub></td>
   </tr>
   <tr>
     <td align="center"><img src="docs/screenshots/calendar.png" width="200"><br><sub>打卡日历</sub></td>
-    <td align="center"><img src="docs/screenshots/stats.png" width="200"><br><sub>时长统计与历史</sub></td>
+    <td align="center"><img src="docs/screenshots/stats.png" width="200"><br><sub>时长统计 · 年度报告</sub></td>
     <td align="center"><img src="docs/screenshots/settings.png" width="200"><br><sub>设置 · 外观与 AI</sub></td>
   </tr>
 </table>
+<sub>以上为 v1.16 真实界面截图</sub>
 </div>
 
 ## ✨ 特性
 
 **📥 任意排版导入**
 拖入 `.md` 文件（或直接**粘贴文本**），导入向导自动识别切分方式（标题层级 / 问答对 / 列表项 / 行内卡），
-导入前可预览、可切换策略，含空答案/超长答案诊断与一键撤销。解析规则见[导入规格](docs/import-spec.md)。
+导入前可预览、可切换策略，含空答案/超长答案诊断与一键撤销。
+去重按**语义键**计算——笔记调格式、改标点再导入，不会产生重复卡、不会重置进度。
+解析规则见[导入规格](docs/import-spec.md)。
+
+**🤖 AI 出题与 AI 面试官**
+「AI 出题」把任意笔记一键整理成问答卡送进导入向导；
+「AI 面试官拷打」接入 DeepSeek（兼容任何 OpenAI 格式接口）逐题提问：
+对照参考答案点评你的回答 → 自然地追问 → 打分 → 结束出总评与补强方向。
 
 **🧠 FSRS 间隔重复调度**
 移植自 [ts-fsrs](https://github.com/open-spaced-repetition/ts-fsrs) 的最新 FSRS 公式，
-目标记忆保持率可调（默认 0.9），每张卡实时显示记忆强度。
-
-**🎤 AI 面试官拷打**
-接入 DeepSeek（兼容任何 OpenAI 格式接口），扮演大厂面试官逐题提问：
-对照参考答案点评你的回答 → 自然地追问 → 打分 → 结束出总评与补强方向。
-面经里的预设追问链（Q1·追问1…）会被原样用作追问。
-
-**🃏 科学的刷卡体验**
-空格翻面、四键评分（重来/困难/良好/简单）、评分可撤销（Ctrl+Z）、
-连错 5 次自动标记顽固卡 🔥、填空卡（`==挖空==` 点击揭示）、🔊 朗读卡面（浏览器语音合成，闭眼听答案）。
+目标记忆保持率可调（默认 0.9），每张卡实时显示记忆强度与下次间隔。
 
 **🎯 弱卡优先与断点续学**
-组队时按"最近 10 次评价"计算薄弱分，薄弱卡本轮自动多出现 2~3 次（借鉴
-[SocialWork-Flashcards](https://github.com/wangPing2002/SocialWork-Flashcards) 的机制）；
+组队时按"最近 10 次评价"计算薄弱分，薄弱卡本轮自动多出现 2~3 次；
 中途退出/刷新不丢进度，首页一键"继续学"。
+
+**🃏 科学的刷卡体验**
+空格翻面、四键评分（重来/困难/良好/简单，每键显示下次间隔）、评分可撤销（Ctrl+Z）、
+🔊 朗读卡面（闭眼听答案）、连错 5 次自动标记顽固卡 🔥、填空卡（`==挖空==` 点击揭示）、
+答案支持 markdown 图片（架构图直接进卡片）。
 
 **📊 数据看得见**
 每日目标与打卡日历、日/周/月/年学习时长、按月历史查询、累计统计，
@@ -69,7 +77,7 @@
 
 **📱 真·App 体验**
 PWA 安装到手机主屏幕/电脑开始菜单，完全离线可用；
-移动端沉浸式学习页、左右滑评分、底部 Tab 导航。
+移动端沉浸式学习页、左右滑评分、底部 Tab 导航、跟手翻面动画。
 
 **🔒 数据自持**
 全部数据存在本机浏览器，不上传任何内容；支持 JSON 备份/恢复。
@@ -79,8 +87,8 @@ PWA 安装到手机主屏幕/电脑开始菜单，完全离线可用；
 | 方式 | 做法 |
 |---|---|
 | **在线使用**（推荐） | 打开 [https://nina-noschool.github.io/ByeByeBaGu/](https://nina-noschool.github.io/ByeByeBaGu/) → 添加到主屏幕，详见 [安装指南](deploy/一键安装指南.md) |
-| **部署自己的站点** | Fork 本仓库 → 开启 GitHub Pages → 详见 [安装指南](deploy/一键安装指南.md) |
-| **本地运行** | 下载 [`八股闪背.html`](八股闪背.html) 双击打开 |
+| **部署自己的站点** | Fork 本仓库 → 开启 GitHub Pages → 详见 [安装指南](deploy/一键安装指南.md)，更新用 Sync fork |
+| **本地运行** | 下载 [`八股闪背.html`](八股闪背.html) 双击打开，零安装 |
 
 ## 📖 导入格式
 
@@ -93,23 +101,18 @@ PWA 安装到手机主屏幕/电脑开始菜单，完全离线可用；
 | 列表项 | `- 问题：一句话答案` | 一行一卡 |
 | 行内卡 | `问题 :: 答案` | 语法来自 obsidian-spaced-repetition |
 
-代码块、行内代码内的 `#`、`---`、`==`、`::` 不会被误切；重复导入按**语义键**去重（剥离 markdown 标记/标点/空白后哈希，调格式不会产生重复卡或重置进度）。
+代码块、行内代码内的 `#`、`---`、`==`、`::` 不会被误切。
 `tests/` 目录附了四种排版的[示例文件](samples/)，拖进去即可体验。
 
-### 让 AI 帮你写卡
+<details>
+<summary><b>🤖 让 AI 帮你写卡</b>（点击展开）</summary>
 
-首页「粘贴文本导入」旁有一个 **🤖 AI 出题** 按钮：把任意笔记/面经粘进输入框，点一下，
-大模型（用你在设置里配的 DeepSeek Key）会把笔记整理成标准问答卡并直接送进导入向导预览。
+- **应用内**：首页「粘贴文本导入」旁的 **🤖 AI 出题** 按钮，把任意笔记粘进输入框一键生成问答卡；
+- **应用外**：把[导入规格](docs/import-spec.md)整段喂给任意 AI（ChatGPT / Claude / Cursor…），
+  让它把你的笔记转成可导入格式，提示词结尾加一句：
+  > 输出必须严格遵守上面规格中「标题切卡」策略的格式：每张卡一行 `## 问题`，紧跟答案正文。
 
-不想用应用内置功能？也可以把[导入规格](docs/import-spec.md)整段喂给任意 AI（ChatGPT、Claude、Cursor…），
-让它把你的笔记转成可导入格式，再用提示词结尾加一句：
-
-> 输出必须严格遵守上面规格中「标题切卡」策略的格式：每张卡一行 `## 问题`，紧跟答案正文。
-
-### 🖼 图片与挖空
-
-答案里支持 markdown 图片（`![](https://…)` 或 base64 data URL，架构图直接进卡片）与
-`==挖空==`（点击逐个揭示）。
+</details>
 
 ## 🤖 AI 面试配置
 
@@ -126,7 +129,17 @@ Key 只保存在本机浏览器 localStorage，不上传、不经过任何第三
 <p align="center"><img src="docs/bytebit.svg" width="160" alt="ByteBit"></p>
 
 设计记录与使用规范见 [docs/bytebit.md](docs/bytebit.md)。
-它会在开屏、AI 面试"思考中"和目标达成庆祝时出场。
+它会在开屏、AI 面试"思考中"、目标达成庆祝和年度报告上出场——应用图标也是它。
+
+## 🗺 路线图
+
+- [x] FSRS 调度、导入向导、填空卡、AI 面试官、学习时长统计、PWA、弱卡优先、断点续学、年度报告
+- [ ] `.apkg` Anki 卡组导入（零依赖约束下做技术验证中）
+- [ ] IndexedDB 存储（万卡级大卡组）
+- [ ] 桌面端双栏布局（平板）
+- [ ] ByteBit 更多姿态与空状态插画
+
+欢迎按[导入规格](docs/import-spec.md)和[维护规则](#)提 PR——改解析器请先改规格文档、带上测试。
 
 ## 🧑‍💻 开发与测试
 
@@ -137,6 +150,7 @@ node tests/test-parser.js   # markdown 解析与切分策略
 node tests/test-fsrs.js     # FSRS 调度不变量
 node tests/test-cloze.js    # 填空卡渲染
 node tests/test-queue.js    # 弱卡优先队列
+node tests/test-dedup.js    # 语义去重
 ```
 
 ```
@@ -144,8 +158,9 @@ node tests/test-queue.js    # 弱卡优先队列
 ├── index.html          # Pages 入口（与上面保持同步）
 ├── manifest.webmanifest / sw.js / icon.svg
 ├── deploy/             # 安装指南与部署套件
+├── docs/               # 吉祥物设计记录 · 导入规格 · 截图
 ├── samples/            # 四种排版的示例 md
-└── tests/              # 解析器 / FSRS / 填空渲染测试
+└── tests/              # 56 项纯函数测试
 ```
 
 ## 🙏 致谢
@@ -163,6 +178,10 @@ node tests/test-queue.js    # 弱卡优先队列
 ## 📄 许可证
 
 [MIT](LICENSE) © 2026 nina-noschool
+
+<div align="center">
+<sub>用 ❤️ 和一个 HTML 文件做成 · 如果对你有用，点个 ⭐ 让更多面试人看到</sub>
+</div>
 
 ---
 
@@ -194,7 +213,6 @@ node tests/test-queue.js    # 弱卡优先队列
 - 🔊 朗读卡面：学习页朗读当前问题/答案，浏览器自带语音合成，零依赖（借鉴 Loopky）
 - 年度背诵报告：统计页一键生成——复习量/学习天数/时长/连击/已掌握/最常复习卡组（借鉴 Loopky 的 Recap）
 - 新增 [docs/import-spec.md](docs/import-spec.md)：导入解析器正式规格，测试套件以此为依据
-- 解析器规格文档化后 `tests/test-parser.js` 等照旧全绿（46 项）
 
 ### v1.13.0（2026-10-25）
 - 会话中断恢复：中途退出/刷新页面后，首页出现「继续学」横幅，从上次中断位置继续
