@@ -37,17 +37,17 @@ because knowing it isn't enough; you have to be able to say it.
 <div align="center">
 <table>
   <tr>
-    <td align="center"><img src="docs/screenshots/home.png" width="200"><br><sub>Home · goals & stats</sub></td>
-    <td align="center"><img src="docs/screenshots/study.png" width="200"><br><sub>Immersive review · 4-button rating</sub></td>
-    <td align="center"><img src="docs/screenshots/decks.png" width="200"><br><sub>Deck browser · edit & search</sub></td>
+    <td align="center"><img src="docs/screenshots/en/home.png" width="200"><br><sub>Home · goals & stats</sub></td>
+    <td align="center"><img src="docs/screenshots/en/study.png" width="200"><br><sub>Immersive review · 4-button rating</sub></td>
+    <td align="center"><img src="docs/screenshots/en/decks.png" width="200"><br><sub>Deck browser · edit & search</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/calendar.png" width="200"><br><sub>Study calendar</sub></td>
-    <td align="center"><img src="docs/screenshots/stats.png" width="200"><br><sub>Time stats · yearly recap</sub></td>
-    <td align="center"><img src="docs/screenshots/settings.png" width="200"><br><sub>Settings · appearance & AI</sub></td>
+    <td align="center"><img src="docs/screenshots/en/calendar.png" width="200"><br><sub>Study calendar</sub></td>
+    <td align="center"><img src="docs/screenshots/en/stats.png" width="200"><br><sub>Time stats · yearly recap</sub></td>
+    <td align="center"><img src="docs/screenshots/en/settings.png" width="200"><br><sub>Settings · appearance & AI</sub></td>
   </tr>
 </table>
-<sub>Screenshots are from the real v1.16 UI</sub>
+<sub>Screenshots are from the real v1.17 UI in English</sub>
 </div>
 
 ## ✨ Features
