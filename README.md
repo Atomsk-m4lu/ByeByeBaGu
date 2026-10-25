@@ -8,6 +8,8 @@
 
 *导入 → 间隔重复 → AI 面试官拷打，一个 HTML 文件全搞定*
 
+简体中文 | [English](README_EN.md)
+
 [![在线使用](https://img.shields.io/badge/🚀-在线使用-FFC242?style=for-the-badge)](https://nina-noschool.github.io/ByeByeBaGu/)
 [![下载 HTML](https://img.shields.io/badge/⬇️-下载单文件-1C2942?style=for-the-badge)](八股闪背.html)
 [![安装指南](https://img.shields.io/badge/📱-安装到手机-1C2942?style=for-the-badge)](deploy/一键安装指南.md)
