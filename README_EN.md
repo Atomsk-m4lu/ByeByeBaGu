@@ -95,7 +95,12 @@ Installable PWA (phone home screen / desktop), fully offline; immersive mobile s
 swipe-to-rate, bottom tab navigation.
 
 **🔒 Your data stays yours**
-Everything lives in your browser's localStorage. Nothing is uploaded. JSON backup & restore included.
+Everything lives in your browser (**IndexedDB primary store, 10k-card capacity**; small decks are
+mirrored to localStorage as a second copy). Nothing is uploaded. JSON backup & restore included.
+
+**🖥 Two-pane desktop layout**
+At ≥900px width the app switches to master–detail: a persistent deck rail on the left, decks/study/stats
+on the right — a workflow like Anki's desktop app.
 
 ## 🚀 Quick start
 
@@ -156,9 +161,8 @@ It shows up on the splash, in the AI interviewer's "thinking" state, in the goal
 ## 🗺 Roadmap
 
 - [x] FSRS scheduling, import wizard, cloze cards, AI interviewer, time tracking, PWA, weak-card priority, session resume, yearly recap
-- [ ] Anki `.apkg` import (validating under the zero-dependency constraint)
-- [ ] IndexedDB storage for 10k+ card libraries
-- [ ] Two-pane tablet/desktop layout
+- [x] IndexedDB storage (10k-card scale), two-pane desktop layout
+- [ ] In-app Anki `.apkg` import (dev-time tool already available, see above)
 - [ ] More ByteBit poses & empty-state illustrations
 
 PRs welcome — when touching the parser, please update the [import spec](docs/import-spec.md) first and include tests.
@@ -215,6 +219,15 @@ Design & implementation drew on these open-source projects; details in [THIRD_PA
    ========================================== -->
 
 ## 🗂 Changelog
+
+### v1.19.0 (2026-10-27)
+- 🗄 IndexedDB primary storage: breaks the 5MB localStorage quota — 10k-card decks are fine.
+  Legacy data auto-migrates into IDB on first boot; small decks (<3.5MB) are mirrored to
+  localStorage as a second copy; IDB-unavailable environments (private mode) fall back to LS
+- 🖥 Two-pane desktop layout: at ≥900px a persistent deck rail (sticky, scrolls independently)
+  sits beside decks/study/stats — master–detail workflow
+- 📚 Large-deck safeguard: deck browser renders 500 cards per page with "load more"
+- Verified in a real browser: after clearing localStorage the data restores fully from IDB; zero mobile regression
 
 ### v1.18.0 (2026-10-27)
 - 🎤 AI interviewer v2 (methodology borrowed from the asu-skills/interview skill): three intensity levels

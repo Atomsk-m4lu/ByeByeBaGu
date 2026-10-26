@@ -517,6 +517,24 @@
     .topbar{padding-top:calc(12px + env(safe-area-inset-top));}
   }
 
+  /* ===== UI 8.0：桌面端双栏（≥900px）——左侧卡组栏常驻，右侧内容区 ===== */
+  @media (min-width:900px){
+    #app{ max-width:1200px; display:grid; grid-template-columns:400px 1fr; gap:0 28px;
+      align-items:start; }
+    .topbar{ grid-column:1 / -1; }
+    #view-home{ grid-column:1; grid-row:2; position:sticky; top:0;
+      max-height:100dvh; overflow-y:auto; padding-bottom:20px; }
+    #view-browse,#view-cal,#view-import,#view-ai,#view-study,#view-stats,#view-settings{
+      grid-column:2; grid-row:2; min-width:0; }
+    /* 左栏常驻：即使处于其他视图也显示（master-detail） */
+    #view-home.hidden{ display:block !important; }
+    /* 左栏瘦身：数据/周历/AI 入口/导入区只在移动端展示 */
+    .rail-hide{ display:none !important; }
+    /* 右栏内容加宽呼吸感 */
+    #cardBox{ min-height:420px; }
+    #cardBody{ font-size:17px; }
+  }
+
   /* ===== UI 7.0：企业级打磨 —— 设计令牌 / 焦点态 / 排版 / 空状态 / 微交互 ===== */
   :root{
     --shadow-lg:0 16px 48px rgba(16,24,32,.16);
@@ -652,16 +670,16 @@
       </div>
     </div>
 
-    <div class="sec" data-i18n="我的数据">我的数据</div>
-    <div class="panel mydata">
+    <div class="sec rail-hide" data-i18n="我的数据">我的数据</div>
+    <div class="panel mydata rail-hide">
       <div class="md"><span class="mdi" style="background:var(--blue-weak);color:var(--blue)">📥</span><div><small data-i18n="今日复习">今日复习</small><b id="mdTodayRev">0<i>张</i></b></div></div>
       <div class="md"><span class="mdi" style="background:var(--brand-weak);color:var(--brand)">📈</span><div><small data-i18n="累计复习">累计复习</small><b id="mdTotalRev">0<i>张</i></b></div></div>
       <div class="md"><span class="mdi" style="background:var(--warn-weak);color:var(--warn)">⏱️</span><div><small data-i18n="今日时长">今日时长</small><b id="mdTodayTime">0秒</b></div></div>
       <div class="md"><span class="mdi" style="background:var(--danger-weak);color:var(--danger)">🕒</span><div><small data-i18n="累计时长">累计时长</small><b id="mdTotalTime">0秒</b></div></div>
     </div>
 
-    <div class="sec" data-i18n="本周打卡">本周打卡</div>
-    <div class="panel" id="calCard" data-i18n-title="点击查看整月打卡日历" title="点击查看整月打卡日历">
+    <div class="sec rail-hide" data-i18n="本周打卡">本周打卡</div>
+    <div class="panel rail-hide" id="calCard" data-i18n-title="点击查看整月打卡日历" title="点击查看整月打卡日历">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <span style="font-weight:700" data-i18n="打卡日历">打卡日历</span>
         <span class="muted" id="calStreak"></span>
@@ -669,8 +687,8 @@
       <div class="cal-row" id="calRow"></div>
     </div>
 
-    <div class="sec" data-i18n="AI 面试模拟">AI 面试模拟</div>
-    <div class="panel" style="display:flex;align-items:center;gap:12px">
+    <div class="sec rail-hide" data-i18n="AI 面试模拟">AI 面试模拟</div>
+    <div class="panel rail-hide" style="display:flex;align-items:center;gap:12px">
       <span class="mdi" style="background:var(--blue-weak);color:var(--blue)">🎤</span>
       <div style="flex:1;min-width:0">
         <b style="font-size:15px" data-i18n="AI 面试官拷打">AI 面试官拷打</b>
@@ -682,13 +700,13 @@
     <div class="sec" data-i18n="我的卡组">我的卡组</div>
     <div id="deckList"></div>
 
-    <div class="sec" data-i18n="导入新卡组">导入新卡组</div>
-    <div id="dropZone">
+    <div class="sec rail-hide" data-i18n="导入新卡组">导入新卡组</div>
+    <div id="dropZone" class="rail-hide">
       <div class="big" data-i18n="点击选择 或 拖拽 .md 文件到这里">📎 点击选择 或 拖拽 .md 文件到这里</div>
       <div class="muted" data-i18n="支持任意排版：导入向导自动识别切分规则，可预览、可手动调整后再入库">支持任意排版：导入向导自动识别切分规则，可预览、可手动调整后再入库</div>
       <input type="file" id="fileInput" accept=".md,.markdown,.txt" multiple hidden>
     </div>
-    <div style="text-align:center; margin-top:10px">
+    <div style="text-align:center; margin-top:10px" class="rail-hide">
       <button class="btn small ghost" id="pasteToggle" onclick="togglePaste()" data-i18n="或粘贴文本导入 ▾">或粘贴文本导入 ▾</button>
     </div>
     <div id="pasteBox" class="hidden" style="margin-top:10px">
@@ -1017,7 +1035,7 @@
 
 <script>
 'use strict';
-const APP_VER = '1.18.0';
+const APP_VER = '1.19.0';
 document.getElementById('appVer').textContent = 'v' + APP_VER;
 /* 外观应用：设置里选深色/浅色时在 <html> 上打标记，"跟随系统"则交给媒体查询 */
 function applyTheme(){
@@ -1044,8 +1062,69 @@ function defaultDB(){
     lastImport:null,
     resume:null };   // 未完成的学习会话（退出/关闭页面后可继续）
 }
-let db = load();
-function load(){
+let db = defaultDB();   // 真实数据在 boot() 里异步载入（IndexedDB 优先，localStorage 回退）
+
+/* ---------- IndexedDB 存储层（万卡级：不受 localStorage 5MB 配额限制） ----------
+   架构：db 仍是内存中的同步对象，全部业务逻辑不变；只有持久化层换成 IDB 异步写。
+   小库（<3.5MB JSON）同时镜像回 localStorage 作为第二副本，大库只写 IDB。 */
+const IDB_NAME = 'shanbei_idb', IDB_STORE = 'kv';
+let idbPromise = null;
+function openIDB(){
+  if(idbPromise) return idbPromise;
+  idbPromise = new Promise((res, rej)=>{
+    const rq = indexedDB.open(IDB_NAME, 1);
+    rq.onupgradeneeded = ()=>{ rq.result.createObjectStore(IDB_STORE); };
+    rq.onsuccess = ()=>res(rq.result);
+    rq.onerror = ()=>rej(rq.error);
+  }).catch(()=>null);          // 无痕模式等场景 IDB 不可用 → 回退 localStorage
+  return idbPromise;
+}
+async function idbGet(key){
+  const d = await openIDB();
+  if(!d) return undefined;
+  return new Promise((res)=>{ const t = d.transaction(IDB_STORE).objectStore(IDB_STORE).get(key); t.onsuccess = ()=>res(t.result); t.onerror = ()=>res(undefined); });
+}
+async function idbSet(key, val){
+  const d = await openIDB();
+  if(!d) return;
+  return new Promise((res)=>{ const t = d.transaction(IDB_STORE,'readwrite').objectStore(IDB_STORE).put(val, key); t.onsuccess = ()=>res(); t.onerror = ()=>res(); });
+}
+let lsQuotaWarned = false;
+function save(){
+  const json = JSON.stringify(db);
+  idbSet('db', { json, savedAt: Date.now() });   // 主存储：异步不阻塞
+  if(json.length < 3500000){                      // 小库镜像 LS（同步写，兼作关页兜底）
+    try{ localStorage.setItem(LS_KEY, json); }
+    catch(e){ /* 容量满：IDB 仍是主存储 */ }
+  } else if(!lsQuotaWarned){
+    lsQuotaWarned = true;
+    toast('卡组较大，已改用 IndexedDB 存储；建议导出 JSON 备份');
+  }
+}
+/* 启动载入：IDB 优先 → localStorage 老数据（并自动迁入 IDB）→ 全新 */
+async function loadAny(){
+  try{
+    const rec = await idbGet('db');
+    if(rec && rec.json){
+      const d = JSON.parse(rec.json);
+      if(d && Array.isArray(d.cards)) return migrateDB(Object.assign(defaultDB(), d));
+    }
+  }catch(e){}
+  let raw = null;
+  try{ raw = localStorage.getItem(LS_KEY) || localStorage.getItem(LS_KEY_OLD) || localStorage.getItem('shanbei_md_v1'); }catch(e){}
+  if(raw){
+    try{
+      const d = JSON.parse(raw);
+      if(d && Array.isArray(d.cards)){
+        const m = migrateDB(Object.assign(defaultDB(), d));
+        idbSet('db', { json: JSON.stringify(m), savedAt: Date.now() });   // 老数据迁入 IDB
+        return m;
+      }
+    }catch(e){}
+  }
+  return defaultDB();
+}
+function load(){   // 保留同步旧版：仅供测试脚本与降级场景参考
   try{
     let raw = localStorage.getItem(LS_KEY) || localStorage.getItem(LS_KEY_OLD) || localStorage.getItem('shanbei_md_v1');
     if(!raw) return defaultDB();
@@ -1076,7 +1155,7 @@ function migrateDB(d){
     }
     c.v3 = true; changed = true;
   });
-  if(changed) localStorage.setItem(LS_KEY, JSON.stringify(d));
+  if(changed) { try{ localStorage.setItem(LS_KEY, JSON.stringify(d)); }catch(e){} }
   return d;
 }
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(db)); }
@@ -1227,7 +1306,8 @@ const I18N_EN = {
     '✨ 自动识别':'✨ Auto-detect','跳过与已有卡片重复的内容':'Skip content duplicated in existing cards',
   '删除所选':'Delete selected','删除这张卡片？':'Delete this card?',
   '点击查看整月打卡日历':'Tap to open the full-month calendar',
-'点击查看/编辑卡片':'Click to view/edit cards','删除卡组「{0}」及其 {1} 张卡片？':'Delete deck "{0}" and its {1} cards?',
+'已显示 {0} / {1} 张，点击加载更多':'Showing {0} of {1} — tap to load more',
+  '点击查看/编辑卡片':'Click to view/edit cards','删除卡组「{0}」及其 {1} 张卡片？':'Delete deck "{0}" and its {1} cards?',
   '暂无数据':'No data yet','历史面试':'Past interviews','张':'cards','天':'days',
   '（还没有卡组，先去导入）':'(No decks yet — import one first)',
   '当前模型：{0}':'Current model: {0}',
@@ -2067,7 +2147,7 @@ function renderHome(){
 /* ---------- 卡组详情（浏览/编辑） ---------- */
 let browse = null; // {deckId, query:'', editing:null, multi:false, sel:Set}
 function openBrowse(deckId){
-  browse = { deckId, query:'', editing:null, multi:false, sel:new Set() };
+  browse = { deckId, query:'', editing:null, multi:false, sel:new Set(), limit:500 };
   switchView('browse');
   renderBrowse();
 }
@@ -2086,6 +2166,9 @@ function renderBrowse(){
     .filter(c=>!q || c.q.toLowerCase().includes(q) || c.a.toLowerCase().includes(q))
     .sort((a,b)=> (a.state==='new') - (b.state==='new') || a.due-b.due);
   const list = $('browseList'); list.innerHTML='';
+  // 万卡保护：一次最多渲染 BROWSE_PAGE 张，其余用「加载更多」分页
+  browse.limit = browse.limit || 500;
+  const shown = cards.slice(0, browse.limit);
   // 多选模式：动作条 + 目标卡组下拉
   $('browseMultiBtn').textContent = browse.multi ? t('退出多选') : t('多选');
   $('batchBar').classList.toggle('hidden', !browse.multi);
@@ -2105,7 +2188,7 @@ function renderBrowse(){
   if(!cards.length){
     list.innerHTML = `<div class="empty">${q?t('没有匹配的卡片'):t('卡组为空')}</div>`;
   }
-  cards.forEach(c=>{
+  shown.forEach(c=>{
     const div = document.createElement('div'); div.className='brow';
     if(!browse.multi && browse.sel.size) browse.sel.clear();
     if(browse.multi && browse.sel.has(c.id)) div.classList.add('picked');
@@ -2161,6 +2244,14 @@ function renderBrowse(){
     }
     list.appendChild(div);
   });
+  if(cards.length > shown.length){
+    const more = document.createElement('div');
+    more.className = 'empty';
+    more.style.cursor = 'pointer';
+    more.textContent = t('已显示 {0} / {1} 张，点击加载更多', shown.length, cards.length);
+    more.onclick = ()=>{ browse.limit += 500; renderBrowse(); };
+    list.appendChild(more);
+  }
   if(browse.editing === 'new'){
     const div = document.createElement('div'); div.className='brow open';
     div.innerHTML = `
@@ -2597,7 +2688,7 @@ $('fileInput').onchange = e=>{ openWizard(e.target.files); e.target.value=''; };
   e.preventDefault(); $('dropZone').classList.remove('drag');
 }));
 $('dropZone').addEventListener('drop', e=>openWizard(e.dataTransfer.files));
-$('browseSearch').oninput = e=>{ browse.query = e.target.value; browse.editing=null; renderBrowse(); };
+$('browseSearch').oninput = e=>{ browse.query = e.target.value; browse.editing=null; browse.limit=500; renderBrowse(); };
 $('browseAddBtn').onclick = ()=>{ browse.editing='new'; renderBrowse(); };
 /* 多选批量管理 */
 $('browseMultiBtn').onclick = ()=>{
@@ -2736,9 +2827,14 @@ document.addEventListener('keydown', e=>{
   }
 });
 
+/* 启动：异步载入数据（IDB 优先）后再渲染首屏；开屏动画覆盖加载过程 */
+async function boot(){
+  db = await loadAny();
   syncLang(); applyI18n();
   switchView('home');
   applyTheme();
+}
+boot();
 
 /* 开屏：最长 0.9 秒，点击可跳过 */
 const splashEl = $('splash');
