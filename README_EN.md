@@ -63,10 +63,15 @@ Drop in a `.md` file (or **paste text directly**) — the import wizard auto-det
 empty/overlong-answer diagnostics and one-click undo. Dedup uses a **semantic key**: reformatting your
 notes and re-importing creates no duplicates and never resets progress. Parser rules: [import spec](docs/import-spec.md).
 
-**🤖 AI question generation & AI mock interviewer**
-"AI generate cards" turns any pasted notes into Q&A cards and feeds them into the import wizard;
-the "AI interviewer" connects to DeepSeek (any OpenAI-compatible endpoint) and grills you question by question:
-comments on your answer against the reference → natural follow-ups → scoring → a final review with gaps to fill.
+**🎤 AI interviewer (three intensity levels)**
+Connects to DeepSeek (any OpenAI-compatible endpoint) and grills you question by question:
+**correctness/depth/clarity** three-dimension critique against the reference → dynamic follow-ups
+(strong answer gets a counterfactual; stuck means a proper explanation, not humiliation) → score →
+a **weak-spot recap with an action list** at the end. Intensity: 😊 Gentle / 😎 Standard / 😈 Hell (stress interview).
+
+**🗂 Deck housekeeping**
+Multi-select cards inside a deck and **move them to another deck / delete in bulk** — combine multiple
+question banks without the mess.
 
 **🧠 FSRS spaced repetition**
 Ports the latest FSRS formulas from [ts-fsrs](https://github.com/open-spaced-repetition/ts-fsrs),
@@ -113,6 +118,13 @@ The wizard auto-detects the best strategy, which you can also set manually:
 
 Fenced code blocks and inline code never get split on `#`, `---`, `==` or `::`.
 [Sample files](samples/) for all four shapes are in `tests/` — drop one into the wizard to try it.
+
+Already have an **Anki deck (.apkg)**? Convert it with the dev-time tool (the app itself stays zero-dependency):
+
+```
+cd tools && npm install
+node apkg2md.js your-deck.apkg deck.md
+```
 
 <details>
 <summary><b>🤖 Let an AI write your cards</b> (click to expand)</summary>
@@ -161,6 +173,7 @@ node tests/test-fsrs.js     # FSRS scheduling invariants
 node tests/test-cloze.js    # cloze card rendering
 node tests/test-queue.js    # weak-card priority queue
 node tests/test-dedup.js    # semantic dedup
+node tests/test-i18n.js     # English dictionary completeness
 ```
 
 ```
@@ -202,6 +215,19 @@ Design & implementation drew on these open-source projects; details in [THIRD_PA
    ========================================== -->
 
 ## 🗂 Changelog
+
+### v1.18.0 (2026-10-27)
+- 🎤 AI interviewer v2 (methodology borrowed from the asu-skills/interview skill): three intensity levels
+  (Gentle / Standard / Hell stress interview), dynamic follow-up stop conditions (solid → counterfactual;
+  partial → key gap only; lost → explain and move on), weakness-signal grilling (vague words, unexplained
+  metrics, happy-path-only answers), three-dimension critiques, weak-spot recap
+- 🗂 Deck housekeeping: multi-select cards, bulk move to another deck / bulk delete
+- 🧰 Dev-time tool `tools/apkg2md.js`: Anki .apkg → this format's markdown (both legacy & new Anki schemas,
+  cloze auto-converted to ==syntax==; tested against a real 373-card deck)
+- ⚡ 300ms debounce on the answer-path save() + flush on page hide (merged high-frequency writes)
+- 🤖 CI: GitHub Actions keeps index.html in sync with the app source automatically
+- 🧪 New `tests/test-i18n.js`: hard validation of the English dictionary (fixed 31 missing translations,
+  removed 54 stale keys this round)
 
 ### v1.17.0 (2026-10-25)
 - Bilingual UI: dictionary-based i18n (~190 strings), new "Language" setting (中文 / English / follow browser)

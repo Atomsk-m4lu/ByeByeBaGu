@@ -1,0 +1,12 @@
+{
+  "name": "byebyebagu-tools",
+  "private": true,
+  "description": "开发期工具（不影响应用本体零依赖）：apkg2md 把 Anki 牌组转成不背八股可导入的 markdown",
+  "scripts": {
+    "apkg2md": "node apkg2md.js"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "sql.js": "^1.13.0"
+  }
+}

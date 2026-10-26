@@ -1,0 +1,31 @@
+name: sync-pages-entry
+
+# 八股闪背.html 是唯一的应用源；index.html 只是 Pages 入口副本。
+# 本工作流在源文件变化时自动同步副本，消除手工 copy 忘记的隐患。
+on:
+  push:
+    branches: [main]
+    paths: ['八股闪背.html']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Keep index.html in sync with 八股闪背.html
+        run: |
+          cp -f 八股闪背.html index.html
+          if git diff --quiet index.html; then
+            echo "index.html already in sync"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add index.html
+            git commit -m "chore: 同步 index.html 与应用源 [skip ci]"
+            git push
+          fi

@@ -6,3 +6,4 @@ site/
 Thumbs.db
 desktop.ini
 .DS_Store
+tools/node_modules/ 
