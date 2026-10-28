@@ -1035,7 +1035,7 @@
 
 <script>
 'use strict';
-const APP_VER = '1.19.1';
+const APP_VER = '1.19.2';
 document.getElementById('appVer').textContent = 'v' + APP_VER;
 /* 外观应用：设置里选深色/浅色时在 <html> 上打标记，"跟随系统"则交给媒体查询 */
 function applyTheme(){
@@ -2014,7 +2014,9 @@ function answer(r){
   touchStreak(); saveResume(); saveSoon(); renderStudy();
 }
 function undoAnswer(){
-  if(!lastAnswer || !session || !session.flip) return;
+  // 注意：不要求 session.flip——评分后 flip 已重置为下一题的问题面，
+  // 此时 Ctrl+Z 撤销上一次评分是最常见的使用时机
+  if(!lastAnswer || !session) return;
   const card = db.cards.find(c=>c.id===lastAnswer.card.id);
   if(!card) return;
   Object.assign(card, lastAnswer.card);

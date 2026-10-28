@@ -220,6 +220,13 @@ Design & implementation drew on these open-source projects; details in [THIRD_PA
 
 ## 🗂 Changelog
 
+### v1.19.2 (2026-10-27)
+- 🐛 Fix: Ctrl+Z right after rating did nothing — undoAnswer required session.flip, but flip is
+  already reset when the next question shows, which is exactly when you want to undo a mistapped
+  rating. Removed the condition; undo now returns to that card's question side correctly.
+- 🧪 Full self-test: static scan (duplicate defs / dangling refs) + 26 browser E2E assertions
+  (import, cloze, rating, undo, resume, editing, bulk ops, search, stats, i18n, theme, persistence) all green
+
 ### v1.19.1 (2026-10-27)
 - 🐛 Critical fix: v1.19 shipped a duplicate `save()` definition (the later one shadowed the new
   IDB-enabled version), so data was **only written to localStorage and never reached IndexedDB**;
