@@ -220,6 +220,17 @@ Design & implementation drew on these open-source projects; details in [THIRD_PA
 
 ## 🗂 Changelog
 
+### v1.19.1 (2026-10-27)
+- 🐛 Critical fix: v1.19 shipped a duplicate `save()` definition (the later one shadowed the new
+  IDB-enabled version), so data was **only written to localStorage and never reached IndexedDB**;
+  boot-time "IDB-first + timestamp compare" then loaded the stale migration snapshot — appearing as
+  "deleted/added cards roll back after reopening the app". Fixed by removing the duplicate.
+- 🛡 Storage hardening: the LS mirror no longer skips large decks (on quota exhaustion it degrades with
+  a one-time hint); both IDB and LS records now carry timestamps and boot **picks whichever is newer and
+  self-heals the stale side** (recovers from partially lost writes); beforeunload added as a flush point.
+- Verified in a real browser: forged a stale IDB snapshot (simulating a process kill mid-write) →
+  reload restored the latest edit and healed the IDB copy.
+
 ### v1.19.0 (2026-10-27)
 - 🗄 IndexedDB primary storage: breaks the 5MB localStorage quota — 10k-card decks are fine.
   Legacy data auto-migrates into IDB on first boot; small decks (<3.5MB) are mirrored to

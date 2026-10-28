@@ -1035,7 +1035,7 @@
 
 <script>
 'use strict';
-const APP_VER = '1.19.0';
+const APP_VER = '1.19.1';
 document.getElementById('appVer').textContent = 'v' + APP_VER;
 /* 外观应用：设置里选深色/浅色时在 <html> 上打标记，"跟随系统"则交给媒体查询 */
 function applyTheme(){
@@ -1092,35 +1092,48 @@ async function idbSet(key, val){
 let lsQuotaWarned = false;
 function save(){
   const json = JSON.stringify(db);
-  idbSet('db', { json, savedAt: Date.now() });   // 主存储：异步不阻塞
-  if(json.length < 3500000){                      // 小库镜像 LS（同步写，兼作关页兜底）
-    try{ localStorage.setItem(LS_KEY, json); }
-    catch(e){ /* 容量满：IDB 仍是主存储 */ }
-  } else if(!lsQuotaWarned){
-    lsQuotaWarned = true;
-    toast('卡组较大，已改用 IndexedDB 存储；建议导出 JSON 备份');
+  const now = Date.now();
+  idbSet('db', { json, savedAt: now });            // 主存储：异步不阻塞
+  try{                                              // LS 镜像：始终尝试（同步写，手机杀进程时 IDB 可能未提交，LS 是救命副本）
+    localStorage.setItem(LS_KEY, json);
+    localStorage.setItem(LS_KEY + '_at', String(now));
+  }catch(e){
+    if(!lsQuotaWarned){ lsQuotaWarned = true; toast('本机存储空间不足，仅写入 IndexedDB；建议导出 JSON 备份'); }
   }
 }
-/* 启动载入：IDB 优先 → localStorage 老数据（并自动迁入 IDB）→ 全新 */
+/* 启动载入：IDB 与 LS 各带时间戳，谁新用谁（自我修复写丢场景），并回写落后的一方 */
 async function loadAny(){
+  let idbData = null, idbAt = 0;
   try{
     const rec = await idbGet('db');
     if(rec && rec.json){
       const d = JSON.parse(rec.json);
-      if(d && Array.isArray(d.cards)) return migrateDB(Object.assign(defaultDB(), d));
+      if(d && Array.isArray(d.cards)){ idbData = d; idbAt = rec.savedAt || 0; }
     }
   }catch(e){}
+  let lsData = null, lsAt = 0;
   let raw = null;
-  try{ raw = localStorage.getItem(LS_KEY) || localStorage.getItem(LS_KEY_OLD) || localStorage.getItem('shanbei_md_v1'); }catch(e){}
+  try{ raw = localStorage.getItem(LS_KEY); }catch(e){}
   if(raw){
     try{
       const d = JSON.parse(raw);
-      if(d && Array.isArray(d.cards)){
-        const m = migrateDB(Object.assign(defaultDB(), d));
-        idbSet('db', { json: JSON.stringify(m), savedAt: Date.now() });   // 老数据迁入 IDB
-        return m;
-      }
+      if(d && Array.isArray(d.cards)){ lsData = d; lsAt = +(localStorage.getItem(LS_KEY + '_at') || 0); }
     }catch(e){}
+  }
+  // 旧版本没有 _at 时间戳：IDB 存在则优先 IDB，否则 LS
+  if(idbData && lsData){
+    if(lsAt > idbAt){                               // LS 更新（IDB 写丢失，如手机杀进程）→ 用 LS 并修复 IDB
+      const m = migrateDB(Object.assign(defaultDB(), lsData));
+      idbSet('db', { json: JSON.stringify(m), savedAt: Date.now() });
+      return m;
+    }
+    return migrateDB(Object.assign(defaultDB(), idbData));
+  }
+  if(idbData) return migrateDB(Object.assign(defaultDB(), idbData));
+  if(lsData){
+    const m = migrateDB(Object.assign(defaultDB(), lsData));
+    idbSet('db', { json: JSON.stringify(m), savedAt: Date.now() });   // 老数据迁入 IDB
+    return m;
   }
   return defaultDB();
 }
@@ -1158,7 +1171,6 @@ function migrateDB(d){
   if(changed) { try{ localStorage.setItem(LS_KEY, JSON.stringify(d)); }catch(e){} }
   return d;
 }
-function save(){ localStorage.setItem(LS_KEY, JSON.stringify(db)); }
 /* 高频路径防抖：答题每张都全量序列化太浪费，300ms 合并一次；
    页面隐藏/关闭时立即落盘，保证最后一张卡的进度不丢 */
 let saveTimer = null;
@@ -1171,6 +1183,7 @@ function flushSave(){
 }
 document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'hidden') flushSave(); });
 window.addEventListener('pagehide', flushSave);
+window.addEventListener('beforeunload', flushSave);
 
 /* ---------- i18n（中/英）：键为中文原串，缺译自动回落中文 ----------
    UI_LANG 在初始化时决定：设置项优先，否则跟随 navigator.language */
