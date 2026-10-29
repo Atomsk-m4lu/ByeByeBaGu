@@ -129,6 +129,15 @@
     padding:0 5px; cursor:pointer; font-weight:600; user-select:none;}
   #cardBody .mdimg{max-width:100%; height:auto; border-radius:8px; margin:6px 0;
     border:1px solid var(--line); display:block;}
+  /* AI 判卷模式 */
+  #judgePanel{margin-top:14px;}
+  #judgePanel textarea{width:100%; min-height:88px; padding:10px;
+    border:1px solid var(--line); border-radius:10px; font-size:14px; font-family:inherit;
+    background:var(--card); color:var(--ink); resize:vertical;}
+  #judgeFeedback{margin-top:10px; padding:10px 12px; border-radius:10px;
+    background:var(--brand-weak); border:1px solid var(--line); font-size:13px; line-height:1.7;
+    white-space:pre-wrap; overflow-wrap:break-word;}
+  #judgeFeedback b{color:var(--brand);}
   #answerHint{text-align:center; color:var(--sub); font-size:13px; margin-top:16px;}
   #rateRow{display:none; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:18px;}
   #rateRow.show{display:grid;}
@@ -833,11 +842,21 @@
       <span id="studyDeckName"></span>
       <button id="undoBtn" disabled data-i18n="↩ 撤销评分" onclick="undoAnswer()">↩ 撤销评分</button>
       <button id="speakBtn" title="朗读当前卡面（再点停止）" onclick="toggleSpeak()">🔊</button>
+      <button id="judgeBtn" data-i18n-title="AI 判卷：用自己的话作答，AI 对照参考答案自动评分" title="AI 判卷：用自己的话作答，AI 对照参考答案自动评分" onclick="toggleJudge()">🤖</button>
       <span id="studyRemain"></span>
     </div>
     <div id="cardBox">
       <div class="tag" id="cardTag"></div>
       <div id="cardBody"></div>
+      <div id="judgePanel" class="hidden">
+        <textarea id="judgeInput" data-i18n-ph="用自己的话作答，AI 会对照参考答案判卷并自动评分…（Ctrl+Enter 提交）" placeholder="用自己的话作答，AI 会对照参考答案判卷并自动评分…（Ctrl+Enter 提交）"></textarea>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn small primary" id="judgeSend" onclick="judgeSubmit()" style="flex:none">🤖 判卷</button>
+          <button class="btn small ghost" onclick="toggleJudge()" style="flex:none">✕</button>
+          <span class="muted" id="judgeHint" style="font-size:12px"></span>
+        </div>
+        <div id="judgeFeedback" class="hidden"></div>
+      </div>
       <div id="answerHint" data-i18n="点击卡片或按空格查看答案 · 答案里的 ▇▇▇ 是挖空，点击逐个显示">👆 点击卡片或按空格查看答案 · 答案里的 ▇▇▇ 是挖空，点击逐个显示</div>
       <div id="rateRow">
         <button class="rateBtn r1" data-r="1"><b data-i18n="重来">重来</b><small id="iv1"></small></button>
@@ -1035,7 +1054,7 @@
 
 <script>
 'use strict';
-const APP_VER = '1.19.2';
+const APP_VER = '1.20.0';
 document.getElementById('appVer').textContent = 'v' + APP_VER;
 /* 外观应用：设置里选深色/浅色时在 <html> 上打标记，"跟随系统"则交给媒体查询 */
 function applyTheme(){
@@ -1320,7 +1339,15 @@ const I18N_EN = {
   '删除所选':'Delete selected','删除这张卡片？':'Delete this card?',
   '点击查看整月打卡日历':'Tap to open the full-month calendar',
 '已显示 {0} / {1} 张，点击加载更多':'Showing {0} of {1} — tap to load more',
-  '点击查看/编辑卡片':'Click to view/edit cards','删除卡组「{0}」及其 {1} 张卡片？':'Delete deck "{0}" and its {1} cards?',
+    /* v1.20 AI 判卷模式 */
+  'AI 判卷：用自己的话作答，AI 对照参考答案自动评分':'AI grading: answer in your own words, AI scores it against the reference',
+  '用自己的话作答，AI 会对照参考答案判卷并自动评分…（Ctrl+Enter 提交）':'Answer in your own words \u2014 AI grades it against the reference and schedules automatically\u2026 (Ctrl+Enter)',
+  '🤖 判卷':'🤖 Grade',
+  '判卷中…':'Grading\u2026','判卷失败：{0}':'Grading failed: {0}','模型没有返回有效等级':'The model returned no valid grade',
+  '判定：{0}':'Verdict: {0}','先输入你的作答':'Type your answer first',
+  '你是严格的八股判卷官。候选人作答后，对照参考答案评定等级，等级只能是四种之一：再来（几乎没记住或严重错误）、困难（记住了框架但有明显缺漏或错误）、良好（大部分正确，有小缺漏）、简单（完整准确且表达清晰）。输出必须严格遵循如下格式，不要输出任何其它内容：\n【等级】再来|困难|良好|简单\n【点评】两三句话：答对了什么、漏了什么、怎么补。':'You are a strict grader for interview answers. Grade the candidate\'s answer against the reference; the grade must be exactly one of: Again (barely remembered / seriously wrong), Hard (framework recalled but clear gaps), Good (mostly correct, minor gaps), Easy (complete, accurate, well expressed). Output strictly in this format and nothing else:\n【等级】Again|Hard|Good|Easy\n【点评】Two or three sentences: what was right, what was missed, what to review.',
+  '题目：「{0}」\n参考答案：\n{1}\n\n候选人作答：\n{2}':'Question: "{0}"\nReference answer:\n{1}\n\nCandidate\'s answer:\n{2}',
+'点击查看/编辑卡片':'Click to view/edit cards','删除卡组「{0}」及其 {1} 张卡片？':'Delete deck "{0}" and its {1} cards?',
   '暂无数据':'No data yet','历史面试':'Past interviews','张':'cards','天':'days',
   '（还没有卡组，先去导入）':'(No decks yet — import one first)',
   '当前模型：{0}':'Current model: {0}',
@@ -2307,6 +2334,7 @@ function renderStudy(){
     return;
   }
   if(!session.flip) session.cardShownAt = Date.now();   // 卡片亮出即开始计时
+  hideJudge(); judgeBusy = false;                        // 换卡/翻面时收起判卷面板
   $('progressBar').style.width = Math.round(session.idx/session.total*100)+'%';
   $('studyDeckName').textContent = session.deckName;
   $('studyRemain').textContent = t('剩余 {0} / {1}', session.total - session.idx, session.total);
@@ -2336,6 +2364,67 @@ function renderStudy(){
 function flipCard(){
   if(!currentCard()) return;
   session.flip = true; renderStudy();
+}
+
+/* ---------- AI 判卷模式（借鉴 recall-forge：作答 → AI 对照参考答案判卷 → 直接映射 FSRS 档位） ---------- */
+let judgeBusy = false;
+function toggleJudge(){
+  const p = $('judgePanel');
+  if(!p.classList.contains('hidden')){ p.classList.add('hidden'); return; }
+  if(!aiCfgOk()){ toast(t('请先在「设置」里配置 API Key')); switchView('settings'); return; }
+  if(session.flip){ session.flip = false; renderStudy(); }   // 判卷从问题面开始
+  p.classList.remove('hidden');
+  $('judgeFeedback').classList.add('hidden');
+  $('judgeInput').value = '';
+  $('judgeInput').focus();
+}
+function hideJudge(){ $('judgePanel').classList.add('hidden'); }
+function judgeParse(out){
+  const g = out.match(/【等级】\s*(再来|困难|良好|简单)/);
+  const pt = out.match(/【点评】\s*([\s\S]*?)(?=【等级】|$)/);
+  const map = { '再来':1, '困难':2, '良好':3, '简单':4 };
+  return { grade: g ? map[g[1]] : null, gradeName: g ? g[1] : null, point: pt ? pt[1].trim() : out.trim() };
+}
+async function judgeSubmit(){
+  if(!session || judgeBusy) return;
+  const card = currentCard(); if(!card) return;
+  const text = $('judgeInput').value.trim();
+  if(!text){ toast(t('先输入你的作答')); return; }
+  if(!aiCfgOk()){ toast(t('请先在「设置」里配置 API Key')); switchView('settings'); return; }
+  judgeBusy = true;
+  $('judgeSend').disabled = true;
+  $('judgeHint').textContent = t('判卷中…');
+  try{
+    const out = await aiChat([
+      { role:'system', content: t('你是严格的八股判卷官。候选人作答后，对照参考答案评定等级，等级只能是四种之一：再来（几乎没记住或严重错误）、困难（记住了框架但有明显缺漏或错误）、良好（大部分正确，有小缺漏）、简单（完整准确且表达清晰）。输出必须严格遵循如下格式，不要输出任何其它内容：\n【等级】再来|困难|良好|简单\n【点评】两三句话：答对了什么、漏了什么、怎么补。') },
+      { role:'user', content: t('题目：「{0}」\n参考答案：\n{1}\n\n候选人作答：\n{2}', card.q, (card.a||'').slice(0,3000), text.slice(0,2000)) }
+    ]);
+    const p = judgeParse(out);
+    if(!p.grade){ throw new Error(t('模型没有返回有效等级')); }
+    // 展示反馈并按判卷档位直接调度（统计记账与 answer() 同口径）
+    const fb = $('judgeFeedback');
+    fb.innerHTML = '<b>'+t('判定：{0}', t(p.gradeName))+'</b>\n' + esc(p.point);
+    fb.classList.remove('hidden');
+    $('judgeSend').disabled = true;
+    setTimeout(()=>{
+      if(!session){ judgeBusy=false; return; }
+      const tk = todayStr(Date.now());
+      db.stats.dailyLog[tk] = (db.stats.dailyLog[tk]||0)+1;
+      const studySec = Math.min(Math.max(0, Date.now() - (session.cardShownAt || Date.now())), 60000)/1000;
+      db.stats.timeLog[tk] = (db.stats.timeLog[tk]||0) + Math.round(studySec);
+      applyRate(card, p.grade);
+      if(p.grade===1){ session.queue.push(card.id); session.total++; }   // 判"再来"：本轮尾部再现
+      session.idx++;
+      judgeBusy = false; hideJudge();
+      touchStreak(); saveSoon(); renderStudy();
+    }, 1400);
+    return;
+  }catch(e){
+    toast(t('判卷失败：{0}', e.message));
+  }
+  judgeBusy = false;
+  $('judgeSend').disabled = false;
+  $('judgeHint').textContent = '';
 }
 
 /* ---------- 打卡日历（整月） ---------- */
@@ -2753,6 +2842,10 @@ $('calPrev').onclick = ()=>{ calPage.m--; if(calPage.m<0){ calPage.m=11; calPage
 $('calNext').onclick = ()=>{ if($('calNext').disabled) return; calPage.m++; if(calPage.m>11){ calPage.m=0; calPage.y++; } renderCal(); };
 $('aiStart').onclick = aiStartRun;
 $('aiIntensity').onchange = e=>{ db.ai.cfg.intensity = e.target.value; save(); toast(t('拷打强度已切换')); };
+$('judgeInput').addEventListener('keydown', e=>{
+  if((e.ctrlKey||e.metaKey) && e.key==='Enter'){ e.preventDefault(); judgeSubmit(); }
+});
+$('judgeBtn').addEventListener('click', ()=>{ if(!currentCard()) return; });
 $('aiSend').onclick = aiSendAnswer;
 $('aiSkip').onclick = aiSkipCard;
 $('aiEndBtn').onclick = ()=>{ if(aiSess && confirm('结束本次面试？已答题目会保存。')) aiFinish(); };
@@ -2832,6 +2925,10 @@ $('cardBox').addEventListener('touchend', e=>{
 
 document.addEventListener('keydown', e=>{
   if(!$('view-study').classList.contains('hidden') && session){
+    if(!$('judgePanel').classList.contains('hidden')){
+      if(e.key==='Escape'){ e.preventDefault(); hideJudge(); }
+      return;                                // 判卷作答时接管键盘，避免空格误触翻面
+    }
     if(e.key==='Escape'){ e.preventDefault(); goHome(); return; }
     if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='z'){ e.preventDefault(); undoAnswer(); return; }
     if(e.code==='Space' || e.code==='Enter'){ e.preventDefault(); if(!session.flip) flipCard(); }

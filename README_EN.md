@@ -69,6 +69,11 @@ Connects to DeepSeek (any OpenAI-compatible endpoint) and grills you question by
 (strong answer gets a counterfactual; stuck means a proper explanation, not humiliation) → score →
 a **weak-spot recap with an action list** at the end. Intensity: 😊 Gentle / 😎 Standard / 😈 Hell (stress interview).
 
+**🤖 AI grading (answer right in the study view)**
+Tap the 🤖 button while studying, **type the answer in your own words**, and the AI grades it against
+the reference into an FSRS grade (Again/Hard/Good/Easy) and schedules automatically — no
+"show answer, rate yourself". Saying it out loud and remembering it become the same loop.
+
 **🗂 Deck housekeeping**
 Multi-select cards inside a deck and **move them to another deck / delete in bulk** — combine multiple
 question banks without the mess.
@@ -219,6 +224,12 @@ Design & implementation drew on these open-source projects; details in [THIRD_PA
    ========================================== -->
 
 ## 🗂 Changelog
+
+### v1.20.0 (2026-10-27)
+- 🤖 AI grading mode (mechanism borrowed from recall-forge): tap 🤖 in the study view → answer in your
+  own words → AI grades it into an FSRS grade (Again/Hard/Good/Easy), schedules automatically, with
+  a short critique; keyboard is captured while answering (Esc exits); counts toward daily stats
+- 🤝 Added [llms.txt](llms.txt) at the repo root so AI agents can find the [import spec](docs/import-spec.md)
 
 ### v1.19.2 (2026-10-27)
 - 🐛 Fix: Ctrl+Z right after rating did nothing — undoAnswer required session.flip, but flip is

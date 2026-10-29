@@ -64,6 +64,11 @@ AI 面试官也会跟随界面语言用英文提问点评。
 对照参考答案给出**正确性/深度/表达**三维点评 → 按回答质量动态追问（答得好出反事实题，卡壳降阶讲解）→ 打分 → 结束出**弱项复盘与行动清单**。
 拷打强度三档可选：😊 温和 / 😎 标准（大厂正式面）/ 😈 地狱（压力面）。
 
+**🤖 AI 判卷模式（学习页直接作答）**
+背完要点想检验"能不能说出来"？点学习页的 🤖 按钮，**用自己的话打出答案**，
+AI 对照参考答案判定 FSRS 档位（再来/困难/良好/简单）并自动调度——不用"显示答案后自评"，
+把"说得出"和"记得牢"直接挂钩。
+
 **🗂 卡组批量管理**
 卡组详情页支持多选卡片，批量**移动到其他卡组 / 删除**；配合语义去重，多份题库归拢不费劲。
 
@@ -194,6 +199,8 @@ node tests/test-i18n.js     # 英文字典完整性
 - [wangPing2002/SocialWork-Flashcards](https://github.com/wangPing2002/SocialWork-Flashcards) — 会话中断恢复、弱卡优先排队的机制设计（未复用代码）
 - [jvsena42/loopky](https://github.com/jvsena42/loopky) — 粘贴直导入、朗读卡面、年度 Recap 的机制设计（未复用代码）
 - [shaankhosla/repeater](https://github.com/shaankhosla/repeater) · [felixborretti/hashcards](https://github.com/felixborretti/hashcards) — 语义去重、AI 出题的机制设计（未复用代码）
+- [minte9/recall-forge](https://github.com/minte9/recall-forge) — AI 判卷替代自评的机制设计（未复用代码）
+- [topo122/anchor-card-format](https://github.com/topo122/anchor-card-format) — llms.txt / 面向 AI agent 的格式生态思路（未复用代码）
 
 ## 📄 许可证
 
@@ -211,6 +218,12 @@ node tests/test-i18n.js     # 英文字典完整性
    ======================================================== -->
 
 ## 🗂 更新历史
+
+### v1.20.0（2026-10-27）
+- 🤖 AI 判卷模式（借鉴 recall-forge 的机制）：学习页 🤖 按钮 → 用自己的话作答 →
+  AI 对照参考答案判定 FSRS 档位（再来/困难/良好/简单）并自动调度，附两三句点评；
+  判卷作答时键盘接管（Esc 退出），判卷计入当日复习量与时长
+- 🤝 仓库根新增 [llms.txt](llms.txt)：引导 AI agent 按 [导入规格](docs/import-spec.md) 生成可导入卡片
 
 ### v1.19.2（2026-10-27）
 - 🐛 修复：评分后立即按 Ctrl+Z 撤销无效——undoAnswer 的 flip 前置条件导致最常见的
