@@ -138,6 +138,14 @@
     background:var(--brand-weak); border:1px solid var(--line); font-size:13px; line-height:1.7;
     white-space:pre-wrap; overflow-wrap:break-word;}
   #judgeFeedback b{color:var(--brand);}
+  /* 测验模式 */
+  .quizOpt{display:block; width:100%; text-align:left; padding:11px 13px; margin-bottom:9px;
+    border:1px solid var(--line); border-radius:10px; background:var(--card); color:var(--ink);
+    font-size:14px; line-height:1.6; cursor:pointer; transition:all .15s var(--ease);}
+  .quizOpt:hover:not(:disabled){border-color:var(--brand); transform:translateY(-1px);}
+  .quizOpt.right{border-color:var(--brand); background:var(--brand-weak); font-weight:600;}
+  .quizOpt.wrong{border-color:var(--danger); background:var(--danger-weak);}
+  .quizOpt:disabled{cursor:default; opacity:.92;}
   #answerHint{text-align:center; color:var(--sub); font-size:13px; margin-top:16px;}
   #rateRow{display:none; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:18px;}
   #rateRow.show{display:grid;}
@@ -735,6 +743,7 @@
       <input id="browseSearch" data-i18n-ph="搜索问题或答案…" placeholder="搜索问题或答案…">
       <button class="btn small gray" id="browseAddBtn" data-i18n="＋ 加卡">＋ 加卡</button>
       <button class="btn small ghost" id="browseMultiBtn" data-i18n="多选">多选</button>
+      <button class="btn small ghost" id="browseQuizBtn" data-i18n-title="随机出 10 道四选一测验（不影响 FSRS 调度）" title="随机出 10 道四选一测验（不影响 FSRS 调度）" onclick="startQuiz(browse.deckId)">📝 测验</button>
     </div>
     <div id="batchBar" class="panel hidden">
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -831,6 +840,25 @@
         <button class="btn primary" id="aiSend" style="flex:2" data-i18n="发送回答">发送回答</button>
       </div>
       <p class="muted" style="text-align:center;margin-top:10px" data-i18n="回答尽量口语化完整表述，点评会更贴近真实面试">回答尽量口语化完整表述，点评会更贴近真实面试</p>
+    </div>
+  </div>
+
+  <!-- ===== 测验模式 ===== -->
+  <div id="view-quiz" class="hidden">
+    <button class="backLink" onclick="goHome()" data-i18n="← 退出测验">← 退出测验</button>
+    <div id="quizBox" class="hidden">
+      <div id="quizProg" class="muted" style="margin-bottom:10px"></div>
+      <div id="cardBox" style="min-height:0">
+        <div id="quizStem" style="font-size:16px;font-weight:650;line-height:1.7;margin-bottom:14px"></div>
+        <div id="quizOpts"></div>
+        <button class="btn primary hidden" id="quizNext" style="width:100%;margin-top:14px" onclick="quizNext()">下一题</button>
+      </div>
+    </div>
+    <div id="quizResult" class="panel doneBox hidden">
+      <div class="emoji">📊</div>
+      <h2 style="margin-bottom:8px" id="quizScore"></h2>
+      <div id="quizWrong" class="muted" style="text-align:left;margin:0 0 16px"></div>
+      <button class="btn primary" id="quizAgain" onclick="null">再测一次</button>
     </div>
   </div>
 
@@ -1054,7 +1082,7 @@
 
 <script>
 'use strict';
-const APP_VER = '1.20.0';
+const APP_VER = '1.21.0';
 document.getElementById('appVer').textContent = 'v' + APP_VER;
 /* 外观应用：设置里选深色/浅色时在 <html> 上打标记，"跟随系统"则交给媒体查询 */
 function applyTheme(){
@@ -1347,6 +1375,21 @@ const I18N_EN = {
   '判定：{0}':'Verdict: {0}','先输入你的作答':'Type your answer first',
   '你是严格的八股判卷官。候选人作答后，对照参考答案评定等级，等级只能是四种之一：再来（几乎没记住或严重错误）、困难（记住了框架但有明显缺漏或错误）、良好（大部分正确，有小缺漏）、简单（完整准确且表达清晰）。输出必须严格遵循如下格式，不要输出任何其它内容：\n【等级】再来|困难|良好|简单\n【点评】两三句话：答对了什么、漏了什么、怎么补。':'You are a strict grader for interview answers. Grade the candidate\'s answer against the reference; the grade must be exactly one of: Again (barely remembered / seriously wrong), Hard (framework recalled but clear gaps), Good (mostly correct, minor gaps), Easy (complete, accurate, well expressed). Output strictly in this format and nothing else:\n【等级】Again|Hard|Good|Easy\n【点评】Two or three sentences: what was right, what was missed, what to review.',
   '题目：「{0}」\n参考答案：\n{1}\n\n候选人作答：\n{2}':'Question: "{0}"\nReference answer:\n{1}\n\nCandidate\'s answer:\n{2}',
+  /* v1.21 测验模式 */
+  '随机出 10 道四选一测验（不影响 FSRS 调度）':'Random 10-question multiple-choice quiz (does not touch FSRS scheduling)',
+  '📝 测验':'📝 Quiz','测验':'Quiz','← 退出测验':'← Exit quiz',
+  '出卷中…':'Building quiz…','「{0}」· {1} 题 · {2}':'「{0}」 · {1} questions · {2}',
+  'AI 出卷':'AI-built','本地出卷':'offline-built',
+  '该卡组可用卡片不足 4 张，无法出选择题':'This deck needs at least 4 answerable cards for a quiz',
+  'AI 出卷失败，已用本地出卷':'AI quiz builder failed — used the offline builder',
+  '第 {0}/{1} 题 · 已得 {2} 分':'Q{0}/{1} · score {2}',
+  '下一题':'Next','查看结果':'See results',
+  '正确率 {0}/{1}':'Score {0}/{1}',
+  '错题（回卡组详情再刷一遍）：':'Missed (review them in the deck):',
+  '全对，可以直接去刷下一组了 💪':'All correct — go ace the next deck 💪',
+  '再测一次':'Quiz again',
+  '你是八股测验出题官。根据给定的问答卡生成四选一选择题，干扰项要来自同一主题、似是而非（改错关键词、混淆概念、张冠李戴），不能一眼假。输出严格的 JSON 数组，不要输出任何其它内容。数组每一项包含三个字段：q 是题干（可以改写得更像考题）；options 是恰好四个字符串组成的选项数组；answer 是正确选项的下标（0 到 3）。正确选项的内容必须忠于对应参考答案。':'You are a quiz builder for interview-prep cards. Given Q&A cards, write four-choice questions. Distractors must be plausible and on-topic (swapped keywords, confused concepts, mismatched pairings), never obviously fake. Output a strict JSON array and nothing else. Each item has three fields: q is the stem (you may rephrase it like a real exam question); options is an array of exactly four strings; answer is the index (0 to 3) of the correct option, whose content must stay faithful to the reference answer.',
+  '共 {0} 张卡，请出 {1} 题：\n{2}':'{0} cards given — write {1} questions:\n{2}',
 '点击查看/编辑卡片':'Click to view/edit cards','删除卡组「{0}」及其 {1} 张卡片？':'Delete deck "{0}" and its {1} cards?',
   '暂无数据':'No data yet','历史面试':'Past interviews','张':'cards','天':'days',
   '（还没有卡组，先去导入）':'(No decks yet — import one first)',
@@ -2064,14 +2107,14 @@ let curView = 'home';
 function switchView(v){
   curView = v;
   document.body.classList.toggle('studying', v==='study');   // 学习页进入沉浸模式（移动端隐藏顶栏/底栏）
-  ['home','browse','cal','import','ai','study','stats','settings'].forEach(id=>{
+  ['home','browse','cal','import','ai','study','stats','settings','quiz'].forEach(id=>{
     $('view-'+id).classList.toggle('hidden', id!==v);
   });
   document.querySelectorAll('.navtab').forEach(b=>b.classList.toggle('active',
-    (b.dataset.view==='home' && (v==='home'||v==='browse'||v==='cal'||v==='ai')) || b.dataset.view===v));
+    (b.dataset.view==='home' && (v==='home'||v==='browse'||v==='cal'||v==='ai'||v==='quiz')) || b.dataset.view===v));
   $('pageTitle').textContent =
     v==='home' ? t('🗂 卡组') : v==='browse' ? t('卡组详情') : v==='cal' ? t('打卡日历') : v==='import' ? t('导入向导')
-    : v==='ai' ? t('AI 面试') : v==='study' ? t('学习中') : t('设置');
+    : v==='ai' ? t('AI 面试') : v==='study' ? t('学习中') : v==='quiz' ? t('测验') : t('设置');
   applyI18n();
   if(v==='home') renderHome();
   if(v==='cal') renderCal();
@@ -2082,7 +2125,7 @@ function switchView(v){
     $('setLang').value = db.settings.lang || '';
     $('aiBase').value = db.ai.cfg.base; $('aiKey').value = db.ai.cfg.key; $('aiModel').value = db.ai.cfg.model; }
 }
-function goHome(){ stopSpeak(); saveResume(); session=null; lastAnswer=null; browse=null; switchView('home'); }
+function goHome(){ stopSpeak(); saveResume(); session=null; lastAnswer=null; browse=null; quiz=null; switchView('home'); }
 
 function deckCounts(deckId){
   const now = Date.now();
@@ -2426,6 +2469,109 @@ async function judgeSubmit(){
   $('judgeSend').disabled = false;
   $('judgeHint').textContent = '';
 }
+
+/* ---------- 测验模式（借鉴 neo-quiz：卡组 → 四选一测验，纯自测不影响 FSRS 调度） ---------- */
+let quiz = null;   // {deckId, deckName, qs:[{cardId, stem, options:[4], correct, chosen}], idx, score}
+const QUIZ_N = 10;
+function shuffleArr(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function clip(s, n){ s = String(s||'').replace(/\s+/g,' ').trim(); return s.length>n ? s.slice(0,n)+'…' : s; }
+
+async function startQuiz(deckId){
+  const deck = db.decks.find(d=>d.id===deckId);
+  if(!deck) return;
+  const pool = shuffleArr(db.cards.filter(c=>c.deckId===deckId && c.q && c.a)).slice(0, QUIZ_N);
+  if(pool.length < 4){ toast(t('该卡组可用卡片不足 4 张，无法出选择题')); return; }
+  quiz = { deckId, deckName:deck.name, qs:[], idx:0, score:0, mode:'local' };
+  switchView('quiz');
+  $('quizBox').classList.add('hidden'); $('quizResult').classList.add('hidden');
+  $('quizProg').textContent = t('出卷中…');
+  let built = false;
+  if(aiCfgOk()){
+    try{ built = await quizBuildAI(deck, pool); }catch(e){ toast(t('AI 出卷失败，已用本地出卷')); }
+  }
+  if(!built) quizBuildLocal(deck, pool);
+  $('quizBox').classList.remove('hidden');
+  renderQuiz();
+}
+/* AI 出卷：一次请求生成整卷 JSON；失败返回 false 由本地兜底 */
+async function quizBuildAI(deck, pool){
+  const feed = pool.map((c,i)=>`[${i+1}] 问：${clip(c.q,120)}\n答：${clip(c.a,160)}`).join('\n');
+  const out = await aiChat([
+    { role:'system', content: t('你是八股测验出题官。根据给定的问答卡生成四选一选择题，干扰项要来自同一主题、似是而非（改错关键词、混淆概念、张冠李戴），不能一眼假。输出严格的 JSON 数组，不要输出任何其它内容。数组每一项包含三个字段：q 是题干（可以改写得更像考题）；options 是恰好四个字符串组成的选项数组；answer 是正确选项的下标（0 到 3）。正确选项的内容必须忠于对应参考答案。') },
+    { role:'user', content: t('共 {0} 张卡，请出 {1} 题：\n{2}', pool.length, Math.min(QUIZ_N, pool.length), feed) }
+  ]);
+  const m = out.match(/\[[\s\S]*\]/);
+  if(!m) return false;
+  let arr;
+  try{ arr = JSON.parse(m[0]); }catch(e){ return false; }
+  if(!Array.isArray(arr) || !arr.length) return false;
+  const byStem = new Map(pool.map(c=>[clip(c.q,120), c]));
+  quiz.qs = arr.filter(x=>x && Array.isArray(x.options) && x.options.length===4 && Number.isInteger(x.answer) && x.answer>=0 && x.answer<4 && x.q)
+    .slice(0, QUIZ_N)
+    .map(x=>({
+      cardId: (byStem.get(clip(String(x.q),120)) || {}).id || null,
+      stem: String(x.q), options: x.options.map(o=>clip(o,100)), correct: x.answer, chosen: null
+    }));
+  quiz.mode = 'ai';
+  return quiz.qs.length >= 2;   // AI 出够 2 题即采纳，不足时才本地兜底
+}
+/* 本地出卷：干扰项取同卡组其他卡答案的首句 */
+function quizBuildLocal(deck, pool){
+  quiz.mode = 'local';
+  quiz.qs = [];
+  const pickable = db.cards.filter(c=>c.deckId===deck.id && c.q && c.a);
+  for(const c of pool){
+    if(quiz.qs.length >= Math.min(QUIZ_N, Math.floor(pickable.length/1))) break;
+    const others = shuffleArr(pickable.filter(x=>x.id!==c.id)).slice(0,3);
+    if(others.length<3) continue;
+    const opts = shuffleArr([clip(c.a,100), clip(others[0].a,100), clip(others[1].a,100), clip(others[2].a,100)]);
+    quiz.qs.push({ cardId:c.id, stem:clip(c.q,120), options:opts, correct:opts.indexOf(clip(c.a,100)), chosen:null });
+  }
+}
+function renderQuiz(){
+  const q = quiz.qs[quiz.idx];
+  $('quizProg').textContent = t('第 {0}/{1} 题 · 已得 {2} 分', quiz.idx+1, quiz.qs.length, quiz.score) + ' · ' + quiz.deckName + ' · ' + (quiz.mode==='ai' ? t('AI 出卷') : t('本地出卷'));
+  $('quizStem').textContent = q.stem;
+  const box = $('quizOpts'); box.innerHTML='';
+  q.options.forEach((opt,i)=>{
+    const b = document.createElement('button');
+    b.className = 'quizOpt';
+    b.textContent = String.fromCharCode(65+i) + ' · ' + opt;
+    b.onclick = ()=>quizPick(i);
+    box.appendChild(b);
+  });
+  $('quizNext').classList.add('hidden');
+}
+function quizPick(i){
+  const q = quiz.qs[quiz.idx];
+  if(q.chosen!==null) return;
+  q.chosen = i;
+  if(i===q.correct) quiz.score++;
+  [...$('quizOpts').children].forEach((b,j)=>{
+    b.disabled = true;
+    if(j===q.correct) b.classList.add('right');
+    else if(j===i) b.classList.add('wrong');
+  });
+  $('quizNext').textContent = quiz.idx===quiz.qs.length-1 ? t('查看结果') : t('下一题');
+  $('quizNext').classList.remove('hidden');
+}
+function quizNext(){
+  quiz.idx++;
+  if(quiz.idx < quiz.qs.length) renderQuiz();
+  else quizFinish();
+}
+function quizFinish(){
+  $('quizBox').classList.add('hidden');
+  $('quizResult').classList.remove('hidden');
+  $('quizScore').textContent = t('正确率 {0}/{1}', quiz.score, quiz.qs.length);
+  const wrong = quiz.qs.filter(q=>q.chosen!==q.correct);
+  $('quizWrong').innerHTML = wrong.length
+    ? '<b>'+t('错题（回卡组详情再刷一遍）：')+'</b><br>' + wrong.map(q=>'· '+esc(clip(q.stem,60))).join('<br>')
+    : t('全对，可以直接去刷下一组了 💪');
+  const btn = $('quizAgain');
+  btn.onclick = ()=>startQuiz(quiz.deckId);
+}
+/* 测验选项样式 */
 
 /* ---------- 打卡日历（整月） ---------- */
 let calPage = null; // {y, m}

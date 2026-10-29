@@ -1,4 +1,4 @@
-<div align="center">
+﻿<div align="center">
 
 <img src="icon.svg" width="96" alt="ByeByeBaGu">
 
@@ -73,6 +73,11 @@ a **weak-spot recap with an action list** at the end. Intensity: 😊 Gentle / �
 Tap the 🤖 button while studying, **type the answer in your own words**, and the AI grades it against
 the reference into an FSRS grade (Again/Hard/Good/Easy) and schedules automatically — no
 "show answer, rate yourself". Saying it out loud and remembering it become the same loop.
+
+**📝 Quiz mode**
+One tap in the deck view builds a **10-question multiple-choice quiz** (pure self-test, FSRS untouched):
+with an AI key the model writes plausible same-topic distractors; without one an offline builder
+falls back to other cards' answers. Instant per-question feedback, score recap, missed list.
 
 **🗂 Deck housekeeping**
 Multi-select cards inside a deck and **move them to another deck / delete in bulk** — combine multiple
@@ -224,6 +229,12 @@ Design & implementation drew on these open-source projects; details in [THIRD_PA
    ========================================== -->
 
 ## 🗂 Changelog
+
+### v1.21.0 (2026-10-27)
+- 📝 Quiz mode (mechanism borrowed from neo-quiz): one tap in the deck view → 10 multiple-choice
+  questions; AI builds plausible distractors in one batched request when a key is set, with an
+  offline fallback otherwise; instant feedback, score recap, missed list; FSRS untouched
+- Browser smoke-tested with both builders (threshold, labeling, scoring, missed list — 9 assertions)
 
 ### v1.20.0 (2026-10-27)
 - 🤖 AI grading mode (mechanism borrowed from recall-forge): tap 🤖 in the study view → answer in your
